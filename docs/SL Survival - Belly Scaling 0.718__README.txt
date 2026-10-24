@@ -1,0 +1,9 @@
+SL Survival - Belly Scaling (port of SL Survival 0.718 by crajjjj) - 2026-10-12
+
+The belly no longer swells on an ordinary full stomach. It grows a little (+0.3 over the base scale) only on the
+fullest stage - Glutted (RND), Satiated (iNeed), Well Fed (SunHelm / Survival Mode) - and stays at the base scale
+otherwise. Also fixes the belly snapping flat for a moment when the hunger stage changes, and enables the
+Belly Scaling switch in the MCM for EatingSleepingDrinking, SunHelm and Survival Mode.
+
+Scripts: _sls_needs, sls_mcm, _SLS_InterfaceShs, _sls_interfacernd, _sls_interfaceineed.
+New property defaults apply on a new game; existing saves keep their slider values (reset them in the MCM).

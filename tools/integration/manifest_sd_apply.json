@@ -1,0 +1,266 @@
+[
+ {
+  "formid": "01E092:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000821:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E092:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000822:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E092:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000823:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01F6BF:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000821:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01F6BF:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000822:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01F6BF:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000823:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E095:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000824:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E095:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000825:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E613:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000824:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E613:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000825:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E61D:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000824:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E61D:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000825:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "0201B6:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000824:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "0201B6:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000825:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E096:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000826:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E096:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000827:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E096:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000828:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E615:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000826:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E615:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000827:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E615:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000828:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E621:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000826:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E621:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000827:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E621:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000828:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "0201BC:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000826:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "0201BC:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000827:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "0201BC:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000828:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E60F:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000829:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E60F:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "00082A:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E60F:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "00082B:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E617:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000829:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E617:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "00082A:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E617:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "00082B:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E61F:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000829:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E61F:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "00082A:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01E61F:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "00082B:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "0201B8:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "000829:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "0201B8:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "00082A:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "0201B8:SL Survival.esp",
+  "field_path": "LinkTo",
+  "op": "Add",
+  "value": "00082B:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "01F13B:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "SetAtIndex",
+  "key": "2",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "CompareOperator": "LessThan",
+    "ComparisonValue": "9"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetRandomPercentConditionData",
+      "fields": {
+       "RunOnType": "Subject"
+      }
+     }
+    }
+   ]
+  }
+ },
+ {
+  "formid": "01F6BC:SL Survival.esp",
+  "field_path": "Flags.Flags",
+  "op": "Add",
+  "value": "Random"
+ },
+ {
+  "formid": "01FC34:SL Survival.esp",
+  "field_path": "Flags.Flags",
+  "op": "Add",
+  "value": "Random"
+ }
+]

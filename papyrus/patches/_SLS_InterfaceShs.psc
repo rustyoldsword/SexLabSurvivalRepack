@@ -1,0 +1,401 @@
+Scriptname _SLS_InterfaceShs extends Quest
+
+Event OnInit()
+    RegisterForModEvent("_SLS_Int_PlayerLoadsGame", "On_SLS_Int_PlayerLoadsGame")
+EndEvent
+
+Event On_SLS_Int_PlayerLoadsGame(string eventName, string strArg, float numArg, Form sender)
+    PlayerLoadsGame()
+EndEvent
+
+Function PlayerLoadsGame()
+    If Game.GetModByName("SunHelmSurvival.esp") != 255
+        If GetState() != "Installed"
+            GoToState("Installed")
+        EndIf
+        
+    Else
+        If GetState() != ""
+            GoToState("")
+        EndIf
+    EndIf
+endFunction
+
+Bool Function GetIsInterfaceActive()
+    Return GetState() == "Installed"
+EndFunction
+
+Event OnEndState()
+    Utility.Wait(5.0) ; Wait before entering active state to help avoid making function calls to scripts that may not have initialized yet.
+    
+    _SHHungerQuest = Game.GetFormFromFile(0x008EE8, "SunHelmSurvival.esp") as Quest
+    _SHThirstQuest = Game.GetFormFromFile(0x05C470, "SunHelmSurvival.esp") as Quest
+    _SHFatigueQuest = Game.GetFormFromFile(0x01E844, "SunHelmSurvival.esp") as Quest
+
+    _SHHungerTimeStamp = Game.GetFormFromFile(0x00EAB0, "SunHelmSurvival.esp") as GlobalVariable
+
+    _SHCurrentHungerLevel = Game.GetFormFromFile(0x00EAAE, "SunHelmSurvival.esp") as GlobalVariable
+    _SHCurrentThirstLevel = Game.GetFormFromFile(0x05C472, "SunHelmSurvival.esp") as GlobalVariable
+    _SHCurrentFatigueLevel = Game.GetFormFromFile(0x021E3F, "SunHelmSurvival.esp") as GlobalVariable
+
+    _SHBedrollSleep = Game.GetFormFromFile(0x989769, "SunHelmSurvival.esp") as GlobalVariable
+    _SHBedrollList = Game.GetFormFromFile(0x2F894C, "SunHelmSurvival.esp") as FormList ; editorID reads _SHBagList, but every entry is a bedroll or hay pile - it is SunHelm's bedroll set
+
+EndEvent
+
+; Installed state ==================================================
+
+State Installed
+
+    Bool Function IsNeedsModActive()
+        Return _SHHungerQuest && _SHHungerQuest.IsRunning() ; None until OnEndState has fetched the SunHelm quests
+    EndFunction
+
+    Function Eat(Float FoodPoints)
+        _SLS_IntShs.DecreaseHungerLevel(FoodPoints, _SHHungerQuest)
+    EndFunction
+    
+    Function Drink(Float WaterPoints)
+        _SLS_IntShs.DecreaseThirstLevel(WaterPoints, _SHThirstQuest)
+    EndFunction
+    
+    Function ModFatigue(Float SleepAmount) ; -SleepAmount = Remove Fatigue. +SleepAmount = Add Fatigue
+        _SLS_IntShs.ModFatigue(SleepAmount, _SHFatigueQuest)
+    EndFunction
+    
+    Float Function GetLastHungerUpdateTime()
+        Return _SHHungerTimeStamp.GetValue()
+    EndFunction
+    
+    Float Function GetFatigue()
+        Return _SHCurrentFatigueLevel.GetValue()
+    EndFunction
+
+    Function SyncBedrollSleepFlag()
+        ; SunHelm latches _SHBedrollSleep from a bedroll's ACTIVATE perk and clears it only when a
+        ; sleep completes, so an activation that never became a sleep (cancelled menu, interruption,
+        ; or a Go To Bed / Sleep in Bed SKSE flow) leaks onto the NEXT sleep - a proper bed then gets
+        ; the "sore from sleeping on the ground" message AND its silent 0.75x rest penalty. Re-derive
+        ; the flag from the furniture actually being slept in. Only written when that furniture is
+        ; readable: with no reference we cannot tell a bed from a bedroll, and clearing on a guess
+        ; would refund a real bedroll's penalty.
+        ; Resolved lazily, not only in OnEndState: a save already sitting in the Installed state
+        ; never fires that event again, so these newly added properties would stay None there and
+        ; the correction would silently never run on exactly the saves that need it.
+        If !_SHBedrollSleep
+            _SHBedrollSleep = Game.GetFormFromFile(0x989769, "SunHelmSurvival.esp") as GlobalVariable
+        EndIf
+        If !_SHBedrollList
+            _SHBedrollList = Game.GetFormFromFile(0x2F894C, "SunHelmSurvival.esp") as FormList
+        EndIf
+        If !_SHBedrollSleep || !_SHBedrollList
+            Return
+        EndIf
+        ObjectReference Bed = Game.GetPlayer().GetFurnitureReference()
+        If !Bed
+            Return
+        EndIf
+        If _SHBedrollList.HasForm(Bed.GetBaseObject())
+            _SHBedrollSleep.SetValue(1.0)
+        Else
+            _SHBedrollSleep.SetValue(0.0)
+        EndIf
+    EndFunction
+
+    ; TO-DO
+    ; Probably not the most performant method to access hunger level since accessing script properties is slow
+    ; Will need to improve on this later
+    Int Function GetHungerStage()
+        Return _SLS_IntShs.GetHungerStage(_SHHungerQuest)
+    EndFunction
+    
+    ; TO-DO
+    Int Function GetThirstStage()
+        Return _SLS_IntShs.GetThirstStage(_SHThirstQuest)
+    EndFunction
+
+    ; TO-DO
+    Int Function GetFatigueStage()
+        Return _SLS_IntShs.GetFatigueStage(_SHFatigueQuest)
+    EndFunction
+
+    Bool Function IsDesperate()
+        Return GetHungerStage() == 5 || GetThirstStage() == 5
+    EndFunction
+
+    Bool Function GetBegIsHungry()
+        Return GetHungerStage() >= 3 ; Level 'Hungry' or above
+    EndFunction
+    
+    Bool Function GetBegIsThirsty()
+        Return GetThirstStage() >= 3 ; Level 'Parched' or above
+    EndFunction
+
+    ; TO-DO
+    ; Maybe use an array lookup for this?
+    Float Function GetBellyScale()
+        int hungerStage = GetHungerStage()
+        If hungerStage == 0 ; Satiated
+            Return BellyScaleShs00
+        ElseIf hungerStage == 1 ; Mild hunger
+            Return BellyScaleShs01
+        ElseIf hungerStage == 2 ; Moderate hunger
+            Return BellyScaleShs02
+        ElseIf hungerStage == 3 ; Severe hunger
+            Return BellyScaleShs03
+        ElseIf hungerStage == 4 ; Severe hunger
+            Return BellyScaleShs04
+        ElseIf hungerStage == 5 ; Severe hunger
+            Return BellyScaleShs05
+        Else
+            Return -1.0 ; magic effect is currently being swapped out - wait
+        EndIf
+    EndFunction
+
+    Function CorrectFatigue(Float SleepPenalty, Float StartingFatigue, Float HoursSlept)
+        ; SunHelm fatigue: 0 = fully rested, _SHFatigueStage5 (default 480) = exhausted.
+        ; Runs ~5s after SunHelm's own OnSleepStop restore, and raises fatigue back up to the
+        ; floor the sleep conditions imply, so a bad bed/arousal/etc actually costs rest.
+        ; Same structure as the proven RND adapter (branch on StartingFatigue vs Target).
+        Int[] FatigueLevels = _SLS_IntShs.GetFatigueLevels(_SHFatigueQuest)
+
+        Float TargetFatigue
+        If SleepPenalty <= 0.2
+            TargetFatigue = (SleepPenalty / 0.2) * FatigueLevels[1] ; Up to 'Rested' threshold
+        ElseIf SleepPenalty <= 0.4
+            TargetFatigue = (SleepPenalty / 0.4) * FatigueLevels[2] ; 'Slightly Tired'
+        ElseIf SleepPenalty <= 0.6
+            TargetFatigue = (SleepPenalty / 0.6) * FatigueLevels[3] ; 'Tired'
+        ElseIf SleepPenalty <= 0.8
+            TargetFatigue = (SleepPenalty / 0.8) * FatigueLevels[4] ; 'Weary'
+        Else
+            TargetFatigue = (SleepPenalty / 1.0) * ((FatigueLevels[4] + FatigueLevels[5]) / 2.0) ; Midpoint of 'Weary'..'Exhausted'
+        EndIf
+
+        ; Debug.Messagebox("SleepPenalty: " + SleepPenalty + ". TargetFatigue: " + TargetFatigue)
+        Float CurrentFatigue = GetFatigue()
+        If StartingFatigue > TargetFatigue ; Player was more tired than the cap when sleep began - cap the rest gained
+            If CurrentFatigue < TargetFatigue ; SunHelm rested them below the floor - pull back up to it
+                ModFatigue(TargetFatigue - CurrentFatigue) ; Positive = add fatigue
+            ;Else   ; Still more tired than the cap - do nothing
+            EndIf
+
+        Else ; Player was fresher than the floor - sleeping in bad conditions slowly wears them down toward it
+            Float Delta = (TargetFatigue + StartingFatigue) - CurrentFatigue
+            Float ThisNapFatigue = (Delta / 8.0) * HoursSlept ; 8 hours of sleeping to reach target fatigue
+            ;Debug.MessageBox("ThisNapFatigue: " + ThisNapFatigue)
+            ModFatigue(ThisNapFatigue)
+        EndIf
+
+    EndFunction
+
+    String Function GetConditionsStatement(Float SleepPenalty)
+        String ConditionString = "Maximum rest in these conditions is: "    
+        If SleepPenalty <= 0.2
+            Return ConditionString + "Rested. "
+        ElseIf SleepPenalty <= 0.4
+            Return ConditionString + "Slightly tired. "
+        ElseIf SleepPenalty <= 0.6
+            Return ConditionString + "Tired. "
+        ElseIf SleepPenalty <= 0.8
+            Return ConditionString + "Weary. "
+        Else
+            Return ConditionString + "Exhausted. "
+        EndIf
+    EndFunction
+
+    Float Function GetHungerSleepPenalty()
+        int hungerStage = GetHungerStage()
+        If hungerStage == 0 ; Well Fed
+            Return JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "hunger_shs_wellfed") ; -0.05
+        ElseIf hungerStage == 1 ; Satisfied
+            Return JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "hunger_shs_satisfied") ; -0.025
+        ElseIf hungerStage == 2 ; Peckish
+            Return JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "hunger_shs_peckish") ; 0.0
+        ElseIf hungerStage == 3 ; Hungry
+            Return JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "hunger_shs_hungry") ; 0.1
+        ElseIf hungerStage == 4 ; Ravenous
+            Return JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "hunger_shs_ravenous") ; 0.15
+        ElseIf hungerStage == 5 ; Desperate
+            Return JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "hunger_shs_desperate") ; 0.3
+        EndIf
+    EndFunction
+    
+    Float Function GetThirstSleepPenalty()
+        int thirstStage = GetThirstStage()
+        If thirstStage == 0 ; Quenched
+            Return JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "thirst_shs_quenched") ; -0.05
+        ElseIf thirstStage == 1 ; Sated
+            Return JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "thirst_shs_sated") ; -0.05
+        ElseIf thirstStage == 2 ; Thirsty
+            Return JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "thirst_shs_thirsty") ; -0.05
+        ElseIf thirstStage == 3 ; Parched
+            Return JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "thirst_shs_parched") ; -0.05
+        ElseIf thirstStage == 4 ; Dehydrated
+            Return JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "thirst_shs_dehydrated") ; -0.05
+        ElseIf thirstStage == 5 ; Desperate
+            Return JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "thirst_shs_desperate") ; -0.05
+        EndIf
+    EndFunction
+    
+    String Function GetAioHunger()
+        int hungerStage = GetHungerStage()
+        If hungerStage == 0 ; Well Fed
+            Return "Well fed"
+        ElseIf hungerStage == 1 ; Satisfied
+            Return "Satiated"
+        ElseIf hungerStage == 2 ; Peckish
+            Return "Peckish"
+        ElseIf hungerStage == 3 ; Hungry
+            Return "Hungry"
+        ElseIf hungerStage == 4 ; Ravenous
+            Return "Ravenous"
+        ElseIf hungerStage == 5 ; Desperate
+            Return "Desperate"
+        EndIf
+    EndFunction
+
+    String Function GetAioThirst()
+        int thirstStage = GetThirstStage()
+        If thirstStage == 0 ; Quenched
+            Return "Quenched"
+        ElseIf thirstStage == 1 ; Sated
+            Return "Sated"
+        ElseIf thirstStage == 2 ; Thirsty
+            Return "Thirsty"
+        ElseIf thirstStage == 3 ; Parched
+            Return "Parched"
+        ElseIf thirstStage == 4 ; Dehydrated
+            Return "Dehydrated"
+        ElseIf thirstStage == 5 ; Desperate
+            Return "Desperate"
+        EndIf
+    EndFunction
+    
+    String Function GetAioFatigue()
+        int fatigueStage = GetFatigueStage()
+        If fatigueStage == 0 ; Well Rested
+            Return "Well rested"
+        ElseIf fatigueStage == 1 ; Rested
+            Return "Rested"
+        ElseIf fatigueStage == 2 ; Slightly Tired
+            Return "Slightly tired"
+        ElseIf fatigueStage == 3 ; Tired
+            Return "Tired"
+        ElseIf fatigueStage == 4 ; Weary
+            Return "Weary"
+        ElseIf fatigueStage == 5 ; Exhausted
+            Return "Exhausted"
+        EndIf
+    EndFunction
+
+EndState
+
+; Empty state ==================================================
+
+Bool Function IsNeedsModActive()
+    Return false
+EndFunction
+
+Function Eat(Float FoodPoints)
+EndFunction
+
+Function Drink(Float WaterPoints)
+EndFunction
+
+Function ModFatigue(Float SleepAmount)
+EndFunction
+
+Bool Function IsDesperate()
+    Return false
+EndFunction
+
+Bool Function GetBegIsHungry()
+    Return false
+EndFunction
+
+Bool Function GetBegIsThirsty()
+    Return false
+EndFunction
+
+Float Function GetBellyScale()
+    Return 1.0
+EndFunction
+
+Float Function GetLastHungerUpdateTime()
+    Return 0.0
+EndFunction
+
+Float Function GetFatigue()
+    Return 0.0
+EndFunction
+
+Function SyncBedrollSleepFlag()
+EndFunction
+
+String Function GetConditionsStatement(Float SleepPenalty)
+    Return ""
+EndFunction
+
+Function CorrectFatigue(Float SleepPenalty, Float StartingFatigue, Float HoursSlept)
+EndFunction
+
+Float Function GetHungerSleepPenalty()
+    Return 0.0
+EndFunction
+
+Float Function GetThirstSleepPenalty()
+    Return 0.0
+EndFunction
+
+String Function GetAioHunger()
+    Return ""
+EndFunction
+
+String Function GetAioThirst()
+    Return ""
+EndFunction
+
+String Function GetAioFatigue()
+    Return ""
+EndFunction
+
+Int Function GetHungerStage()
+    Return 0
+EndFunction
+
+Int Function GetThirstStage()
+    Return 0
+EndFunction
+
+Int Function GetFatigueStage()
+    Return 0
+EndFunction
+
+; Properties =============================================================
+
+; Needs Quest
+Quest _SHHungerQuest
+Quest _SHThirstQuest
+Quest _SHFatigueQuest
+
+; Needs Timestamp (Float)
+GlobalVariable Property _SHHungerTimeStamp Auto Hidden
+
+; Needs Level (Float)
+GlobalVariable Property _SHCurrentHungerLevel Auto Hidden
+GlobalVariable Property _SHCurrentThirstLevel Auto Hidden
+GlobalVariable Property _SHCurrentFatigueLevel Auto Hidden
+
+; Bedroll latch (Short) + the bedroll furniture set it should reflect
+GlobalVariable Property _SHBedrollSleep Auto Hidden
+FormList Property _SHBedrollList Auto Hidden
+
+; Belly scale values, added to the base belly scale (crajjjj 0.718). By default only overeating
+; (Well Fed) shows, and only a little: an ordinary hunger level leaves the belly alone.
+Float Property BellyScaleShs00 = 0.3 Auto Hidden
+Float Property BellyScaleShs01 = 0.0 Auto Hidden
+Float Property BellyScaleShs02 = 0.0 Auto Hidden
+Float Property BellyScaleShs03 = 0.0 Auto Hidden
+Float Property BellyScaleShs04 = 0.0 Auto Hidden
+Float Property BellyScaleShs05 = 0.0 Auto Hidden

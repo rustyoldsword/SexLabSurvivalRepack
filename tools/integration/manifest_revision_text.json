@@ -1,0 +1,132 @@
+[
+ {
+  "formid": "00080A:SL Survival - Revision Tweaks.esp",
+  "field_path": "Responses[0].Text",
+  "value": "Shh. Don't make a sound, cunt. I watched you crawl into this bed like a proper little whore. Legs open or I open them for you."
+ },
+ {
+  "formid": "00080B:SL Survival - Revision Tweaks.esp",
+  "field_path": "Responses[0].Text",
+  "value": "Wake up, bitch. A woman alone in a bed this soft is just asking to be used. I came to remind you what you're for."
+ },
+ {
+  "formid": "00080C:SL Survival - Revision Tweaks.esp",
+  "field_path": "Responses[0].Text",
+  "value": "Cold night. Warm cunt. Nobody watching. Move over and spread. You're not sleeping alone tonight."
+ },
+ {
+  "formid": "00080D:SL Survival - Revision Tweaks.esp",
+  "field_path": "Responses[0].Text",
+  "value": "Don't scream. You're just a hole that happened to be free. I need it and you're going to give it."
+ },
+ {
+  "formid": "00080E:SL Survival - Revision Tweaks.esp",
+  "field_path": "Name",
+  "value": "...Yes. Use me."
+ },
+ {
+  "formid": "000810:SL Survival - Revision Tweaks.esp",
+  "field_path": "Responses[0].Text",
+  "value": "Good girl. That's all you're good for."
+ },
+ {
+  "formid": "000811:SL Survival - Revision Tweaks.esp",
+  "field_path": "Name",
+  "value": "A hundred septims and you can fuck me."
+ },
+ {
+  "formid": "000813:SL Survival - Revision Tweaks.esp",
+  "field_path": "Responses[0].Text",
+  "value": "A hundred for this used-up cunt? Fine. You'd better milk every coin out of me."
+ },
+ {
+  "formid": "000814:SL Survival - Revision Tweaks.esp",
+  "field_path": "Name",
+  "value": "Get the fuck out before I scream."
+ },
+ {
+  "formid": "000816:SL Survival - Revision Tweaks.esp",
+  "field_path": "Responses[0].Text",
+  "value": "Your loss, whore. Next time I won't ask so nicely."
+ },
+ {
+  "formid": "000803:SL Survival - Revision Tweaks.esp",
+  "field_path": "Name",
+  "value": "Is there any work a worthless bitch like me can do?"
+ },
+ {
+  "formid": "000805:SL Survival - Revision Tweaks.esp",
+  "field_path": "Responses[0].Text",
+  "value": "Work? Sure. Get on your knees and clean the pens. The dogs shit less than most women. Do it right and I'll throw you some coins like the stray you are."
+ },
+ {
+  "formid": "000818:SL Survival - Revision Tweaks.esp",
+  "field_path": "Name",
+  "value": "Mjoll, these laws treat women like property. How do I prove I'm more than a hole?"
+ },
+ {
+  "formid": "00081A:SL Survival - Revision Tweaks.esp",
+  "field_path": "Responses[0].Text",
+  "value": "Prove it to yourself first, girl, or stay a owned cunt forever. Three trials. Spill the blood of fifteen who prey on the weak. Live seven days without begging some clerk for an armor licence like a helpless bitch. And master a blade, a bow or Destruction until it answers without thought. Come back when you're done proving you're not just meat."
+ },
+ {
+  "formid": "00081B:SL Survival - Revision Tweaks.esp",
+  "field_path": "Name",
+  "value": "About the trials..."
+ },
+ {
+  "formid": "00081D:SL Survival - Revision Tweaks.esp",
+  "field_path": "Responses[0].Text",
+  "value": "Not done yet. A real woman finishes what she starts. Weak ones stay property. Go."
+ },
+ {
+  "formid": "00081E:SL Survival - Revision Tweaks.esp",
+  "field_path": "Name",
+  "value": "It's done. All three trials."
+ },
+ {
+  "formid": "000820:SL Survival - Revision Tweaks.esp",
+  "field_path": "Responses[0].Text",
+  "value": "I see it. You're no one's property now. Anyone who still calls you a hole can taste your blade. Walk tall, sister. You earned it."
+ },
+ {
+  "formid": "000817:SL Survival - Revision Tweaks.esp",
+  "field_path": "Name",
+  "value": "A Woman of Strength"
+ },
+ {
+  "formid": "000817:SL Survival - Revision Tweaks.esp",
+  "field_path": "Objectives[0].DisplayText",
+  "value": "Kill fifteen people who prey on others"
+ },
+ {
+  "formid": "000817:SL Survival - Revision Tweaks.esp",
+  "field_path": "Objectives[1].DisplayText",
+  "value": "Live seven days without an armor licence"
+ },
+ {
+  "formid": "000817:SL Survival - Revision Tweaks.esp",
+  "field_path": "Objectives[2].DisplayText",
+  "value": "Reach 50 in One-Handed, Two-Handed, Archery or Destruction"
+ },
+ {
+  "formid": "000817:SL Survival - Revision Tweaks.esp",
+  "field_path": "Objectives[3].DisplayText",
+  "value": "Return to Mjoll"
+ },
+ {
+  "formid": "000817:SL Survival - Revision Tweaks.esp",
+  "field_path": "Stages[0].LogEntries[0].Entry",
+  "value": "Mjoll the Lioness told me that if I want to be more than property in Skyrim, I have to prove it to myself first. She set me three trials to stop being treated like a owned hole."
+ },
+ {
+  "formid": "000817:SL Survival - Revision Tweaks.esp",
+  "field_path": "Stages[1].LogEntries[0].Entry",
+  "value": "I have passed all three of Mjoll's trials. I should return to her in Riften and claim what's mine."
+ },
+ {
+  "formid": "000817:SL Survival - Revision Tweaks.esp",
+  "field_path": "Stages[2].LogEntries[0].Entry",
+  "value": "Mjoll declared me a woman of strength. The laws of men no longer hold me down. I am no one's property."
+ }
+]

@@ -1,0 +1,152 @@
+[
+ {
+  "formid": "0974BC:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "ComparisonValue": "0",
+    "CompareOperator": "EqualTo"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetInFactionConditionData",
+      "sets": [
+       {
+        "path": "Faction",
+        "value": "58FC50:DiaryOfMine.esm"
+       },
+       {
+        "path": "RunOnType",
+        "value": "Subject"
+       }
+      ]
+     }
+    }
+   ]
+  }
+ },
+ {
+  "formid": "0974C1:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "ComparisonValue": "0",
+    "CompareOperator": "EqualTo"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetInFactionConditionData",
+      "sets": [
+       {
+        "path": "Faction",
+        "value": "58FC50:DiaryOfMine.esm"
+       },
+       {
+        "path": "RunOnType",
+        "value": "Subject"
+       }
+      ]
+     }
+    }
+   ]
+  }
+ },
+ {
+  "formid": "0974C4:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "ComparisonValue": "0",
+    "CompareOperator": "EqualTo"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetInFactionConditionData",
+      "sets": [
+       {
+        "path": "Faction",
+        "value": "58FC50:DiaryOfMine.esm"
+       },
+       {
+        "path": "RunOnType",
+        "value": "Subject"
+       }
+      ]
+     }
+    }
+   ]
+  }
+ },
+ {
+  "formid": "0974C7:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "ComparisonValue": "0",
+    "CompareOperator": "EqualTo"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetInFactionConditionData",
+      "sets": [
+       {
+        "path": "Faction",
+        "value": "58FC50:DiaryOfMine.esm"
+       },
+       {
+        "path": "RunOnType",
+        "value": "Subject"
+       }
+      ]
+     }
+    }
+   ]
+  }
+ },
+ {
+  "formid": "09BB16:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "ComparisonValue": "0",
+    "CompareOperator": "EqualTo"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetInFactionConditionData",
+      "sets": [
+       {
+        "path": "Faction",
+        "value": "58FC50:DiaryOfMine.esm"
+       },
+       {
+        "path": "RunOnType",
+        "value": "Subject"
+       }
+      ]
+     }
+    }
+   ]
+  }
+ }
+]

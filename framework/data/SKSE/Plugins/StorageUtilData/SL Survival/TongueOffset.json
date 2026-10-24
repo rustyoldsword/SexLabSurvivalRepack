@@ -1,0 +1,11 @@
+{
+	"float" :
+	{
+		"ube_x" : 0.0,
+		"ube_y" : 0.3,
+		"ube_z" : -0.5,
+		"default_x" : 0.0,
+		"default_y" : 0.0,
+		"default_z" : 0.0
+	}
+}

@@ -1,0 +1,1635 @@
+[
+ {
+  "record_type": "GlobalShort",
+  "editorid": "_SLSRT_WL_Enable",
+  "ops": [
+   {
+    "field_path": "Data",
+    "value": "1"
+   }
+  ]
+ },
+ {
+  "record_type": "GlobalFloat",
+  "editorid": "_SLSRT_WL_Chance",
+  "ops": [
+   {
+    "field_path": "Data",
+    "value": "30"
+   }
+  ]
+ },
+ {
+  "record_type": "GlobalFloat",
+  "editorid": "_SLSRT_WL_Gap",
+  "ops": [
+   {
+    "field_path": "Data",
+    "value": "3"
+   }
+  ]
+ },
+ {
+  "record_type": "GlobalShort",
+  "editorid": "_SLSRT_WL_Pay",
+  "ops": [
+   {
+    "field_path": "Data",
+    "value": "100"
+   }
+  ]
+ },
+ {
+  "record_type": "GlobalShort",
+  "editorid": "_SLSRT_WL_Fine",
+  "ops": [
+   {
+    "field_path": "Data",
+    "value": "200"
+   }
+  ]
+ },
+ {
+  "record_type": "GlobalFloat",
+  "editorid": "_SLSRT_WL_BanDays",
+  "ops": [
+   {
+    "field_path": "Data",
+    "value": "7"
+   }
+  ]
+ },
+ {
+  "record_type": "GlobalShort",
+  "editorid": "_SLSRT_WL_Banned",
+  "ops": [
+   {
+    "field_path": "Data",
+    "value": "0"
+   }
+  ]
+ },
+ {
+  "record_type": "Quest",
+  "editorid": "_SLSRT_WL_Duty",
+  "ops": [
+   {
+    "field_path": "Name",
+    "value": "Whore Licence Duties"
+   },
+   {
+    "field_path": "Priority",
+    "value": "40"
+   },
+   {
+    "field_path": "Flags",
+    "value": "StartGameEnabled"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "QuestAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSRT_WL_Duty",
+         "Flags": "Local"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "record_type": "Quest",
+  "editorid": "_SLSRT_WL_Client",
+  "ops": [
+   {
+    "field_path": "Name",
+    "value": "Whore Licence Client"
+   },
+   {
+    "field_path": "Priority",
+    "value": "70"
+   },
+   {
+    "field_path": "Aliases",
+    "op": "Add",
+    "compose": {
+     "type": "QuestAlias",
+     "fields": {
+      "ID": "0",
+      "Name": "Client",
+      "Type": "Reference",
+      "Flags": "Optional, MatchingRefInLoadedArea, MatchingRefClosest"
+     },
+     "sets": [
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "1"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "GetIsSexConditionData",
+           "fields": {
+            "MaleFemaleGender": "Male",
+            "RunOnType": "Subject"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "1"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "GetIsPlayableRaceConditionData",
+           "fields": {
+            "RunOnType": "Subject"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "0"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "IsChildConditionData",
+           "fields": {
+            "RunOnType": "Subject"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "0"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "GetDeadConditionData",
+           "fields": {
+            "RunOnType": "Subject"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "0"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "IsGuardConditionData",
+           "fields": {
+            "RunOnType": "Subject"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "0"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "GetPlayerTeammateConditionData",
+           "fields": {
+            "RunOnType": "Subject"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "0"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "IsInCombatConditionData",
+           "fields": {
+            "RunOnType": "Subject"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "0"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "GetSleepingConditionData",
+           "fields": {
+            "RunOnType": "Subject"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "LessThan",
+         "ComparisonValue": "3000"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "GetDistanceConditionData",
+           "fields": {
+            "RunOnType": "Subject"
+           },
+           "sets": [
+            {
+             "path": "Target",
+             "value": "000014:Skyrim.esm"
+            }
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "0"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "GetInFactionConditionData",
+           "fields": {
+            "Faction": "00E50F:SexLab.esm",
+            "RunOnType": "Subject"
+           }
+          }
+         }
+        ]
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "NextAliasID",
+    "value": "1"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "QuestAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSRT_WL_ClientQuest",
+         "Flags": "Local"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "record_type": "Quest",
+  "editorid": "_SLSRT_WL_Guard",
+  "ops": [
+   {
+    "field_path": "Name",
+    "value": "Whore Licence Report"
+   },
+   {
+    "field_path": "Priority",
+    "value": "70"
+   },
+   {
+    "field_path": "Aliases",
+    "op": "Add",
+    "compose": {
+     "type": "QuestAlias",
+     "fields": {
+      "ID": "0",
+      "Name": "Guard",
+      "Type": "Reference",
+      "Flags": "Optional, MatchingRefInLoadedArea, MatchingRefClosest"
+     },
+     "sets": [
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "1"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "IsGuardConditionData",
+           "fields": {
+            "RunOnType": "Subject"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "0"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "GetDeadConditionData",
+           "fields": {
+            "RunOnType": "Subject"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "0"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "IsInCombatConditionData",
+           "fields": {
+            "RunOnType": "Subject"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "LessThan",
+         "ComparisonValue": "4000"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "GetDistanceConditionData",
+           "fields": {
+            "RunOnType": "Subject"
+           },
+           "sets": [
+            {
+             "path": "Target",
+             "value": "000014:Skyrim.esm"
+            }
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "0"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "GetInFactionConditionData",
+           "fields": {
+            "Faction": "00E50F:SexLab.esm",
+            "RunOnType": "Subject"
+           }
+          }
+         }
+        ]
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "NextAliasID",
+    "value": "1"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "QuestAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSRT_WL_GuardQuest",
+         "Flags": "Local"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSRT_WL_ClientGreet",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSRT_WL_Client"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "ForceGreet"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogBranch",
+  "editorid": "_SLSRT_WL_ClientBranch",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSRT_WL_Client"
+   },
+   {
+    "field_path": "Flags",
+    "value": "TopLevel"
+   },
+   {
+    "field_path": "StartingTopic",
+    "value": "@_SLSRT_WL_ClientGreet"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSRT_WL_ClientAns0",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSRT_WL_Client"
+   },
+   {
+    "field_path": "Branch",
+    "value": "@_SLSRT_WL_ClientBranch"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Custom"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   },
+   {
+    "field_path": "Name",
+    "value": "Sure. Pay up and follow me."
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSRT_WL_ClientAns1",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSRT_WL_Client"
+   },
+   {
+    "field_path": "Branch",
+    "value": "@_SLSRT_WL_ClientBranch"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Custom"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   },
+   {
+    "field_path": "Name",
+    "value": "Not today. Find someone else."
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSRT_WL_ClientAns2",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSRT_WL_Client"
+   },
+   {
+    "field_path": "Branch",
+    "value": "@_SLSRT_WL_ClientBranch"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Custom"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   },
+   {
+    "field_path": "Name",
+    "value": "Get lost, creep."
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSRT_WL_ClientGreet01",
+  "parent": "_SLSRT_WL_ClientGreet",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "You're the girl with the licence, aren't you? I've got coin and a free hour. What do you say?",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsAliasRefConditionData",
+        "fields": {
+         "ReferenceAliasIndex": "0",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random"
+   },
+   {
+    "field_path": "PreviousDialog",
+    "value": "0"
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSRT_WL_ClientAns0"
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSRT_WL_ClientAns1"
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSRT_WL_ClientAns2"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSRT_WL_ClientGreet02",
+  "parent": "_SLSRT_WL_ClientGreet",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Word is you're working. Good. I'm buying.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsAliasRefConditionData",
+        "fields": {
+         "ReferenceAliasIndex": "0",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random"
+   },
+   {
+    "field_path": "PreviousDialog",
+    "value": "@_SLSRT_WL_ClientGreet01"
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSRT_WL_ClientAns0"
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSRT_WL_ClientAns1"
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSRT_WL_ClientAns2"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSRT_WL_ClientGreet03",
+  "parent": "_SLSRT_WL_ClientGreet",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Hold on, sweetheart. That licence means you're open for business, right? I'm your next customer.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsAliasRefConditionData",
+        "fields": {
+         "ReferenceAliasIndex": "0",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random"
+   },
+   {
+    "field_path": "PreviousDialog",
+    "value": "@_SLSRT_WL_ClientGreet02"
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSRT_WL_ClientAns0"
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSRT_WL_ClientAns1"
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSRT_WL_ClientAns2"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSRT_WL_ClientAns0_01",
+  "parent": "_SLSRT_WL_ClientAns0",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Now that's service.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsAliasRefConditionData",
+        "fields": {
+         "ReferenceAliasIndex": "0",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Goodbye"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSRT_TIF_WLClient",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptIntProperty",
+           "fields": {
+            "Name": "Choice",
+            "Flags": "Edited",
+            "Data": "0"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSRT_TIF_WLClient"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSRT_TIF_WLClient",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSRT_WL_ClientAns1_01",
+  "parent": "_SLSRT_WL_ClientAns1",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Not today? You're licensed, girl. The guards will hear about this.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsAliasRefConditionData",
+        "fields": {
+         "ReferenceAliasIndex": "0",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Goodbye"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSRT_TIF_WLClient",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptIntProperty",
+           "fields": {
+            "Name": "Choice",
+            "Flags": "Edited",
+            "Data": "1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSRT_TIF_WLClient"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSRT_TIF_WLClient",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSRT_WL_ClientAns2_01",
+  "parent": "_SLSRT_WL_ClientAns2",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Big mistake. Let's see what the guards say about a licensed girl who turns away paying customers.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsAliasRefConditionData",
+        "fields": {
+         "ReferenceAliasIndex": "0",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Goodbye"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSRT_TIF_WLClient",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptIntProperty",
+           "fields": {
+            "Name": "Choice",
+            "Flags": "Edited",
+            "Data": "2"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSRT_TIF_WLClient"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSRT_TIF_WLClient",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSRT_WL_GuardGreet",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSRT_WL_Guard"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "ForceGreet"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogBranch",
+  "editorid": "_SLSRT_WL_GuardBranch",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSRT_WL_Guard"
+   },
+   {
+    "field_path": "Flags",
+    "value": "TopLevel"
+   },
+   {
+    "field_path": "StartingTopic",
+    "value": "@_SLSRT_WL_GuardGreet"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSRT_WL_GuardAns0",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSRT_WL_Guard"
+   },
+   {
+    "field_path": "Branch",
+    "value": "@_SLSRT_WL_GuardBranch"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Custom"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   },
+   {
+    "field_path": "Name",
+    "value": "I'm sorry. It won't happen again."
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSRT_WL_GuardAns1",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSRT_WL_Guard"
+   },
+   {
+    "field_path": "Branch",
+    "value": "@_SLSRT_WL_GuardBranch"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Custom"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   },
+   {
+    "field_path": "Name",
+    "value": "He was a creep. I can refuse whoever I want."
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSRT_WL_GuardGreet01",
+  "parent": "_SLSRT_WL_GuardGreet",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "There you are. A citizen says you turned him away. That licence comes with obligations.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsAliasRefConditionData",
+        "fields": {
+         "ReferenceAliasIndex": "0",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random"
+   },
+   {
+    "field_path": "PreviousDialog",
+    "value": "0"
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSRT_WL_GuardAns0"
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSRT_WL_GuardAns1"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSRT_WL_GuardGreet02",
+  "parent": "_SLSRT_WL_GuardGreet",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Hold it. We've had a complaint about you refusing a paying customer.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsAliasRefConditionData",
+        "fields": {
+         "ReferenceAliasIndex": "0",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random"
+   },
+   {
+    "field_path": "PreviousDialog",
+    "value": "@_SLSRT_WL_GuardGreet01"
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSRT_WL_GuardAns0"
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSRT_WL_GuardAns1"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSRT_WL_GuardAns0_01",
+  "parent": "_SLSRT_WL_GuardAns0",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Sorry won't cut it. Hand over the licence, and the fine.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsAliasRefConditionData",
+        "fields": {
+         "ReferenceAliasIndex": "0",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Goodbye"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSRT_TIF_WLGuard",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptIntProperty",
+           "fields": {
+            "Name": "Choice",
+            "Flags": "Edited",
+            "Data": "0"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSRT_TIF_WLGuard"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSRT_TIF_WLGuard",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSRT_WL_GuardAns1_01",
+  "parent": "_SLSRT_WL_GuardAns1",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Not with that licence you can't. Licence revoked, fine paid - and a lesson on top.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsAliasRefConditionData",
+        "fields": {
+         "ReferenceAliasIndex": "0",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Goodbye"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSRT_TIF_WLGuard",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptIntProperty",
+           "fields": {
+            "Name": "Choice",
+            "Flags": "Edited",
+            "Data": "1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSRT_TIF_WLGuard"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSRT_TIF_WLGuard",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ }
+]

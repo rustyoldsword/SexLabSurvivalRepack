@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<fomod>
+    <Name>SexLab Survival Framework</Name>
+    <Author>SexLab Survival Framework contributors</Author>
+    <Version>@VERSION@</Version>
+    <Description>Native SKSE core for SexLab Survival 0.716: city gates, equip events, guard searches, licences and messages handled in a DLL, with the SLS scripts called only when something happens. Status export for HUD mods (Vitals HUD).</Description>
+    <Groups>
+        <element>Sex</element>
+        <element>Utilities</element>
+    </Groups>
+</fomod>

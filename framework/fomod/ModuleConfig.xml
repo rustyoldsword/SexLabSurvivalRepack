@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://qconsulting.ca/fo3/ModConfig5.0.xsd">
+    <moduleName>SexLab Survival Framework</moduleName>
+    <moduleDependencies operator="And">
+        <fileDependency file="SL Survival.esp" state="Active"/>
+    </moduleDependencies>
+    <installSteps order="Explicit">
+        <installStep name="Core">
+            <optionalFileGroups order="Explicit">
+                <group name="Framework (always installed)" type="SelectAll">
+                    <plugins order="Explicit">
+                        <plugin name="SexLab Survival Framework">
+                            <description>The DLL (SKSE\Plugins\SLSurvivalFramework.dll) and the SL Survival scripts it drives. Always installed.
+
+Requires SexLab Survival 0.716 with SL Survival - Patches, SKSE and Address Library (SE 1.5.97 or AE 1.6.x). Place this mod after SL Survival - Patches so its scripts win.
+
+To remove it, disable the whole mod: every script is plain SLS again. Its scripts expect the DLL, so do not keep the scripts without it.</description>
+                            <files>
+                                <folder source="00 Core" destination="" priority="0"/>
+                            </files>
+                            <typeDescriptor>
+                                <type name="Required"/>
+                            </typeDescriptor>
+                        </plugin>
+                    </plugins>
+                </group>
+            </optionalFileGroups>
+        </installStep>
+        <installStep name="Options">
+            <optionalFileGroups order="Explicit">
+                <group name="Settings and patches (optional)" type="SelectAny">
+                    <plugins order="Explicit">
+                        <plugin name="Gentler Steep Fall">
+                            <description>A tuned copy of SLS's SteepFall.json (StorageUtilData\SL Survival): a fall only counts from 250 units instead of 150, so ordinary stairs and small drops no longer trip you. Overrides SLS's own file.</description>
+                            <files>
+                                <folder source="10 SteepFall" destination="" priority="0"/>
+                            </files>
+                            <typeDescriptor>
+                                <type name="Recommended"/>
+                            </typeDescriptor>
+                        </plugin>
+                        <plugin name="The New Gentleman: revealing cover">
+                            <description>SkyPatcher patch: SLS's half-naked cover makes the character revealing through Schlongs of Skyrim; this gives the cover TNG's TNG_Revealing keyword so TNG treats it the same way.
+
+Requires The New Gentleman and SkyPatcher.</description>
+                            <files>
+                                <folder source="20 TNG" destination="" priority="0"/>
+                            </files>
+                            <typeDescriptor>
+                                <dependencyType>
+                                    <defaultType name="Optional"/>
+                                    <patterns>
+                                        <pattern>
+                                            <dependencies operator="And">
+                                                <fileDependency file="TheNewGentleman.esp" state="Active"/>
+                                            </dependencies>
+                                            <type name="Recommended"/>
+                                        </pattern>
+                                        <pattern>
+                                            <dependencies operator="And">
+                                                <fileDependency file="TheNewGentleman.esp" state="Missing"/>
+                                            </dependencies>
+                                            <type name="NotUsable"/>
+                                        </pattern>
+                                    </patterns>
+                                </dependencyType>
+                            </typeDescriptor>
+                        </plugin>
+                    </plugins>
+                </group>
+            </optionalFileGroups>
+        </installStep>
+    </installSteps>
+</config>

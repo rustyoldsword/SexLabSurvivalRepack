@@ -1,0 +1,94 @@
+Scriptname SLS_BeggingPlayerAlias extends ReferenceAlias  
+
+Event OnInit()
+	RegForEvents()
+EndEvent
+
+Event OnPlayerLoadGame()
+	RegForEvents()
+EndEvent
+
+Function RegForEvents()
+	RegisterForModEvent("_SLS_PlayerSwallowedCum", "On_SLS_PlayerSwallowedCum")
+	RegisterForModEvent("HookAnimationEnd", "OnAnimationEnd")
+	; Clear both orgasm paths first - registrations persist in the save, so switching
+	; frameworks mid-save must not leave the stale path double-triggering
+	UnregisterForModEvent("SexLabOrgasmSeparate")
+	UnregisterForModEvent("HookOrgasmStart")
+	; P+ folds SLSO in: it always sends SexlabOrgasmSeparate but skips HookOrgasmStart in its
+	; per-actor climax mode, so waiting on the legacy hook marks every sex deal as failed there
+	If Game.GetModByName("SLSO.esp") != 255 || _SLS_IntSlpp.GetIsInstalled()
+		RegisterForModEvent("SexLabOrgasmSeparate", "OnSexLabOrgasmSeparate")
+	Else
+		RegisterForModEvent("HookOrgasmStart", "OnOrgasmStart")
+	EndIf
+EndFunction
+
+Event OnAnimationEnd(int tid, bool HasPlayer)
+	If HasPlayer
+		Init.IsTollSwallowDeal = false
+		If Init.ClientOrgasmState == 2 ; If player failed to make client cum set job state as failed
+			Init.ClientOrgasmState = 4
+		EndIf
+		If Init.IsGagDeal ; Reequip gag
+			Devious.EquipDevice(PlayerRef, Init.BegDealGag)
+			If Init.BegDealHeavyBondage != None
+				Devious.EquipDevice(PlayerRef, Init.BegDealHeavyBondage)
+			EndIf
+			Init.IsGagDeal = false
+			UnRegisterForMenu("InventoryMenu")
+		EndIf
+		If Init.TollGag != None
+			Devious.EquipDevice(PlayerRef, Init.TollGag)
+			Init.TollGag = None
+		EndIf
+	EndIf
+EndEvent
+
+Event OnOrgasmStart(int tid, bool HasPlayer)
+	OrgasmEvent(ActorRef = None, tid = tid, HasPlayer = HasPlayer)
+EndEvent
+
+Event OnSexLabOrgasmSeparate(Form ActorRef, Int tid)
+	; pass who came: with None the "not the player" test below always passed and the heroine's own orgasm
+	; counted as the client's for Must Orgasm (begging / toll paid in kind)
+	OrgasmEvent(ActorRef = ActorRef, tid = tid, HasPlayer = Sexlab.FindPlayerController() == tid)
+EndEvent
+
+Function OrgasmEvent(Form ActorRef = None, Int tid, Bool HasPlayer)
+	If HasPlayer
+		If ActorRef != PlayerRef ; ActorRef will either be None (if SLSO is not installed) or another actor in a scene with the player
+			If Init.ClientOrgasmState == 2 ; If player is in an active job set job state as successful
+				Init.ClientOrgasmState = 3
+			EndIf
+		EndIf
+	EndIf
+EndFunction
+
+Event On_SLS_PlayerSwallowedCum(Form akSource, Bool Swallowed, Float LoadSize, Float LoadSizeBase, Bool IsCumPotion)
+	If Swallowed
+		If Init.BegSwallowDeal == 2
+			Init.BegSwallowDeal = 3
+		EndIf
+	
+	Else
+		If Init.BegSwallowDeal == 2
+			Init.BegSwallowDeal = 4
+		EndIf
+	EndIf
+EndEvent
+
+
+
+State Devious
+	
+EndState
+
+Location Property WhiterunLocation Auto
+
+Actor Property PlayerRef Auto
+
+SLS_Init Property Init Auto
+SLS_Mcm Property Menu Auto
+_SLS_InterfaceDevious Property Devious Auto
+SexLabFramework Property Sexlab Auto

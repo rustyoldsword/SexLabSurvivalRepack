@@ -1,0 +1,988 @@
+[
+ {
+  "record_type": "GlobalFloat",
+  "editorid": "_SLSRT_SuitorEnable",
+  "ops": [
+   {
+    "field_path": "Data",
+    "value": "1"
+   }
+  ]
+ },
+ {
+  "record_type": "GlobalFloat",
+  "editorid": "_SLSRT_SuitorNext",
+  "ops": [
+   {
+    "field_path": "Data",
+    "value": "0"
+   }
+  ]
+ },
+ {
+  "record_type": "Quest",
+  "editorid": "_SLSRT_Suitor",
+  "ops": [
+   {
+    "field_path": "Name",
+    "value": "Easy Bed Suitor"
+   },
+   {
+    "field_path": "Priority",
+    "value": "90"
+   },
+   {
+    "field_path": "Aliases",
+    "op": "Add",
+    "compose": {
+     "type": "QuestAlias",
+     "fields": {
+      "ID": "0",
+      "Name": "Suitor",
+      "Type": "Reference",
+      "Flags": "Optional, MatchingRefInLoadedArea, MatchingRefClosest"
+     },
+     "sets": [
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "1"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "GetIsSexConditionData",
+           "fields": {
+            "MaleFemaleGender": "Male",
+            "RunOnType": "Subject"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "1"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "GetIsPlayableRaceConditionData",
+           "fields": {
+            "RunOnType": "Subject"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "0"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "IsChildConditionData",
+           "fields": {
+            "RunOnType": "Subject"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "0"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "GetDeadConditionData",
+           "fields": {
+            "RunOnType": "Subject"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "0"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "GetSleepingConditionData",
+           "fields": {
+            "RunOnType": "Subject"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "0"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "GetPlayerTeammateConditionData",
+           "fields": {
+            "RunOnType": "Subject"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "0"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "IsInCombatConditionData",
+           "fields": {
+            "RunOnType": "Subject"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "Conditions",
+       "verb": "Add",
+       "compose": {
+        "type": "ConditionFloat",
+        "fields": {
+         "CompareOperator": "EqualTo",
+         "ComparisonValue": "1"
+        },
+        "sets": [
+         {
+          "path": "Data",
+          "compose": {
+           "type": "GetInSameCellConditionData",
+           "fields": {
+            "RunOnType": "Subject"
+           },
+           "sets": [
+            {
+             "path": "Target",
+             "value": "000014:Skyrim.esm"
+            }
+           ]
+          }
+         }
+        ]
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "NextAliasID",
+    "value": "1"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSRT_SuitorHello",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSRT_Suitor"
+   },
+   {
+    "field_path": "Category",
+    "value": "Misc"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Hello"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSRT_SuitorHello01",
+  "parent": "_SLSRT_SuitorHello",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Shh, easy... it's only me. I saw you settle in here tonight and I couldn't get you out of my head.",
+      "Emotion": "Happy",
+      "EmotionValue": "40",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsAliasRefConditionData",
+        "fields": {
+         "ReferenceAliasIndex": "0",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random"
+   },
+   {
+    "field_path": "PreviousDialog",
+    "value": "0"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSRT_SuitorHello02",
+  "parent": "_SLSRT_SuitorHello",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Wake up, beautiful. A woman sleeping alone in a bed like this - people talk. I came to see if they're right about you.",
+      "Emotion": "Happy",
+      "EmotionValue": "40",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsAliasRefConditionData",
+        "fields": {
+         "ReferenceAliasIndex": "0",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random"
+   },
+   {
+    "field_path": "PreviousDialog",
+    "value": "@_SLSRT_SuitorHello01"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSRT_SuitorHello03",
+  "parent": "_SLSRT_SuitorHello",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Cold night, warm bed, nobody watching. Seemed a shame to waste it. Move over.",
+      "Emotion": "Happy",
+      "EmotionValue": "40",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsAliasRefConditionData",
+        "fields": {
+         "ReferenceAliasIndex": "0",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random"
+   },
+   {
+    "field_path": "PreviousDialog",
+    "value": "@_SLSRT_SuitorHello02"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSRT_SuitorHello04",
+  "parent": "_SLSRT_SuitorHello",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Don't scream. I just want some company, and you looked like you could use some too.",
+      "Emotion": "Happy",
+      "EmotionValue": "40",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsAliasRefConditionData",
+        "fields": {
+         "ReferenceAliasIndex": "0",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random"
+   },
+   {
+    "field_path": "Flags.Flags",
+    "op": "Add",
+    "value": "RandomEnd"
+   },
+   {
+    "field_path": "PreviousDialog",
+    "value": "@_SLSRT_SuitorHello03"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSRT_SuitorAnswer0",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSRT_Suitor"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Custom"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   },
+   {
+    "field_path": "Name",
+    "value": "...Fine. Get in."
+   }
+  ]
+ },
+ {
+  "record_type": "DialogBranch",
+  "editorid": "_SLSRT_SuitorBranch0",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSRT_Suitor"
+   },
+   {
+    "field_path": "Flags",
+    "value": "TopLevel"
+   },
+   {
+    "field_path": "StartingTopic",
+    "value": "@_SLSRT_SuitorAnswer0"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSRT_SuitorAnswer0_01",
+  "parent": "_SLSRT_SuitorAnswer0",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Knew you'd see it my way.",
+      "Emotion": "Happy",
+      "EmotionValue": "40",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsAliasRefConditionData",
+        "fields": {
+         "ReferenceAliasIndex": "0",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Goodbye"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLS_TIF_Suitor",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptIntProperty",
+           "fields": {
+            "Name": "Choice",
+            "Flags": "Edited",
+            "Data": "0"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "Main",
+            "Flags": "Edited",
+            "Object": "000D64:SL Survival.esp",
+            "Alias": "-1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "SuitorQuest",
+            "Flags": "Edited",
+            "Object": "@_SLSRT_Suitor",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLS_TIF_Suitor"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLS_TIF_Suitor",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSRT_SuitorAnswer1",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSRT_Suitor"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Custom"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   },
+   {
+    "field_path": "Name",
+    "value": "It'll cost you a hundred septims."
+   }
+  ]
+ },
+ {
+  "record_type": "DialogBranch",
+  "editorid": "_SLSRT_SuitorBranch1",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSRT_Suitor"
+   },
+   {
+    "field_path": "Flags",
+    "value": "TopLevel"
+   },
+   {
+    "field_path": "StartingTopic",
+    "value": "@_SLSRT_SuitorAnswer1"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSRT_SuitorAnswer1_01",
+  "parent": "_SLSRT_SuitorAnswer1",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "A hundred? Ha. You'd better be worth every coin.",
+      "Emotion": "Happy",
+      "EmotionValue": "40",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsAliasRefConditionData",
+        "fields": {
+         "ReferenceAliasIndex": "0",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Goodbye"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLS_TIF_Suitor",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptIntProperty",
+           "fields": {
+            "Name": "Choice",
+            "Flags": "Edited",
+            "Data": "1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "Main",
+            "Flags": "Edited",
+            "Object": "000D64:SL Survival.esp",
+            "Alias": "-1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "SuitorQuest",
+            "Flags": "Edited",
+            "Object": "@_SLSRT_Suitor",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLS_TIF_Suitor"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLS_TIF_Suitor",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSRT_SuitorAnswer2",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSRT_Suitor"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Custom"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   },
+   {
+    "field_path": "Name",
+    "value": "Get out before I wake the whole hall."
+   }
+  ]
+ },
+ {
+  "record_type": "DialogBranch",
+  "editorid": "_SLSRT_SuitorBranch2",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSRT_Suitor"
+   },
+   {
+    "field_path": "Flags",
+    "value": "TopLevel"
+   },
+   {
+    "field_path": "StartingTopic",
+    "value": "@_SLSRT_SuitorAnswer2"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSRT_SuitorAnswer2_01",
+  "parent": "_SLSRT_SuitorAnswer2",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Your loss. Sleep tight, then.",
+      "Emotion": "Happy",
+      "EmotionValue": "40",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsAliasRefConditionData",
+        "fields": {
+         "ReferenceAliasIndex": "0",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Goodbye"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLS_TIF_Suitor",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptIntProperty",
+           "fields": {
+            "Name": "Choice",
+            "Flags": "Edited",
+            "Data": "2"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "Main",
+            "Flags": "Edited",
+            "Object": "000D64:SL Survival.esp",
+            "Alias": "-1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "SuitorQuest",
+            "Flags": "Edited",
+            "Object": "@_SLSRT_Suitor",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLS_TIF_Suitor"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLS_TIF_Suitor",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ }
+]

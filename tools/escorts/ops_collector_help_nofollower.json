@@ -1,0 +1,94 @@
+[
+ {
+  "formid": "000945:SL Survival - Hopeless Escorts Dialogue.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "CompareOperator": "EqualTo",
+    "ComparisonValue": "0"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetPlayerTeammateCountConditionData",
+      "fields": {
+       "RunOnType": "Subject"
+      }
+     }
+    }
+   ]
+  }
+ },
+ {
+  "formid": "000946:SL Survival - Hopeless Escorts Dialogue.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "CompareOperator": "EqualTo",
+    "ComparisonValue": "0"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetPlayerTeammateCountConditionData",
+      "fields": {
+       "RunOnType": "Subject"
+      }
+     }
+    }
+   ]
+  }
+ },
+ {
+  "formid": "000947:SL Survival - Hopeless Escorts Dialogue.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "CompareOperator": "EqualTo",
+    "ComparisonValue": "0"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetPlayerTeammateCountConditionData",
+      "fields": {
+       "RunOnType": "Subject"
+      }
+     }
+    }
+   ]
+  }
+ },
+ {
+  "formid": "000948:SL Survival - Hopeless Escorts Dialogue.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "CompareOperator": "EqualTo",
+    "ComparisonValue": "0"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetPlayerTeammateCountConditionData",
+      "fields": {
+       "RunOnType": "Subject"
+      }
+     }
+    }
+   ]
+  }
+ }
+]

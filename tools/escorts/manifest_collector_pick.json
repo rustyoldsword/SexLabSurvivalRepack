@@ -1,0 +1,1214 @@
+[
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSHE_ColPick0",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "000941:SL Survival - Hopeless Escorts Dialogue.esp"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Custom"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   },
+   {
+    "field_path": "Name",
+    "value": "The drunk militiaman."
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColPick0_01",
+  "parent": "_SLSHE_ColPick0",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "The drunk? Ha. He'll fall over before you do. Off you go, the pair of you.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetGlobalValueConditionData",
+        "fields": {
+         "Global": "000940:SL Survival - Hopeless Escorts Dialogue.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Goodbye"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSHE_TIF_ColPick",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptIntProperty",
+           "fields": {
+            "Name": "Choice",
+            "Flags": "Edited",
+            "Data": "0"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "DialogueFollower",
+            "Flags": "Edited",
+            "Object": "0750BA:Skyrim.esm",
+            "Alias": "-1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "TollUtil",
+            "Flags": "Edited",
+            "Object": "009ED6:SL Survival.esp",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSHE_TIF_ColPick"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSHE_TIF_ColPick",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSHE_ColPick1",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "000941:SL Survival - Hopeless Escorts Dialogue.esp"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Custom"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   },
+   {
+    "field_path": "Name",
+    "value": "The town beggar."
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColPick1_01",
+  "parent": "_SLSHE_ColPick1",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "The beggar. Fitting - you two can fight over the scraps.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetGlobalValueConditionData",
+        "fields": {
+         "Global": "000940:SL Survival - Hopeless Escorts Dialogue.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Goodbye"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSHE_TIF_ColPick",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptIntProperty",
+           "fields": {
+            "Name": "Choice",
+            "Flags": "Edited",
+            "Data": "1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "DialogueFollower",
+            "Flags": "Edited",
+            "Object": "0750BA:Skyrim.esm",
+            "Alias": "-1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "TollUtil",
+            "Flags": "Edited",
+            "Object": "009ED6:SL Survival.esp",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSHE_TIF_ColPick"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSHE_TIF_ColPick",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSHE_ColPick2",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "000941:SL Survival - Hopeless Escorts Dialogue.esp"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Custom"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   },
+   {
+    "field_path": "Name",
+    "value": "The scribe's apprentice."
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColPick2_01",
+  "parent": "_SLSHE_ColPick2",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "The bookworm? He's never held anything heavier than a quill. Enjoy.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetGlobalValueConditionData",
+        "fields": {
+         "Global": "000940:SL Survival - Hopeless Escorts Dialogue.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Goodbye"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSHE_TIF_ColPick",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptIntProperty",
+           "fields": {
+            "Name": "Choice",
+            "Flags": "Edited",
+            "Data": "2"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "DialogueFollower",
+            "Flags": "Edited",
+            "Object": "0750BA:Skyrim.esm",
+            "Alias": "-1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "TollUtil",
+            "Flags": "Edited",
+            "Object": "009ED6:SL Survival.esp",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSHE_TIF_ColPick"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSHE_TIF_ColPick",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSHE_ColPick3",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "000941:SL Survival - Hopeless Escorts Dialogue.esp"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Custom"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   },
+   {
+    "field_path": "Name",
+    "value": "The farmhand."
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColPick3_01",
+  "parent": "_SLSHE_ColPick3",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "The farmhand. Strong back, empty head. A perfect match for you.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetGlobalValueConditionData",
+        "fields": {
+         "Global": "000940:SL Survival - Hopeless Escorts Dialogue.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Goodbye"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSHE_TIF_ColPick",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptIntProperty",
+           "fields": {
+            "Name": "Choice",
+            "Flags": "Edited",
+            "Data": "3"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "DialogueFollower",
+            "Flags": "Edited",
+            "Object": "0750BA:Skyrim.esm",
+            "Alias": "-1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "TollUtil",
+            "Flags": "Edited",
+            "Object": "009ED6:SL Survival.esp",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSHE_TIF_ColPick"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSHE_TIF_ColPick",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSHE_ColPick4",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "000941:SL Survival - Hopeless Escorts Dialogue.esp"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Custom"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   },
+   {
+    "field_path": "Name",
+    "value": "The frightened recruit."
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColPick4_01",
+  "parent": "_SLSHE_ColPick4",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "The recruit? He jumps at his own shadow. You'll get on famously.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetGlobalValueConditionData",
+        "fields": {
+         "Global": "000940:SL Survival - Hopeless Escorts Dialogue.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Goodbye"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSHE_TIF_ColPick",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptIntProperty",
+           "fields": {
+            "Name": "Choice",
+            "Flags": "Edited",
+            "Data": "4"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "DialogueFollower",
+            "Flags": "Edited",
+            "Object": "0750BA:Skyrim.esm",
+            "Alias": "-1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "TollUtil",
+            "Flags": "Edited",
+            "Object": "009ED6:SL Survival.esp",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSHE_TIF_ColPick"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSHE_TIF_ColPick",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSHE_ColPick5",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "000941:SL Survival - Hopeless Escorts Dialogue.esp"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Custom"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   },
+   {
+    "field_path": "Name",
+    "value": "The retired watchman."
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColPick5_01",
+  "parent": "_SLSHE_ColPick5",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Old Watchman? Thirty years in the Watch and still useless. He's all yours.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetGlobalValueConditionData",
+        "fields": {
+         "Global": "000940:SL Survival - Hopeless Escorts Dialogue.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Goodbye"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSHE_TIF_ColPick",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptIntProperty",
+           "fields": {
+            "Name": "Choice",
+            "Flags": "Edited",
+            "Data": "5"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "DialogueFollower",
+            "Flags": "Edited",
+            "Object": "0750BA:Skyrim.esm",
+            "Alias": "-1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "TollUtil",
+            "Flags": "Edited",
+            "Object": "009ED6:SL Survival.esp",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSHE_TIF_ColPick"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSHE_TIF_ColPick",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ }
+]

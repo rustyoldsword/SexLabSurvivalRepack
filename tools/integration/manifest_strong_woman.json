@@ -1,0 +1,810 @@
+[
+ {
+  "record_type": "Quest",
+  "editorid": "_SLSRT_StrongWoman",
+  "ops": [
+   {
+    "field_path": "Name",
+    "value": "A Woman of Strength"
+   },
+   {
+    "field_path": "Priority",
+    "value": "60"
+   },
+   {
+    "field_path": "Type",
+    "value": "Misc"
+   },
+   {
+    "field_path": "Aliases",
+    "op": "Add",
+    "compose": {
+     "type": "QuestAlias",
+     "fields": {
+      "ID": "0",
+      "Name": "Mjoll",
+      "Type": "Reference",
+      "UniqueActor": "01336B:Skyrim.esm",
+      "Flags": "Optional"
+     }
+    }
+   },
+   {
+    "field_path": "NextAliasID",
+    "value": "1"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "QuestAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSRT_StrongWomanQuest",
+         "Flags": "Local"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Stages",
+    "op": "Add",
+    "compose": {
+     "type": "QuestStage",
+     "fields": {
+      "Index": "10"
+     },
+     "sets": [
+      {
+       "path": "LogEntries",
+       "verb": "Add",
+       "compose": {
+        "type": "QuestLogEntry",
+        "sets": [
+         {
+          "path": "Entry",
+          "value": "Mjoll the Lioness told me that if I want to be more than property in Skyrim, I have to prove it to myself first. She set me three trials."
+         }
+        ]
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Stages",
+    "op": "Add",
+    "compose": {
+     "type": "QuestStage",
+     "fields": {
+      "Index": "40"
+     },
+     "sets": [
+      {
+       "path": "LogEntries",
+       "verb": "Add",
+       "compose": {
+        "type": "QuestLogEntry",
+        "sets": [
+         {
+          "path": "Entry",
+          "value": "I have passed all three of Mjoll's trials. I should return to her in Riften."
+         }
+        ]
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Stages",
+    "op": "Add",
+    "compose": {
+     "type": "QuestStage",
+     "fields": {
+      "Index": "100"
+     },
+     "sets": [
+      {
+       "path": "LogEntries",
+       "verb": "Add",
+       "compose": {
+        "type": "QuestLogEntry",
+        "sets": [
+         {
+          "path": "Entry",
+          "value": "Mjoll declared me a woman of strength. The laws of men no longer hold me down."
+         }
+        ]
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Objectives",
+    "op": "Add",
+    "compose": {
+     "type": "QuestObjective",
+     "fields": {
+      "Index": "10"
+     },
+     "sets": [
+      {
+       "path": "DisplayText",
+       "value": "Kill fifteen people who prey on others"
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Objectives",
+    "op": "Add",
+    "compose": {
+     "type": "QuestObjective",
+     "fields": {
+      "Index": "20"
+     },
+     "sets": [
+      {
+       "path": "DisplayText",
+       "value": "Live seven days without an armor licence"
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Objectives",
+    "op": "Add",
+    "compose": {
+     "type": "QuestObjective",
+     "fields": {
+      "Index": "30"
+     },
+     "sets": [
+      {
+       "path": "DisplayText",
+       "value": "Reach 50 in One-Handed, Two-Handed, Archery or Destruction"
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Objectives",
+    "op": "Add",
+    "compose": {
+     "type": "QuestObjective",
+     "fields": {
+      "Index": "40"
+     },
+     "sets": [
+      {
+       "path": "DisplayText",
+       "value": "Return to Mjoll"
+      },
+      {
+       "path": "Targets",
+       "verb": "Add",
+       "compose": {
+        "type": "QuestObjectiveTarget",
+        "fields": {
+         "AliasID": "0"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSRT_StrongStart",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "000D64:SL Survival.esp"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Custom"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   },
+   {
+    "field_path": "Name",
+    "value": "Mjoll, the laws here treat women like property. How do I prove them wrong?"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogBranch",
+  "editorid": "_SLSRT_StrongStartBranch",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "000D64:SL Survival.esp"
+   },
+   {
+    "field_path": "Flags",
+    "value": "TopLevel"
+   },
+   {
+    "field_path": "StartingTopic",
+    "value": "@_SLSRT_StrongStart"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSRT_StrongStart01",
+  "parent": "_SLSRT_StrongStart",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Prove it to yourself first, and the rest of Skyrim will follow. Three trials. Spill the blood of fifteen who prey on the weak. Live seven days without begging a clerk for an armor licence. And master a blade, a bow or the fire of Destruction until it answers you without thought. Come back when it's done.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsIDConditionData",
+        "fields": {
+         "Object": "01336B:Skyrim.esm",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetStageConditionData",
+        "fields": {
+         "Quest": "@_SLSRT_StrongWoman",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsSexConditionData",
+        "fields": {
+         "MaleFemaleGender": "Female",
+         "RunOnType": "Reference",
+         "Reference": "000014:Skyrim.esm"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "0A7DA4:SL Survival.esp",
+         "RunOnType": "Reference",
+         "Reference": "000014:Skyrim.esm"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetGlobalValueConditionData",
+        "fields": {
+         "Global": "070258:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Goodbye"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLS_TIF_StrongWoman",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptIntProperty",
+           "fields": {
+            "Name": "Choice",
+            "Flags": "Edited",
+            "Data": "0"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "StrongQuest",
+            "Flags": "Edited",
+            "Object": "@_SLSRT_StrongWoman",
+            "Alias": "-1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "Menu",
+            "Flags": "Edited",
+            "Object": "000D64:SL Survival.esp",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLS_TIF_StrongWoman"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLS_TIF_StrongWoman",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSRT_StrongProgress",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSRT_StrongWoman"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Custom"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   },
+   {
+    "field_path": "Name",
+    "value": "About the trials..."
+   }
+  ]
+ },
+ {
+  "record_type": "DialogBranch",
+  "editorid": "_SLSRT_StrongProgressBranch",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSRT_StrongWoman"
+   },
+   {
+    "field_path": "Flags",
+    "value": "TopLevel"
+   },
+   {
+    "field_path": "StartingTopic",
+    "value": "@_SLSRT_StrongProgress"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSRT_StrongProgress01",
+  "parent": "_SLSRT_StrongProgress",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Not done yet. A Nord finishes what she starts. Go on.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsIDConditionData",
+        "fields": {
+         "Object": "01336B:Skyrim.esm",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "GreaterThanOrEqualTo",
+      "ComparisonValue": "10"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetStageConditionData",
+        "fields": {
+         "Quest": "@_SLSRT_StrongWoman",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "LessThan",
+      "ComparisonValue": "40"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetStageConditionData",
+        "fields": {
+         "Quest": "@_SLSRT_StrongWoman",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Goodbye"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSRT_StrongDone",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSRT_StrongWoman"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Custom"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   },
+   {
+    "field_path": "Name",
+    "value": "It's done. All three trials."
+   }
+  ]
+ },
+ {
+  "record_type": "DialogBranch",
+  "editorid": "_SLSRT_StrongDoneBranch",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSRT_StrongWoman"
+   },
+   {
+    "field_path": "Flags",
+    "value": "TopLevel"
+   },
+   {
+    "field_path": "StartingTopic",
+    "value": "@_SLSRT_StrongDone"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSRT_StrongDone01",
+  "parent": "_SLSRT_StrongDone",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "I can see it in the way you stand. You're no one's property, and anyone who says otherwise can tell it to your blade. Walk tall, sister.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsIDConditionData",
+        "fields": {
+         "Object": "01336B:Skyrim.esm",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "40"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetStageConditionData",
+        "fields": {
+         "Quest": "@_SLSRT_StrongWoman",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Goodbye"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLS_TIF_StrongWoman",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptIntProperty",
+           "fields": {
+            "Name": "Choice",
+            "Flags": "Edited",
+            "Data": "1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "StrongQuest",
+            "Flags": "Edited",
+            "Object": "@_SLSRT_StrongWoman",
+            "Alias": "-1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "Menu",
+            "Flags": "Edited",
+            "Object": "000D64:SL Survival.esp",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLS_TIF_StrongWoman"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLS_TIF_StrongWoman",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ }
+]

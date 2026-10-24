@@ -1,0 +1,122 @@
+[
+ {
+  "formid": "000856:SL Survival - Revision Tweaks.esp",
+  "field_path": "Conditions",
+  "op": "ReplaceAll",
+  "composes": []
+ },
+ {
+  "formid": "000856:SL Survival - Revision Tweaks.esp",
+  "field_path": "Data[7].Topics",
+  "op": "SetAtIndex",
+  "key": "0",
+  "compose": {
+   "type": "TopicReference",
+   "fields": {
+    "Reference": "000862:SL Survival - Revision Tweaks.esp"
+   }
+  }
+ },
+ {
+  "formid": "000860:SL Survival - Revision Tweaks.esp",
+  "field_path": "Aliases[0].PackageData",
+  "op": "Add",
+  "value": "000856:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "000857:SL Survival - Revision Tweaks.esp",
+  "field_path": "Conditions",
+  "op": "ReplaceAll",
+  "composes": []
+ },
+ {
+  "formid": "000857:SL Survival - Revision Tweaks.esp",
+  "field_path": "Data[7].Topics",
+  "op": "SetAtIndex",
+  "key": "0",
+  "compose": {
+   "type": "TopicReference",
+   "fields": {
+    "Reference": "00086D:SL Survival - Revision Tweaks.esp"
+   }
+  }
+ },
+ {
+  "formid": "000861:SL Survival - Revision Tweaks.esp",
+  "field_path": "Aliases[0].PackageData",
+  "op": "Add",
+  "value": "000857:SL Survival - Revision Tweaks.esp"
+ },
+ {
+  "formid": "0D09EC:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "CompareOperator": "EqualTo",
+    "ComparisonValue": "0"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetGlobalValueConditionData",
+      "fields": {
+       "RunOnType": "Subject",
+       "Global": "00085E:SL Survival - Revision Tweaks.esp"
+      }
+     }
+    }
+   ]
+  }
+ },
+ {
+  "formid": "10F82B:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "CompareOperator": "EqualTo",
+    "ComparisonValue": "0"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetGlobalValueConditionData",
+      "fields": {
+       "RunOnType": "Subject",
+       "Global": "00085E:SL Survival - Revision Tweaks.esp"
+      }
+     }
+    }
+   ]
+  }
+ },
+ {
+  "formid": "114937:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "CompareOperator": "EqualTo",
+    "ComparisonValue": "0"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetGlobalValueConditionData",
+      "fields": {
+       "RunOnType": "Subject",
+       "Global": "00085E:SL Survival - Revision Tweaks.esp"
+      }
+     }
+    }
+   ]
+  }
+ }
+]

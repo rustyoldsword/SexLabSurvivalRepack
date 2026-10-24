@@ -1,0 +1,2371 @@
+[
+ {
+  "record_type": "GlobalShort",
+  "editorid": "_SLSHE_EscortAlive",
+  "ops": [
+   {
+    "field_path": "Data",
+    "value": "0"
+   }
+  ]
+ },
+ {
+  "record_type": "Quest",
+  "editorid": "_SLSHE_Col",
+  "ops": [
+   {
+    "field_path": "Name",
+    "value": "Hopeless Escorts Toll Collectors"
+   },
+   {
+    "field_path": "Flags",
+    "value": "StartGameEnabled"
+   },
+   {
+    "field_path": "Priority",
+    "value": "60"
+   },
+   {
+    "field_path": "DialogConditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetIsSexConditionData",
+        "fields": {
+         "MaleFemaleGender": "Female",
+         "RunOnType": "Reference",
+         "Reference": "000014:Skyrim.esm"
+        }
+       }
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSHE_ColHelp",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSHE_Col"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Custom"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   },
+   {
+    "field_path": "Name",
+    "value": "Please, I need help."
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSHE_ColNeed",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSHE_Col"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Custom"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   },
+   {
+    "field_path": "Name",
+    "value": "I can't leave without an escort. I need someone to go with me."
+   }
+  ]
+ },
+ {
+  "record_type": "DialogTopic",
+  "editorid": "_SLSHE_ColBye",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSHE_Col"
+   },
+   {
+    "field_path": "Subtype",
+    "value": "Custom"
+   },
+   {
+    "field_path": "Category",
+    "value": "Topic"
+   },
+   {
+    "field_path": "Priority",
+    "value": "50"
+   },
+   {
+    "field_path": "Name",
+    "value": "Never mind."
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColHelp01",
+  "parent": "_SLSHE_ColHelp",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Help? Oh, this should be good. Go on, girl, what's the trouble?",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSHE_ColNeed"
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSHE_ColBye"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSHE_TIF_ColCheck",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "_SLSHE_EscortAlive",
+            "Flags": "Edited",
+            "Object": "@_SLSHE_EscortAlive",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSHE_TIF_ColCheck"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnBegin",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSHE_TIF_ColCheck",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColHelp02",
+  "parent": "_SLSHE_ColHelp",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "A woman asking the gate for help. Shocking. What is it?",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSHE_ColNeed"
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSHE_ColBye"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSHE_TIF_ColCheck",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "_SLSHE_EscortAlive",
+            "Flags": "Edited",
+            "Object": "@_SLSHE_EscortAlive",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSHE_TIF_ColCheck"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnBegin",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSHE_TIF_ColCheck",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColHelp03",
+  "parent": "_SLSHE_ColHelp",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Look at that, it can talk. Quickly, I've got real work to do.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSHE_ColNeed"
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSHE_ColBye"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSHE_TIF_ColCheck",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "_SLSHE_EscortAlive",
+            "Flags": "Edited",
+            "Object": "@_SLSHE_EscortAlive",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSHE_TIF_ColCheck"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnBegin",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSHE_TIF_ColCheck",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColHelp04",
+  "parent": "_SLSHE_ColHelp",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Let me guess - you want out and you can't do it on your own. What else is new.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSHE_ColNeed"
+   },
+   {
+    "field_path": "LinkTo",
+    "op": "Add",
+    "value": "@_SLSHE_ColBye"
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSHE_TIF_ColCheck",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "_SLSHE_EscortAlive",
+            "Flags": "Edited",
+            "Object": "@_SLSHE_EscortAlive",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSHE_TIF_ColCheck"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnBegin",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSHE_TIF_ColCheck",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random, RandomEnd"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColGive01",
+  "parent": "_SLSHE_ColNeed",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Ha! Can't even walk through a gate without a man holding your hand. Fine. I've got just the fool for you - nobody else wants him either.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetGlobalValueConditionData",
+        "fields": {
+         "Global": "@_SLSHE_EscortAlive",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSHE_TIF_ColGive",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "DialogueFollower",
+            "Flags": "Edited",
+            "Object": "0750BA:Skyrim.esm",
+            "Alias": "-1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "TollUtil",
+            "Flags": "Edited",
+            "Object": "009ED6:SL Survival.esp",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSHE_TIF_ColGive"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSHE_TIF_ColGive",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random, Goodbye"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColGive02",
+  "parent": "_SLSHE_ColNeed",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "An escort, she says. Hey, lads, the little lady needs a minder! ... Here, take this one. He's useless, but so are you. You'll get on.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetGlobalValueConditionData",
+        "fields": {
+         "Global": "@_SLSHE_EscortAlive",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSHE_TIF_ColGive",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "DialogueFollower",
+            "Flags": "Edited",
+            "Object": "0750BA:Skyrim.esm",
+            "Alias": "-1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "TollUtil",
+            "Flags": "Edited",
+            "Object": "009ED6:SL Survival.esp",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSHE_TIF_ColGive"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSHE_TIF_ColGive",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random, Goodbye"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColGive03",
+  "parent": "_SLSHE_ColNeed",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "You know why we don't let your kind out alone? Because of exactly this. Wait here, I'll find you something with a pulse.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetGlobalValueConditionData",
+        "fields": {
+         "Global": "@_SLSHE_EscortAlive",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSHE_TIF_ColGive",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "DialogueFollower",
+            "Flags": "Edited",
+            "Object": "0750BA:Skyrim.esm",
+            "Alias": "-1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "TollUtil",
+            "Flags": "Edited",
+            "Object": "009ED6:SL Survival.esp",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSHE_TIF_ColGive"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSHE_TIF_ColGive",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random, Goodbye"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColGive04",
+  "parent": "_SLSHE_ColNeed",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Free of charge, sweetheart. We pay to get rid of him. Now you're his problem and he's yours.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetGlobalValueConditionData",
+        "fields": {
+         "Global": "@_SLSHE_EscortAlive",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSHE_TIF_ColGive",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "DialogueFollower",
+            "Flags": "Edited",
+            "Object": "0750BA:Skyrim.esm",
+            "Alias": "-1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "TollUtil",
+            "Flags": "Edited",
+            "Object": "009ED6:SL Survival.esp",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSHE_TIF_ColGive"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSHE_TIF_ColGive",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random, Goodbye"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColGive05",
+  "parent": "_SLSHE_ColNeed",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Look at you, all big eyes and empty hands. Pathetic. Fine, I'll fetch you the town's leftovers - suits you perfectly.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetGlobalValueConditionData",
+        "fields": {
+         "Global": "@_SLSHE_EscortAlive",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSHE_TIF_ColGive",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "DialogueFollower",
+            "Flags": "Edited",
+            "Object": "0750BA:Skyrim.esm",
+            "Alias": "-1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "TollUtil",
+            "Flags": "Edited",
+            "Object": "009ED6:SL Survival.esp",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSHE_TIF_ColGive"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSHE_TIF_ColGive",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random, Goodbye"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColGive06",
+  "parent": "_SLSHE_ColNeed",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Gods, the begging. Alright, alright. One escort, slightly used, mostly drunk. Don't bring him back.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetGlobalValueConditionData",
+        "fields": {
+         "Global": "@_SLSHE_EscortAlive",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSHE_TIF_ColGive",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "DialogueFollower",
+            "Flags": "Edited",
+            "Object": "0750BA:Skyrim.esm",
+            "Alias": "-1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "TollUtil",
+            "Flags": "Edited",
+            "Object": "009ED6:SL Survival.esp",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSHE_TIF_ColGive"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSHE_TIF_ColGive",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random, Goodbye"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColGive07",
+  "parent": "_SLSHE_ColNeed",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "A grown woman who can't take ten steps past a wall by herself. Skyrim really has gone soft. Here - your new keeper.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetGlobalValueConditionData",
+        "fields": {
+         "Global": "@_SLSHE_EscortAlive",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSHE_TIF_ColGive",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "DialogueFollower",
+            "Flags": "Edited",
+            "Object": "0750BA:Skyrim.esm",
+            "Alias": "-1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "TollUtil",
+            "Flags": "Edited",
+            "Object": "009ED6:SL Survival.esp",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSHE_TIF_ColGive"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSHE_TIF_ColGive",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random, Goodbye"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColGive08",
+  "parent": "_SLSHE_ColNeed",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Hah! Someone write this down. Fine, girl, you get the dregs. Try not to lose him before he loses you.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetGlobalValueConditionData",
+        "fields": {
+         "Global": "@_SLSHE_EscortAlive",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "VirtualMachineAdapter",
+    "compose": {
+     "type": "DialogResponsesAdapter",
+     "fields": {
+      "Version": "5",
+      "ObjectFormat": "2"
+     },
+     "sets": [
+      {
+       "path": "Scripts",
+       "verb": "Add",
+       "compose": {
+        "type": "ScriptEntry",
+        "fields": {
+         "Name": "_SLSHE_TIF_ColGive",
+         "Flags": "Local"
+        },
+        "sets": [
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "DialogueFollower",
+            "Flags": "Edited",
+            "Object": "0750BA:Skyrim.esm",
+            "Alias": "-1"
+           }
+          }
+         },
+         {
+          "path": "Properties",
+          "verb": "Add",
+          "compose": {
+           "type": "ScriptObjectProperty",
+           "fields": {
+            "Name": "TollUtil",
+            "Flags": "Edited",
+            "Object": "009ED6:SL Survival.esp",
+            "Alias": "-1"
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "path": "ScriptFragments.FileName",
+       "value": "_SLSHE_TIF_ColGive"
+      },
+      {
+       "path": "ScriptFragments.ExtraBindDataVersion",
+       "value": "2"
+      },
+      {
+       "path": "ScriptFragments.OnEnd",
+       "compose": {
+        "type": "ScriptFragment",
+        "fields": {
+         "ScriptName": "_SLSHE_TIF_ColGive",
+         "FragmentName": "Fragment_0",
+         "ExtraBindDataVersion": "1"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random, RandomEnd, Goodbye"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColHave01",
+  "parent": "_SLSHE_ColNeed",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "You already have one, you greedy little thing. Use him.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetGlobalValueConditionData",
+        "fields": {
+         "Global": "@_SLSHE_EscortAlive",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random, Goodbye"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColHave02",
+  "parent": "_SLSHE_ColNeed",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "One idiot per woman. Town rule. I just made it up, but it's a rule.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetGlobalValueConditionData",
+        "fields": {
+         "Global": "@_SLSHE_EscortAlive",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random, Goodbye"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColHave03",
+  "parent": "_SLSHE_ColNeed",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "What, the first one ran off already? No? Then get out of my face.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetGlobalValueConditionData",
+        "fields": {
+         "Global": "@_SLSHE_EscortAlive",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Random, RandomEnd, Goodbye"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogResponses",
+  "editorid": "_SLSHE_ColBye01",
+  "parent": "_SLSHE_ColBye",
+  "ops": [
+   {
+    "field_path": "Responses",
+    "op": "Add",
+    "compose": {
+     "type": "DialogResponse",
+     "fields": {
+      "Text": "Then stop wasting my time.",
+      "Emotion": "Neutral",
+      "EmotionValue": "50",
+      "ResponseNumber": "1"
+     }
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "1"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetInFactionConditionData",
+        "fields": {
+         "Faction": "00A09C:SL Survival.esp",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Conditions",
+    "op": "Add",
+    "compose": {
+     "type": "ConditionFloat",
+     "fields": {
+      "CompareOperator": "EqualTo",
+      "ComparisonValue": "0"
+     },
+     "sets": [
+      {
+       "path": "Data",
+       "compose": {
+        "type": "GetVMQuestVariableConditionData",
+        "fields": {
+         "Quest": "000D64:SL Survival.esp",
+         "VariableName": "::IsTollPaid_var",
+         "RunOnType": "Subject"
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "field_path": "Flags.Flags",
+    "value": "Goodbye"
+   }
+  ]
+ },
+ {
+  "record_type": "DialogBranch",
+  "editorid": "_SLSHE_ColBranch",
+  "ops": [
+   {
+    "field_path": "Quest",
+    "value": "@_SLSHE_Col"
+   },
+   {
+    "field_path": "Category",
+    "value": "Player"
+   },
+   {
+    "field_path": "Flags",
+    "value": "TopLevel"
+   },
+   {
+    "field_path": "StartingTopic",
+    "value": "@_SLSHE_ColHelp"
+   }
+  ]
+ }
+]

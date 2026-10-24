@@ -1,0 +1,271 @@
+
+State Shs ; SunHelmSurvival - unchanged from crajjjj's optional SunHelm patch =================================
+	Bool Function IsNeedsModActive()
+		Return Shs.IsNeedsModActive()
+	EndFunction
+
+	Function EatCum(Float Amount)
+		ModHunger(Amount * 15.0 * CumFoodMult)
+	EndFunction
+
+	Function DrinkCum(Float Amount)
+		ModThirst(Amount * 25.0 * CumDrinkMult * SaltyCum)
+	EndFunction
+
+	Function ModHunger(Float Amount)
+		Shs.Eat(Amount as Int)
+	EndFunction
+
+	Function ModThirst(Float Amount)
+		Shs.Drink(Amount as Int)
+	EndFunction
+
+	Float Function GetFatigue()
+		Return Shs.GetFatigue()
+	EndFunction
+
+	Function CorrectFatigue(Float SleepPenalty, Float StartingFatigue, Float HoursSlept)
+		Shs.CorrectFatigue(SleepPenalty, StartingFatigue, HoursSlept)
+	EndFunction
+
+	Function SyncBedrollSleepFlag()
+		Shs.SyncBedrollSleepFlag()
+	EndFunction
+
+	Function ModFatigue(Float Amount)
+		FatigueBeforeModding = Shs.GetFatigue()
+		Shs.ModFatigue(Amount as Int)
+	EndFunction
+
+	Bool Function IsDesperate() ; Condition used to determine if player will auto swallow cum
+		Return Shs.IsDesperate()
+	EndFunction
+
+	Function GetBegIsHungy()
+		BegIsHungry = Shs.GetBegIsHungry()
+	EndFunction
+
+	Function GetBegIsThirsty()
+		BegIsThirsty = Shs.GetBegIsThirsty()
+	EndFunction
+
+	Float Function GetBellyScale()
+		Return BaseBellyScale + Shs.GetBellyScale()
+	EndFunction
+
+	Float Function GetLastHungerUpdateTime()
+		Return Shs.GetLastHungerUpdateTime()
+	EndFunction
+
+	String Function GetConditionsStatement(Float SleepPenalty)
+		Return Shs.GetConditionsStatement(SleepPenalty)
+	EndFunction
+
+	Float Function GetHungerSleepPenalty()
+		Return Shs.GetHungerSleepPenalty()
+	EndFunction
+
+	Float Function GetThirstSleepPenalty()
+		Return Shs.GetThirstSleepPenalty()
+	EndFunction
+
+	String Function GetAioHunger()
+		Return Shs.GetAioHunger()
+	EndFunction
+
+	String Function GetAioThirst()
+		Return Shs.GetAioThirst()
+	EndFunction
+
+	String Function GetAioFatigue()
+		Return Shs.GetAioFatigue()
+	EndFunction
+EndState
+
+State Ccs ; Creation Club Survival Mode - integration patch ====================================================
+	; Survival Mode has hunger, exhaustion and cold but no thirst: drinking and thirst calls do nothing here.
+	; Hunger 0..1000: Well Fed / Satisfied / Peckish / Hungry / Starving / Ravenous.
+	; Exhaustion 0..960: Well Rested / Rested / Slightly Tired / Tired / Weary / Debilitated.
+	Bool Function IsNeedsModActive()
+		Return IsCcsEnabled()
+	EndFunction
+
+	Function EatCum(Float Amount)
+		ModHunger(Amount * 15.0 * CumFoodMult)
+	EndFunction
+
+	Function DrinkCum(Float Amount)
+	EndFunction
+
+	Function ModHunger(Float Amount) ; positive = food, like the other needs adapters
+		If !IsCcsEnabled()
+			Return
+		EndIf
+		If Amount > 0.0
+			_SLS_IntCcs.DecreaseHunger(CcsHungerQuest, Amount)
+		ElseIf Amount < 0.0
+			_SLS_IntCcs.IncreaseHunger(CcsHungerQuest, -Amount)
+		EndIf
+	EndFunction
+
+	Function ModThirst(Float Amount)
+	EndFunction
+
+	Float Function GetFatigue() ; SLS fatigue units: Survival Mode exhaustion / CcsFatigueScale
+		If !IsCcsEnabled()
+			Return 0.0
+		EndIf
+		Return CcsExhaustionValue.GetValue() / CcsFatigueScale
+	EndFunction
+
+	Function ModFatigue(Float Amount) ; + more tired, - less tired
+		If !IsCcsEnabled()
+			Return
+		EndIf
+		FatigueBeforeModding = GetFatigue()
+		If Amount > 0.0
+			_SLS_IntCcs.IncreaseExhaustion(CcsExhaustionQuest, Amount * CcsFatigueScale)
+		ElseIf Amount < 0.0
+			_SLS_IntCcs.DecreaseExhaustion(CcsExhaustionQuest, -Amount * CcsFatigueScale)
+		EndIf
+	EndFunction
+
+	Function CorrectFatigue(Float SleepPenalty, Float StartingFatigue, Float HoursSlept)
+		; Same structure as the SunHelm/RND adapters: runs ~5s after Survival Mode's own sleep restore and pulls
+		; exhaustion back up to the floor the sleep conditions imply.
+		If !IsCcsEnabled()
+			Return
+		EndIf
+		Float[] Levels = _SLS_IntCcs.GetStageValues(CcsExhaustionQuest)
+		Float TargetFatigue
+		If SleepPenalty <= 0.2
+			TargetFatigue = (SleepPenalty / 0.2) * Levels[1] ; up to 'Rested'
+		ElseIf SleepPenalty <= 0.4
+			TargetFatigue = (SleepPenalty / 0.4) * Levels[2] ; 'Slightly Tired'
+		ElseIf SleepPenalty <= 0.6
+			TargetFatigue = (SleepPenalty / 0.6) * Levels[3] ; 'Tired'
+		ElseIf SleepPenalty <= 0.8
+			TargetFatigue = (SleepPenalty / 0.8) * Levels[4] ; 'Weary'
+		Else
+			TargetFatigue = (SleepPenalty / 1.0) * ((Levels[4] + Levels[5]) / 2.0) ; between 'Weary' and 'Debilitated'
+		EndIf
+		TargetFatigue = TargetFatigue / CcsFatigueScale
+
+		Float CurrentFatigue = GetFatigue()
+		If StartingFatigue > TargetFatigue ; more tired than the cap when sleep began - cap the rest gained
+			If CurrentFatigue < TargetFatigue
+				ModFatigue(TargetFatigue - CurrentFatigue)
+			EndIf
+		Else ; fresher than the floor - bad conditions slowly wear the player down toward it
+			Float Delta = (TargetFatigue + StartingFatigue) - CurrentFatigue
+			ModFatigue((Delta / 8.0) * HoursSlept) ; 8 hours of sleep to reach the target
+		EndIf
+	EndFunction
+
+	Bool Function IsDesperate() ; Condition used to determine if player will auto swallow cum
+		Return IsCcsEnabled() && GetCcsStage(CcsHungerQuest, CcsHungerValue) >= 5
+	EndFunction
+
+	Function GetBegIsHungy()
+		BegIsHungry = IsCcsEnabled() && GetCcsStage(CcsHungerQuest, CcsHungerValue) >= 3 ; 'Hungry' or worse
+	EndFunction
+
+	Function GetBegIsThirsty()
+		BegIsThirsty = false
+	EndFunction
+
+	Float Function GetBellyScale()
+		If !IsCcsEnabled()
+			Return -2.0
+		EndIf
+		Int Stage = GetCcsStage(CcsHungerQuest, CcsHungerValue)
+		Return BaseBellyScale + 1.5 - (Stage * 0.3) ; 1.5 well fed .. 0.0 ravenous: the SunHelm adapter's ladder
+	EndFunction
+
+	Float Function GetLastHungerUpdateTime() ; game days, like Utility.GetCurrentGameTime()
+		If !IsCcsEnabled()
+			Return 0.0
+		EndIf
+		Return _SLS_IntCcs.GetLastUpdateHours(CcsHungerQuest) / 24.0
+	EndFunction
+
+	String Function GetConditionsStatement(Float SleepPenalty)
+		String ConditionString = "Maximum rest in these conditions is: "
+		If SleepPenalty <= 0.2
+			Return ConditionString + "Rested. "
+		ElseIf SleepPenalty <= 0.4
+			Return ConditionString + "Slightly tired. "
+		ElseIf SleepPenalty <= 0.6
+			Return ConditionString + "Tired. "
+		ElseIf SleepPenalty <= 0.8
+			Return ConditionString + "Weary. "
+		EndIf
+		Return ConditionString + "Debilitated. "
+	EndFunction
+
+	Float Function GetHungerSleepPenalty() ; keys may be added to SleepDepriv.json, the defaults mirror the SunHelm ones
+		If !IsCcsEnabled()
+			Return 0.0
+		EndIf
+		Int Stage = GetCcsStage(CcsHungerQuest, CcsHungerValue)
+		String File = "SL Survival/SleepDepriv.json"
+		If Stage == 0
+			Return JsonUtil.GetFloatValue(File, "hunger_ccs_wellfed", -0.05)
+		ElseIf Stage == 1
+			Return JsonUtil.GetFloatValue(File, "hunger_ccs_satisfied", -0.025)
+		ElseIf Stage == 2
+			Return JsonUtil.GetFloatValue(File, "hunger_ccs_peckish", 0.0)
+		ElseIf Stage == 3
+			Return JsonUtil.GetFloatValue(File, "hunger_ccs_hungry", 0.1)
+		ElseIf Stage == 4
+			Return JsonUtil.GetFloatValue(File, "hunger_ccs_starving", 0.15)
+		EndIf
+		Return JsonUtil.GetFloatValue(File, "hunger_ccs_ravenous", 0.3)
+	EndFunction
+
+	Float Function GetThirstSleepPenalty()
+		Return 0.0
+	EndFunction
+
+	String Function GetAioHunger()
+		If !IsCcsEnabled()
+			Return ""
+		EndIf
+		Int Stage = GetCcsStage(CcsHungerQuest, CcsHungerValue)
+		If Stage == 0
+			Return "Well fed"
+		ElseIf Stage == 1
+			Return "Satisfied"
+		ElseIf Stage == 2
+			Return "Peckish"
+		ElseIf Stage == 3
+			Return "Hungry"
+		ElseIf Stage == 4
+			Return "Starving"
+		EndIf
+		Return "Ravenous"
+	EndFunction
+
+	String Function GetAioThirst()
+		Return ""
+	EndFunction
+
+	String Function GetAioFatigue()
+		If !IsCcsEnabled()
+			Return ""
+		EndIf
+		Int Stage = GetCcsStage(CcsExhaustionQuest, CcsExhaustionValue)
+		If Stage == 0
+			Return "Well rested"
+		ElseIf Stage == 1
+			Return "Rested"
+		ElseIf Stage == 2
+			Return "Slightly tired"
+		ElseIf Stage == 3
+			Return "Tired"
+		ElseIf Stage == 4
+			Return "Weary"
+		EndIf
+		Return "Debilitated"
+	EndFunction
+EndState

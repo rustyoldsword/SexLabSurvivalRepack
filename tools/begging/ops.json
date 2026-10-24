@@ -1,0 +1,580 @@
+[
+ {
+  "formid": "01C008:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "ComparisonValue": "1",
+    "CompareOperator": "EqualTo"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "IsUniqueConditionData",
+      "fields": {}
+     }
+    }
+   ]
+  }
+ },
+ {
+  "formid": "01C00E:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Remove",
+  "key": "4"
+ },
+ {
+  "formid": "01C00E:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Remove",
+  "key": "3"
+ },
+ {
+  "formid": "01C00E:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "composes": [
+   {
+    "type": "ConditionFloat",
+    "fields": {
+     "ComparisonValue": "0",
+     "CompareOperator": "EqualTo"
+    },
+    "sets": [
+     {
+      "path": "Data",
+      "compose": {
+       "type": "WornHasKeywordConditionData",
+       "fields": {
+        "Keyword": "06C0EC:Skyrim.esm",
+        "RunOnType": "Reference",
+        "Reference": "000014:Skyrim.esm"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "ConditionFloat",
+    "fields": {
+     "ComparisonValue": "0",
+     "CompareOperator": "EqualTo"
+    },
+    "sets": [
+     {
+      "path": "Data",
+      "compose": {
+       "type": "WornHasKeywordConditionData",
+       "fields": {
+        "Keyword": "0A8657:Skyrim.esm",
+        "RunOnType": "Reference",
+        "Reference": "000014:Skyrim.esm"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "formid": "05E914:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "composes": [
+   {
+    "type": "ConditionFloat",
+    "fields": {
+     "ComparisonValue": "0",
+     "CompareOperator": "EqualTo"
+    },
+    "sets": [
+     {
+      "path": "Data",
+      "compose": {
+       "type": "WornHasKeywordConditionData",
+       "fields": {
+        "Keyword": "06C0EC:Skyrim.esm",
+        "RunOnType": "Reference",
+        "Reference": "000014:Skyrim.esm"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "ConditionFloat",
+    "fields": {
+     "ComparisonValue": "0",
+     "CompareOperator": "EqualTo"
+    },
+    "sets": [
+     {
+      "path": "Data",
+      "compose": {
+       "type": "WornHasKeywordConditionData",
+       "fields": {
+        "Keyword": "0A8657:Skyrim.esm",
+        "RunOnType": "Reference",
+        "Reference": "000014:Skyrim.esm"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "formid": "01C571:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "composes": [
+   {
+    "type": "ConditionFloat",
+    "fields": {
+     "ComparisonValue": "0",
+     "CompareOperator": "EqualTo"
+    },
+    "sets": [
+     {
+      "path": "Data",
+      "compose": {
+       "type": "WornHasKeywordConditionData",
+       "fields": {
+        "Keyword": "06C0EC:Skyrim.esm",
+        "RunOnType": "Reference",
+        "Reference": "000014:Skyrim.esm"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "ConditionFloat",
+    "fields": {
+     "ComparisonValue": "0",
+     "CompareOperator": "EqualTo"
+    },
+    "sets": [
+     {
+      "path": "Data",
+      "compose": {
+       "type": "WornHasKeywordConditionData",
+       "fields": {
+        "Keyword": "0A8657:Skyrim.esm",
+        "RunOnType": "Reference",
+        "Reference": "000014:Skyrim.esm"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "formid": "01F6C3:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "composes": [
+   {
+    "type": "ConditionFloat",
+    "fields": {
+     "ComparisonValue": "0",
+     "CompareOperator": "EqualTo"
+    },
+    "sets": [
+     {
+      "path": "Data",
+      "compose": {
+       "type": "WornHasKeywordConditionData",
+       "fields": {
+        "Keyword": "06C0EC:Skyrim.esm",
+        "RunOnType": "Reference",
+        "Reference": "000014:Skyrim.esm"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "ConditionFloat",
+    "fields": {
+     "ComparisonValue": "0",
+     "CompareOperator": "EqualTo"
+    },
+    "sets": [
+     {
+      "path": "Data",
+      "compose": {
+       "type": "WornHasKeywordConditionData",
+       "fields": {
+        "Keyword": "0A8657:Skyrim.esm",
+        "RunOnType": "Reference",
+        "Reference": "000014:Skyrim.esm"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "formid": "0201A0:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "composes": [
+   {
+    "type": "ConditionFloat",
+    "fields": {
+     "ComparisonValue": "0",
+     "CompareOperator": "EqualTo"
+    },
+    "sets": [
+     {
+      "path": "Data",
+      "compose": {
+       "type": "WornHasKeywordConditionData",
+       "fields": {
+        "Keyword": "06C0EC:Skyrim.esm",
+        "RunOnType": "Reference",
+        "Reference": "000014:Skyrim.esm"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "ConditionFloat",
+    "fields": {
+     "ComparisonValue": "0",
+     "CompareOperator": "EqualTo"
+    },
+    "sets": [
+     {
+      "path": "Data",
+      "compose": {
+       "type": "WornHasKeywordConditionData",
+       "fields": {
+        "Keyword": "0A8657:Skyrim.esm",
+        "RunOnType": "Reference",
+        "Reference": "000014:Skyrim.esm"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "formid": "0201A1:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "composes": [
+   {
+    "type": "ConditionFloat",
+    "fields": {
+     "ComparisonValue": "0",
+     "CompareOperator": "EqualTo"
+    },
+    "sets": [
+     {
+      "path": "Data",
+      "compose": {
+       "type": "WornHasKeywordConditionData",
+       "fields": {
+        "Keyword": "06C0EC:Skyrim.esm",
+        "RunOnType": "Reference",
+        "Reference": "000014:Skyrim.esm"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "ConditionFloat",
+    "fields": {
+     "ComparisonValue": "0",
+     "CompareOperator": "EqualTo"
+    },
+    "sets": [
+     {
+      "path": "Data",
+      "compose": {
+       "type": "WornHasKeywordConditionData",
+       "fields": {
+        "Keyword": "0A8657:Skyrim.esm",
+        "RunOnType": "Reference",
+        "Reference": "000014:Skyrim.esm"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "formid": "023D1B:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "composes": [
+   {
+    "type": "ConditionFloat",
+    "fields": {
+     "ComparisonValue": "0",
+     "CompareOperator": "EqualTo"
+    },
+    "sets": [
+     {
+      "path": "Data",
+      "compose": {
+       "type": "WornHasKeywordConditionData",
+       "fields": {
+        "Keyword": "06C0EC:Skyrim.esm",
+        "RunOnType": "Reference",
+        "Reference": "000014:Skyrim.esm"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "type": "ConditionFloat",
+    "fields": {
+     "ComparisonValue": "0",
+     "CompareOperator": "EqualTo"
+    },
+    "sets": [
+     {
+      "path": "Data",
+      "compose": {
+       "type": "WornHasKeywordConditionData",
+       "fields": {
+        "Keyword": "0A8657:Skyrim.esm",
+        "RunOnType": "Reference",
+        "Reference": "000014:Skyrim.esm"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "formid": "01C586:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "ComparisonValue": "500",
+    "CompareOperator": "LessThan"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetGoldConditionData",
+      "fields": {
+       "RunOnType": "Reference",
+       "Reference": "000014:Skyrim.esm"
+      }
+     }
+    }
+   ]
+  }
+ },
+ {
+  "formid": "01F6C0:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "ComparisonValue": "500",
+    "CompareOperator": "LessThan"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetGoldConditionData",
+      "fields": {
+       "RunOnType": "Reference",
+       "Reference": "000014:Skyrim.esm"
+      }
+     }
+    }
+   ]
+  }
+ },
+ {
+  "formid": "023D1E:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "ComparisonValue": "500",
+    "CompareOperator": "LessThan"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetGoldConditionData",
+      "fields": {
+       "RunOnType": "Reference",
+       "Reference": "000014:Skyrim.esm"
+      }
+     }
+    }
+   ]
+  }
+ },
+ {
+  "formid": "01F6C4:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "ComparisonValue": "70",
+    "CompareOperator": "GreaterThanOrEqualTo"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetVMQuestVariableConditionData",
+      "fields": {
+       "Quest": "000D64:SL Survival.esp",
+       "VariableName": "::SwPhysicalPool_var"
+      }
+     }
+    }
+   ]
+  }
+ },
+ {
+  "formid": "023D1C:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "ComparisonValue": "70",
+    "CompareOperator": "GreaterThanOrEqualTo"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetVMQuestVariableConditionData",
+      "fields": {
+       "Quest": "000D64:SL Survival.esp",
+       "VariableName": "::SwPhysicalPool_var"
+      }
+     }
+    }
+   ]
+  }
+ },
+ {
+  "formid": "030D68:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "ComparisonValue": "30",
+    "CompareOperator": "GreaterThanOrEqualTo"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetVMQuestVariableConditionData",
+      "fields": {
+       "Quest": "000D64:SL Survival.esp",
+       "VariableName": "::SwPhysicalPool_var"
+      }
+     }
+    }
+   ]
+  }
+ },
+ {
+  "formid": "030D69:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "ComparisonValue": "30",
+    "CompareOperator": "GreaterThanOrEqualTo"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetVMQuestVariableConditionData",
+      "fields": {
+       "Quest": "000D64:SL Survival.esp",
+       "VariableName": "::SwPhysicalPool_var"
+      }
+     }
+    }
+   ]
+  }
+ },
+ {
+  "formid": "030D6C:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "ComparisonValue": "180",
+    "CompareOperator": "GreaterThanOrEqualTo"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetVMQuestVariableConditionData",
+      "fields": {
+       "Quest": "000D64:SL Survival.esp",
+       "VariableName": "::SwPhysicalPool_var"
+      }
+     }
+    }
+   ]
+  }
+ },
+ {
+  "formid": "030D6D:SL Survival.esp",
+  "field_path": "Conditions",
+  "op": "Add",
+  "compose": {
+   "type": "ConditionFloat",
+   "fields": {
+    "ComparisonValue": "180",
+    "CompareOperator": "GreaterThanOrEqualTo"
+   },
+   "sets": [
+    {
+     "path": "Data",
+     "compose": {
+      "type": "GetVMQuestVariableConditionData",
+      "fields": {
+       "Quest": "000D64:SL Survival.esp",
+       "VariableName": "::SwPhysicalPool_var"
+      }
+     }
+    }
+   ]
+  }
+ }
+]
