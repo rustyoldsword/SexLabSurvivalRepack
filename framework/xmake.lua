@@ -3,13 +3,15 @@ set_xmakever("3.0.0")
 includes("lib/CommonLibSSE-NG")
 
 set_project("SLSurvivalFramework")
-set_version("0.8.0")
+set_version("0.9.4")
 set_license("MIT")
 set_languages("c++23")
 set_warnings("allextra")
 set_encodings("utf-8")
 
 add_rules("mode.debug", "mode.releasedbg")
+
+add_requires("nlohmann_json v3.12.0")
 
 set_runtimes("MD")
 set_allowedplats("windows")
@@ -35,6 +37,7 @@ target("SLSurvivalFramework", function()
 
     add_files("src/**.cpp")
     add_headerfiles("src/**.h")
-    add_includedirs("src", "include")
+    add_includedirs("src", "include", "lib/SKSE-Menu-Framework-3-API")
+    add_packages("nlohmann_json")
     set_pcxxheader("src/PCH.h")
 end)

@@ -1,12 +1,12 @@
 # SLS bikini distribution list (BikiniArmors.json, read by sls_mcm.BuildBikiniLists): 148 entries point at
 # "(Pumpkin)-TEWOBA...esp", which this build does not have, so every list build ends in a "could not be found" box.
-# Writes a copy without them into SL Survival - Patches (wins over both SLS folders). Everything else is kept as is.
+# Writes a copy without them into SexLab Survival Repack (replaces the stock copy). Everything else is kept as is.
 # Run: python -I fix_bikini_lists.py
 import json
 import os
 
-SRC = r'C:\Modding\MO2\mods\SexLab Survival 0.716\SKSE\Plugins\StorageUtilData\SL Survival\BikiniArmors.json'
-DST = r'C:\Modding\MO2\mods\SL Survival - Patches\SKSE\Plugins\StorageUtilData\SL Survival\BikiniArmors.json'
+SRC = r'C:\Modding\MO2\work\backups\sls_merge_2026-10-27\layers\SexLab Survival 0.716\SKSE\Plugins\StorageUtilData\SL Survival\BikiniArmors.json'
+DST = r'C:\Modding\MO2\mods\SexLab Survival Repack\SKSE\Plugins\StorageUtilData\SL Survival\BikiniArmors.json'
 MISSING = 'TEWOBA'
 
 data = json.load(open(SRC, encoding='utf-8'))

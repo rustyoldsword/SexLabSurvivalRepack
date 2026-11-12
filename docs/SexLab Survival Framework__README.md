@@ -1,21 +1,19 @@
-# SexLab Survival Framework 0.7.4
+# SexLab Survival Framework 0.9.2
 
-Native core for SexLab Survival (SLS 0.716). It moves the checks SLS runs in Papyrus on every walk, equip,
+Native core of the SexLab Survival Repack. It moves the checks SLS runs in Papyrus on every walk, equip,
 item, menu and hit into an SKSE plugin, and calls the SLS script only when something actually happens.
-SLS's scripts keep their names, properties and functions. The mod is switched off as a whole: disable it and
-every script is plain SLS again. Its scripts expect the DLL; if it fails to load, SLS says so on game load.
+SLS's scripts keep their names, properties and functions. Its scripts expect the DLL; if it fails to load,
+SLS says so on game load.
 
 ## Requirements
 
-- SexLab Survival 0.716 and SL Survival - Patches
+- Ships inside the SexLab Survival Repack (one mod folder, 3.0 and later); nothing else from SLS is needed.
 - SKSE, Address Library for SKSE Plugins (SE 1.5.97 or AE 1.6.x)
-
-Place this mod **above** (after) SL Survival - Patches so its scripts win.
 
 ## Install, check, remove
 
-- **Install:** with the mod manager (FOMOD). Core is always installed; "Gentler Steep Fall" and the TNG patch are
-  optional. Place the mod after SL Survival - Patches.
+- **Install:** comes with the SexLab Survival Repack; there is no separate download any more. "Gentler Steep Fall"
+  and the TNG patch are part of the repack too.
 - **Check the install:** `docs\SexLab Survival Framework__manifest.json` lists every file with its SHA-256;
   `tools\verify.ps1` (in the source tree) reports missing or changed files and files another mod overrides in MO2.
 - **Smoke test after installing or updating** (a new game is fine):
@@ -24,7 +22,23 @@ Place this mod **above** (after) SL Survival - Patches so its scripts win.
      showing SLS messages it says "claimed".
   3. Walk to Whiterun's gate without paying: the gate is locked at once; pay the toll: both doors open.
   4. Draw a weapon in town without a weapon licence: the guard warning still comes.
-- **Remove:** disable the whole mod. Every SLS script is plain SLS again; the framework keeps nothing in the save.
+- **Remove:** it cannot be switched off on its own any more; it goes with the repack. The framework keeps nothing in
+  the save.
+
+## Version 0.9.2 — the SKSE menu at MCM parity
+
+- Every option of the SL Survival MCM is in the SKSE menu now. Values the menu could not read before (scaled sliders,
+  interface switches, lactacid voices), slider ranges computed in code (pickpocket loot and bikini chances, kennel and
+  enforcer limits, opacity), runtime menu lists and the three pages built in loops (inn prices, the two statistics
+  pages) come from a capture of the MCM page: the MCM draws the page into a buffer instead of SkyUI, exactly as it
+  would draw it, and the menu shows that.
+- The 16 options that ask for confirmation work from the menu: the menu asks first, then the MCM's own handler runs.
+- No more "Option type mismatch" line in the Papyrus log for every change made in the menu: SkyUI display calls are
+  silent while the menu applies its changes.
+- New 0.806 options (debuff notifications, experience bonus) are in the menu.
+- Native calls into SLS scripts that fire on a timer or on every event (nudity relay, curfew watch, equip hub) no
+  longer pile up behind a script that has stopped returning: one at a time for the first two, at most 16 per handler
+  for equip events. SLSFW.Report() shows "running" and "refused" per equip handler.
 
 ## Version 0.7.4 — load-transition crash and audit fixes
 
@@ -242,3 +256,42 @@ the Steep Fall monitor. Scripts and tools can ask for the same report with the g
   she sinks and SLS's drowning in bondage takes over. With Underwater NG installed both hooks chain and its armor
   buoyancy adds to this; with Sink Or Swim installed it stays off. `SLSurvivalFramework.ini` `[Swim]`:
   `bSinkWhenBound=1`, `fBoundSinkSpeed=0.9` (m/s), `fBoundStrokeMult=0.35`, `fBoundAscentMult=0`.
+
+## Upstream fixes, 2026-10-27
+
+Ported from crajjjj's SL Survival 0.801-0.803:
+- New game no longer deadlocks between `SLS_Init` and the licence scripts: the licence maintenance runs from
+  `SLS_Main.LoadGameMaintenance` and the licence script's own OnInit.
+- "Sex Reduces Exposure" (Warm Bodies) now also runs with Creation Club Survival Mode cold, not only Frostfall.
+- Simply Knock: the house you stayed in becomes private again once you leave it.
+- Action wheel: Actions > Shave starts SPH - Skyrim Pubic Hair's own shaving (only when SPH is installed; not with
+  tied hands).
+
+## 0.8.1 (2026-10-30)
+
+- Guard searches (tolls, curfew, approaches) also pause while another scene holds the shared `_SG_SceneBusy` flag of
+  "BaboDialogue - Patches": a Diary of Mine capture (bit 1), the knocked-out menu (bit 2) or a SexLab Horrible
+  Harassment episode (bit 8, set by Diary Of Mine Framework 0.9.1). Read only - SL Survival still sets no bit. The
+  `[Guards] BaboGuard=0` switch turns this off together with the Babo check.
+
+## 0.9.0 (2026-10-31) - settings in SKSE Menu Framework
+
+- SL Survival's settings are now also in SKSE Menu Framework: **SL Survival** section, one entry per MCM page
+  (all pages except Inn Room Prices and the two statistics pages). Needs SKSE Menu Framework 3; without it the MCM
+  works as before.
+- Why: the SkyUI MCM froze when a page was opened while other SL Survival scripts were busy (loading a save, a new
+  game). This menu never waits for a script: it shows values read directly by the plugin.
+- Changes are applied when the menu closes, through the MCM's own handlers (`sls_mcm.SLSFW_ApplyBatch`), so every
+  option behaves exactly as when it is changed in the MCM. A `*` marks a change that is waiting.
+- Options that ask for confirmation in the MCM (Hardcore mode, keys with conflicts and a few others) stay in the
+  MCM; they are greyed out here. A handful of options show "current value unknown" or a switch button because their
+  value is computed by the MCM; they still work.
+- Hardcore mode locks the same options as in the MCM.
+- The option table is `SKSE\Plugins\SLSurvivalFramework\Menu.json`, generated from `sls_mcm.psc`.
+
+## 0.9.1 (2026-10-31)
+
+- SL Survival's town tracking no longer calls the curfew and town-check scripts while it holds its own lock: it sends
+  mod events and they react on their own threads (they used to wedge each other when two location changes came
+  together). This plugin asks both scripts to register for those events on every load, so saves from before 3.0.2
+  pick them up.

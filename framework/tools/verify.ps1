@@ -3,7 +3,7 @@
 #
 # Run: powershell -ExecutionPolicy Bypass -File tools\verify.ps1 [-ModDir <mod folder>] [-ModsRoot <MO2 mods>] [-Profile <modlist.txt>]
 param(
-    [string]$ModDir = 'C:\Modding\MO2\mods\SexLab Survival Framework',
+    [string]$ModDir = 'C:\Modding\MO2\mods\SexLab Survival Repack',
     [string]$ModsRoot = 'C:\Modding\MO2\mods',
     [string]$Profile = 'C:\Modding\MO2\profiles\Default\modlist.txt'
 )

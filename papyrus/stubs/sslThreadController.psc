@@ -113,3 +113,11 @@ function Set_minimum_aggressor_orgasm_Count(int i)
 Endfunction
 function Set_maximum_aggressor_orgasm_Count(int i)
 Endfunction
+
+function SetActorMouthForcedOpen(Actor akActor, bool abForceOpen)
+endfunction
+String Function GetActorExpression(Actor akActor)
+	Return ""
+EndFunction
+Function SetActorExpression(Actor akActor, String asExpression)
+EndFunction

@@ -100,9 +100,10 @@ EndFunction
 Function ArmorCheckWait()
 	
 	If IsInMenu ; Equipping from menu - wait for menu to close
-		While IsInMenu
+		While IsInMenu && Utility.IsInMenuMode() ; 3.0.2: a lost OnMenuClose (save in a menu) kept IsInMenu set forever
 			Utility.Wait(2.0)
 		EndWhile
+		IsInMenu = false
 		DoArmorCheck()
 		
 	Else  ; Not equipping from menu - Wait for equipping/unequipping to stop

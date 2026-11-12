@@ -33,7 +33,10 @@ $imports = foreach ($i in $ppj.PapyrusProject.Imports.Import) {
     else { Join-Path $slsRepo ($v -replace '^\.\\', '') }
 }
 # our sources first so they shadow the repo copies, then stubs for mods whose scripts are not installed as source
-$importList = @($srcDir, (Join-Path $root 'stubs'), $wfng, $smi) + $imports
+# the framework's copies of SLS scripts are the shipped winners (merged mod, RUS-142): they shadow the 0.716 repo too
+$framework = 'C:\Modding\MO2\work\SLSFramework\papyrus\source'
+# src\ after the target folder too, so a probe build (-Sources other) still sees our edited scripts
+$importList = @($srcDir, (Join-Path $root 'src'), $framework, (Join-Path $root 'stubs'), $wfng, $smi) + $imports
 $importArg = ($importList | Where-Object { Test-Path $_ }) -join ';'
 
 $Targets = @($Targets | ForEach-Object { $_ -split "," } | Where-Object { $_ })

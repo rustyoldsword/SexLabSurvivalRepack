@@ -62,8 +62,14 @@ Event OnItemRemoved(Form akBaseItem, int aiItemCount, ObjectReference akItemRefe
 EndEvent
 
 Event OnMenuOpen(String MenuName)
+	; 3.0.2: fast travel was switched off here and never back on, so opening the map once in a city disabled it for
+	; the rest of the game. Re-enable it outside, but only if this script was the one that disabled it.
 	If Init.IsPlayerInside && Menu.FastTravelDisable
 		Game.EnableFastTravel(false)
+		FastTravelDisabledByUs = true
+	ElseIf FastTravelDisabledByUs
+		Game.EnableFastTravel(true)
+		FastTravelDisabledByUs = false
 	EndIf
 	If (PlayerRef.GetItemCount(_SLS_MapAndCompass) == 0 && !TempAccess) || Devious.IsPlayerBlindfolded()
 		Game.DisablePlayerControls(!Game.IsMovementControlsEnabled(), !Game.IsFightingControlsEnabled(), !Game.IsCamSwitchControlsEnabled(), !Game.IsLookingControlsEnabled(), !Game.IsSneakingControlsEnabled(), true, !Game.IsActivateControlsEnabled(), !Game.IsJournalControlsEnabled())
@@ -153,6 +159,7 @@ Event OnUpdate()
 EndEvent
 
 Bool Property TempAccess = false Auto Hidden
+Bool Property FastTravelDisabledByUs = false Auto Hidden
 
 MiscObject Property _SLS_MapAndCompass Auto
 

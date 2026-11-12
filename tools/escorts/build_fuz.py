@@ -17,7 +17,7 @@ import tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 PLUGIN = 'SL Survival - Hopeless Escorts Dialogue.esp'
 QUEST = '_SLSHE_Dlg'
-MOD = r'C:\Modding\MO2\mods\SL Survival - Patches'
+MOD = r'C:\Modding\MO2\mods\SexLab Survival Repack'
 LIPGEN = r'C:\Modding\MO2\basegame\Tools\LipGen\LipGenerator\LipGenerator.exe'
 XWMA = r'C:\Modding\MO2\basegame\Tools\LipGen\LipGenerator\xWMAEncode.exe'
 WAVS = os.path.join(HERE, 'tts', 'out_fish')  # Fish Audio voice pack (2026-10-21); tts\out = first ElevenLabs take

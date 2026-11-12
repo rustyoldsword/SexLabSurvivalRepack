@@ -16,19 +16,29 @@ M = os.path.join(ROOT, 'mods')
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STAGE = os.path.join(HERE, 'stage_flat')
 NAME = 'SexLab Survival Repack'
-VERSION = '0.716.2'
+VERSION = 'Beta 1.0'  # owner's choice 2026-11-12 (after 3.2 alpha, 2026-11-09; own numbering from 3.0)
 BLOCK_SEP = 'SexLab Survival_separator'
 EXCLUDE = {
     'Amputator NG - SL Survival Patch',            # needs Amputator.esm; ships with Amputator Framework Reborn
     'SL Survival Guards - Viking Patch',           # own page (needs Vikings armor)
     'SL Survival.esp-VoiceFiles',                  # own page (voice pack)
+    'SL Survival.esp-VoiceFiles NEW',
+    'SexLab Survival Repack - Voices',             # the same pack since the merge (RUS-142)
+    'SexLab Survival Repack - Voices External',    # Expansion voices: extra file on the voice pack page
 }
-SEQ = {r'SEQ\SL Survival.seq': os.path.join(M, r'AutoSEQ\Seq\SL Survival.seq')}  # owner: AutoSEQ's regenerated one
+# owner: AutoSEQ always has the freshest .seq; it wins over the mod's own copy (unshipped plugins are dropped below)
+SEQ = {'SEQ\\' + f: os.path.join(M, r'AutoSEQ\Seq', f) for f in os.listdir(os.path.join(M, r'AutoSEQ\Seq'))
+       if f.lower().endswith('.seq')}
 # release-only replacements: the begging patch without the Diary of Mine master (work\SLS_begging\release_no_dom.py)
-OVERRIDE = {'SLS Begging Conditions.esp': os.path.join(ROOT, r'work\SLS_begging\release\SLS Begging Conditions.esp')}
+OVERRIDE = {'SLS Begging Conditions.esp': os.path.join(ROOT, r'work\SLS_begging\release\SLS Begging Conditions.esp'),
+            # the repack's own BSA, as released in 3.0.1: the active copy in the mod folder is a Faster Archives
+            # repack of the same 141 files (checked 2026-11-09) and stays out of the release
+            'SL Survival - Textures.bsa': os.path.join(M, 'SexLab Survival Repack', 'SL Survival - Textures.bsa.mohidden')}
 
 sys.path.insert(0, os.path.join(HERE, 'tools'))
 from pex_scrub import scrub  # noqa: E402
+sys.path.insert(0, os.path.join(ROOT, 'work', 'sls_merge'))
+import layout  # noqa: E402  (merged SLS mod: our files are the ones that differ from stock SLS)
 
 CANON = {'scripts': 'Scripts', 'source': 'Source', 'skse': 'SKSE', 'plugins': 'Plugins', 'textures': 'textures',
          'meshes': 'meshes', 'interface': 'interface', 'sound': 'Sound', 'voice': 'Voice', 'seq': 'SEQ'}
@@ -39,11 +49,17 @@ def canon(rel):
     return '\\'.join(CANON.get(p.lower(), p) if i < len(parts) - 1 else p for i, p in enumerate(parts))
 
 
+# merged into the core folder on 2026-11-08 for local use only: needs UBE_AllRace.esp, so it is not part of the
+# standalone archive (release later as an optional UBE component or fold its records into SL Survival.esp)
+RELEASE_DROP = {'sl survival - ube tongues.esp'}
+
+
 def skip(rel):
     r = rel.lower()
     top = r.split('\\')[0]
     return (top in ('docs', 'fomod') or r == 'meta.ini' or r.endswith(('.pdb', '.bak', '.log')) or
-            r.endswith('.md') and '\\' not in r)
+            r.endswith('.md') and '\\' not in r or r in RELEASE_DROP or
+            r.endswith('.mohidden'))  # MO2 hides these from the game: never ship them (the 24 MB old Textures.bsa)
 
 
 def block_mods():
@@ -69,8 +85,9 @@ def main():
         if rel.lower() not in files:
             sys.exit('override target not staged: ' + rel)
         files[rel.lower()] = (rel, src, 'release')
-    for k in [k for k in files if k.startswith('seq\\') and k not in {r.lower() for r in SEQ}
-              and not k.endswith('hopeless escorts dialogue.seq')]:
+    # every .seq must match a plugin we ship (Revision Tweaks has its own SGE quest since 2026-10-24)
+    plugins = {k for k in files if '\\' not in k and k.endswith(('.esp', '.esm', '.esl'))}
+    for k in [k for k in files if k.startswith('seq\\') and k[4:-4] + '.esp' not in plugins]:
         del files[k]
     if os.path.exists(STAGE):
         shutil.rmtree(STAGE)
@@ -81,7 +98,9 @@ def main():
         dst = os.path.join(STAGE, rel)
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         shutil.copy2(src, dst)
-        if mod in ours and dst.lower().endswith('.pex') and scrub(dst):
+        pex = dst.lower().endswith('.pex')
+        mine = pex and (mod in ours or mod == layout.CORE_NAME and layout.is_ours(rel, src))
+        if mine and scrub(dst):
             scrubbed += 1
     docs = os.path.join(STAGE, 'docs')
     os.makedirs(docs, exist_ok=True)

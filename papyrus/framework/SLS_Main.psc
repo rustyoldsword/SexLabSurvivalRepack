@@ -72,6 +72,7 @@ EndFunction
 
 Event OnUpdate()
 	CheckFramework()
+	Menu.PlayerLoadsGame() ; 3.0.2: new-game half - SLS_Init.OnInit no longer calls it (Init<->MCM page deadlock)
 	;/
 	RndInterface.PlayerLoadsGame()
 	Ineed.PlayerLoadsGame()
@@ -141,6 +142,8 @@ Function LoadGameMaintenance()
 	bSexLabPP = _SLS_IntSlpp.GetIsInstalled()
 	Util.ApplyAudioUtilVolumes() ; AudioUtil group volumes reset to the toml defaults each session
 	Init.PlayerLoadsGame()
+	LicUtil.PlayerLoadsGame() ; crajjjj 0.803 (port 2026-10-27): not from Init.PlayerLoadsGame (new-game deadlock), see SLS_Init
+	Menu.PlayerLoadsGame() ; 3.0.2: not from Init.PlayerLoadsGame either (Init<->MCM page deadlock), see SLS_Init
 	;Debug.Messagebox("0xFEFFFFFD: " + 0xFEFFFFFD +"\n0xFEFFFFFE: " + 0xFEFFFFFE + "\n0xFEFFFFFF: " + 0xFEFFFFFF + "\n\n0xFF000000: " + 0xFF000000 + "\n0xFF000001: " + 0xFF000001 + "\n0xFFFFFFFE: " + 0xFEFFFFFE + "\n0xFFFFFFFF: " + 0xFFFFFFFF)
 	
 	;Int Index = Math.RightShift(Math.LogicalAnd(0xFF000001, 0xFF000000), 24)
@@ -699,8 +702,7 @@ Function VersionCheck()
 			StorageUtil.UnSetIntValue(None, "_SLS_CreatureCorruption")
 			UpdateVersion(0.674)
 		EndIf
-		(Game.GetFormFromFile(0x0E857D, "SL Survival.esp") as _SLS_OrgasmFatigue)
-		
+
 		If Version < 0.682
 			((Game.GetFormFromFile(0x0E857D, "SL Survival.esp") as Quest).GetNthAlias(0) as ReferenceAlias).ForceRefTo(PlayerRef)
 			Menu.AnimalFriend.Wildling.Friend = Menu.AnimalFriend
@@ -904,12 +906,63 @@ ReferenceAlias Property LockTheDoor Auto
 SimplyKnockMainScript Property KnockMain Auto
 ReferenceAlias Property _SK_LinkedDoor Auto ; Simply knocks door alias which tries to keep the inside door unlocked. Exactly what we don't want. 
 
-ReferenceAlias Property PlayerAliasKnockQuest  Auto 
+ReferenceAlias Property PlayerAliasKnockQuest  Auto
 SLS_KnockPlayerScript KnockPlayerScript
+
+; crajjjj 0.802 (port 2026-10-27, Simply Knock part only): the house a knock stay opened to the player. Simply Knock makes
+; it public for the stay and never makes it private again after SLS's version of the stay, so the player could walk
+; back in later without trespassing. Closed here once the player has left it.
+Cell KnockHouse
+
+; The host took the player in: the dialogue fragments call this right after Simply Knock's SetResult_Succeeded(), which
+; has just filled its LinkedDoor alias with the inside door.
+Function BeginKnockStay()
+	CloseKnockHouse() ; a previous stay's, if no cell load has closed it yet
+	ObjectReference InsideDoor = _SK_LinkedDoor.GetReference()
+	If InsideDoor
+		KnockHouse = InsideDoor.GetParentCell()
+	EndIf
+	GoToState("Knocked")
+EndFunction
+
+; Every way out of a stay (released, thrown out, enslaved): the house closes on the first cell load outside it.
+Function EndKnockStay()
+	ObjectReference HouseDoor = LockTheDoor.GetReference()
+	If KnockHouse == None && HouseDoor
+		Cell DoorCell = HouseDoor.GetParentCell()
+		If DoorCell && DoorCell.IsInterior()
+			KnockHouse = DoorCell
+		EndIf
+	EndIf
+	GoToState("KnockLeaving")
+EndFunction
+
+Function CloseKnockHouse()
+	Cell House = KnockHouse
+	KnockHouse = None
+	If House
+		House.SetPublic(false)
+	EndIf
+EndFunction
+
+State KnockLeaving
+	Event OnCellLoad()
+		If PlayerRef.GetParentCell() != KnockHouse
+			GoToState("")
+			CloseKnockHouse()
+		EndIf
+	EndEvent
+EndState
 
 State Knocked
 	Event OnCellLoad()
 		If KnockHost != None
+			If KnockHouse == None ; Simply Knock gave no inside door: the interior the player is let into
+				Cell Here = PlayerRef.GetParentCell()
+				If Here && Here.IsInterior() && Here == KnockHost.GetParentCell()
+					KnockHouse = Here
+				EndIf
+			EndIf
 			Location PlayerLoc = PlayerRef.GetCurrentLocation()
 			Location HostLoc = KnockHost.GetCurrentLocation()
 			If PlayerLoc != None && HostLoc != None
@@ -1053,7 +1106,8 @@ Function SLSFW_Unequipped(Form akBaseObject, ObjectReference akReference)
 EndFunction
 
 Function AddFatigueGainEffect(Form akBaseObject, Bool IsMilk, Float Strength = 40.0, Float MilkStrength = 0.0) ; Strength = 40.0 for skooma types
-	If Menu.DrugEndFatigueInc >= 0.0
+	If Menu.DrugEndFatigueInc >= 0.0 && Needs.IsNeedsModActive() ; without a needs mod the dose gave no rest to owe back
+		Needs.OweDrugFatigue(Strength, Menu.DrugEndFatigueInc) ; right after the dose's ModFatigue, which it measures
 		_SLS_DrugFatigueIncSpell.SetNthEffectMagnitude(0, Strength)
 		Int Duration
 		If IsMilk
@@ -1115,6 +1169,12 @@ EndFunction
 
 Event OnMenuOpen(String MenuName)
 	If MenuName == "InventoryMenu" ; Close inventory during gag deals
+		; 3.0.2: the deal ends in SLS_BeggingPlayerAlias, whose UnRegisterForMenu cannot undo this script's registration -
+		; the inventory then closed on every open for the rest of the game. Let go once the deal is over.
+		If !Init.IsGagDeal
+			UnRegisterForMenu("InventoryMenu")
+			Return
+		EndIf
 		Game.DisablePlayerControls(!Game.IsMovementControlsEnabled(), !Game.IsFightingControlsEnabled(), !Game.IsCamSwitchControlsEnabled(), !Game.IsLookingControlsEnabled(), !Game.IsSneakingControlsEnabled(), true, !Game.IsActivateControlsEnabled(), !Game.IsJournalControlsEnabled())
 		Game.EnablePlayerControls(Game.IsMovementControlsEnabled(), Game.IsFightingControlsEnabled(), Game.IsCamSwitchControlsEnabled(), Game.IsLookingControlsEnabled(), Game.IsSneakingControlsEnabled(), true, Game.IsActivateControlsEnabled(), Game.IsJournalControlsEnabled())
 	EndIf
@@ -1136,7 +1196,7 @@ EndEvent
 Event OnAnimationStarting(int tid, bool HasPlayer)
 	If HasPlayer
 		PlayerRef.AddToFaction(_SLS_NoParalyzeFact)
-		If Init.FrostfallInstalled
+		If Frostfall.HasColdSystem() ; crajjjj 0.801 (port 2026-10-27): Frostfall, or Survival Mode cold
 			_SLS_WarmBodies.Cast(PlayerRef, PlayerRef)
 		EndIf
 	EndIf

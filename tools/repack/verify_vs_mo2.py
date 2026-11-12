@@ -1,7 +1,9 @@
 # Compare the repack (core + the options the owner runs) with the SLS layers the owner's MO2 serves now.
 # pex compare ignores the header strings (scrubbed), the framework DLL is reported separately (rebuilt, paths trimmed).
 import os, sys, hashlib, struct
-M = r'C:\Modding\MO2\mods'; S = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'stage')
+if not os.path.isdir(r'C:\Modding\MO2\mods\Sexlab Survival'):  # 2026-10-27, RUS-142: layers merged into one mod
+    sys.exit('legacy check for build_repack.py (alpha FOMOD): the SLS layers are merged now')
+M = r'C:\Modding\MO2\mods'; S =os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'stage')
 LAYERS = ['Sexlab Survival', 'SexLab Survival 0.716', 'SL Survival - Patches', 'SL Survival - SexLab P+ 2.19 Patch', 'SexLab Survival Framework']  # low -> high
 OPTS = ['00 Core', '20 SlaveTats Pack', '30 Bikini Armor KID', '31 SMP Tongue', '32 Battle Wounds', '10 Framework', '11 Gentler Steep Fall', '12 TNG revealing cover']
 def skip(r):

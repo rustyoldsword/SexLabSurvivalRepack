@@ -90,11 +90,352 @@ Function PlayerLoadsGame()
 	PapyrusUtilCheck()
 EndFunction
 
-Function PapyrusUtilCheck()
-	While PapyrusUtil.GetVersion() < 33
-		Debug.Messagebox("SL Survival: Your version of PapyrusUtil is outdated! \n\nThis issue is answered in the FAQ of the mod page. Please read the FAQ FIRST before posting on the forum as it's been asked a thousand times! If you're still stuck after reading then, by all means, ask for help\n\nYou should exit the game and fix this problem before proceeding! This message will repeat until it's fixed")
-		Utility.Wait(3.0)
+; SLSFW 0.9.0: SL Survival's settings in SKSE Menu Framework. The menu reads values natively and calls this once
+; after it closes, with every option the player changed. Each option runs through this script's own SkyUI handler,
+; exactly as if it had been clicked here: Oid is an option ID no SkyUI page uses, already written by the framework
+; into the option's OID variable (or named by SuKey when the OID lives in StorageUtil). The SkyUI display calls in
+; the handlers find no open journal and do nothing. OnConfigClose then applies the deferred Do* flags as usual.
+Function SLSFW_ApplyBatch(String[] Page, Int[] Kind, Int[] Oid, String[] SuKey, Float[] Value)
+	If Pages.Length == 0
+		OnConfigInit()
+	EndIf
+	IsInMcm = true
+	_SLS_IntSlsfw.GatesHold(true) ; released by OnConfigClose, as for a normal MCM session
+	; SLSFW 0.9.2: no SkyUI display call from the handlers (their option IDs are not on any SkyUI page - every
+	; Set*OptionValue logged "Option type mismatch"), and a confirmation box answers yes: the SKSE menu asked already
+	SLSFW_Silent = true
+	Int i = 0
+	While i < Kind.Length
+		If SuKey[i] != ""
+			StorageUtil.SetIntValue(Self, SuKey[i], Oid[i])
+		EndIf
+		StorageUtil.SetStringValue(Self, "CurrentPage", Page[i]) ; slider handlers are grouped by page
+		If Kind[i] == 0
+			OnOptionSelect(Oid[i])
+		ElseIf Kind[i] == 1
+			OnOptionSliderAccept(Oid[i], Value[i])
+		ElseIf Kind[i] == 2
+			OnOptionMenuAccept(Oid[i], Value[i] as Int)
+		ElseIf Kind[i] == 3
+			OnOptionKeyMapChange(Oid[i], Value[i] as Int, "", "")
+		EndIf
+		i += 1
 	EndWhile
+	SLSFW_Silent = false
+	OnConfigClose()
+	Debug.Trace("_SLS_: SKSE menu applied " + Kind.Length + " option(s)")
+EndFunction
+
+; ---- SLSFW 0.9.2: the SKSE menu at MCM parity ----------------------------------------------------------------------
+; The menu reads most values natively (Menu.json), but some options show a computed value, a slider range computed in
+; code, a menu list built at runtime, or live on pages built in loops (inn prices, statistics). For those the menu asks
+; this script to draw the page exactly as the MCM would: OnPageReset runs with the Add*Option calls below recording
+; into StorageUtil lists instead of SkyUI, then each slider/menu/option runs its own OnOptionSliderOpen /
+; OnOptionMenuOpen / OnOptionHighlight with the dialog and info calls recorded too. The page code stores the returned
+; option IDs in its OID variables as usual, so a captured option is applied through the same handlers afterwards.
+; One record per option: "type|oid|flags|value|format|min|max|step|default|start|menu items (^)|label|info".
+Bool SLSFW_Silent = false
+Bool SLSFW_Capturing = false
+Int SLSFW_CapIndex = -1
+
+String[] Function SLSFW_CapturePage(String Page, Int OidBase)
+	If Pages.Length == 0
+		OnConfigInit()
+	EndIf
+	String[] Lists = SLSFW_CapLists()
+	Int k = 0
+	While k < Lists.Length
+		StorageUtil.StringListClear(Self, Lists[k])
+		k += 1
+	EndWhile
+	StorageUtil.SetIntValue(Self, "_SLSFW_CapOidBase", OidBase)
+	StorageUtil.SetStringValue(Self, "CurrentPage", Page)
+	SLSFW_Capturing = true
+	SLSFW_CapIndex = -1
+	OnPageReset(Page)
+	Int n = StorageUtil.StringListCount(Self, "_SLSFW_CapT")
+	Int i = 0
+	While i < n
+		String T = StorageUtil.StringListGet(Self, "_SLSFW_CapT", i)
+		SLSFW_CapIndex = i
+		If T == "S"
+			OnOptionSliderOpen(OidBase + i)
+		ElseIf T == "M"
+			OnOptionMenuOpen(OidBase + i)
+		EndIf
+		If T != "H" && T != "E"
+			OnOptionHighlight(OidBase + i)
+		EndIf
+		i += 1
+	EndWhile
+	SLSFW_CapIndex = -1
+	SLSFW_Capturing = false
+	String[] Out = Utility.CreateStringArray(n)
+	i = 0
+	While i < n
+		String Rec = StorageUtil.StringListGet(Self, "_SLSFW_CapT", i) + "|" + (OidBase + i) + "|" + StorageUtil.StringListGet(Self, "_SLSFW_CapF", i)
+		Rec += "|" + StorageUtil.StringListGet(Self, "_SLSFW_CapV", i) + "|" + StorageUtil.StringListGet(Self, "_SLSFW_CapFmt", i)
+		Rec += "|" + StorageUtil.StringListGet(Self, "_SLSFW_CapMin", i) + "|" + StorageUtil.StringListGet(Self, "_SLSFW_CapMax", i)
+		Rec += "|" + StorageUtil.StringListGet(Self, "_SLSFW_CapStep", i) + "|" + StorageUtil.StringListGet(Self, "_SLSFW_CapDef", i)
+		Rec += "|" + StorageUtil.StringListGet(Self, "_SLSFW_CapStart", i) + "|" + StorageUtil.StringListGet(Self, "_SLSFW_CapMenu", i)
+		Rec += "|" + StorageUtil.StringListGet(Self, "_SLSFW_CapL", i) + "|" + StorageUtil.StringListGet(Self, "_SLSFW_CapInfo", i)
+		Out[i] = Rec
+		i += 1
+	EndWhile
+	Return Out
+EndFunction
+
+String[] Function SLSFW_CapLists()
+	String[] L = new String[13]
+	L[0] = "_SLSFW_CapT"
+	L[1] = "_SLSFW_CapF"
+	L[2] = "_SLSFW_CapV"
+	L[3] = "_SLSFW_CapFmt"
+	L[4] = "_SLSFW_CapMin"
+	L[5] = "_SLSFW_CapMax"
+	L[6] = "_SLSFW_CapStep"
+	L[7] = "_SLSFW_CapDef"
+	L[8] = "_SLSFW_CapStart"
+	L[9] = "_SLSFW_CapMenu"
+	L[10] = "_SLSFW_CapL"
+	L[11] = "_SLSFW_CapInfo"
+	L[12] = "_SLSFW_CapX" ; spare
+	Return L
+EndFunction
+
+Int Function SLSFW_Cap(String T, String Label, String Value, String Fmt, Int Flags)
+	StorageUtil.StringListAdd(Self, "_SLSFW_CapT", T)
+	StorageUtil.StringListAdd(Self, "_SLSFW_CapF", Flags as String)
+	StorageUtil.StringListAdd(Self, "_SLSFW_CapV", Value)
+	StorageUtil.StringListAdd(Self, "_SLSFW_CapFmt", Fmt)
+	StorageUtil.StringListAdd(Self, "_SLSFW_CapMin", "")
+	StorageUtil.StringListAdd(Self, "_SLSFW_CapMax", "")
+	StorageUtil.StringListAdd(Self, "_SLSFW_CapStep", "")
+	StorageUtil.StringListAdd(Self, "_SLSFW_CapDef", "")
+	StorageUtil.StringListAdd(Self, "_SLSFW_CapStart", "")
+	StorageUtil.StringListAdd(Self, "_SLSFW_CapMenu", "")
+	StorageUtil.StringListAdd(Self, "_SLSFW_CapInfo", "")
+	Int i = StorageUtil.StringListAdd(Self, "_SLSFW_CapL", Label)
+	Return StorageUtil.GetIntValue(Self, "_SLSFW_CapOidBase") + i
+EndFunction
+
+Function SLSFW_CapSet(String List, String Value)
+	If SLSFW_CapIndex >= 0
+		StorageUtil.StringListSet(Self, List, SLSFW_CapIndex, Value)
+	EndIf
+EndFunction
+
+; SkyUI's option calls: recorded while capturing, silent while the SKSE menu applies, SkyUI's own otherwise
+Int Function AddEmptyOption()
+	If SLSFW_Capturing
+		Return SLSFW_Cap("E", "", "", "", 0)
+	EndIf
+	Return Parent.AddEmptyOption()
+EndFunction
+
+Int Function AddHeaderOption(String a_text, Int a_flags = 0)
+	If SLSFW_Capturing
+		Return SLSFW_Cap("H", a_text, "", "", a_flags)
+	EndIf
+	Return Parent.AddHeaderOption(a_text, a_flags)
+EndFunction
+
+Int Function AddTextOption(String a_text, String a_value, Int a_flags = 0)
+	If SLSFW_Capturing
+		Return SLSFW_Cap("T", a_text, a_value, "", a_flags)
+	EndIf
+	Return Parent.AddTextOption(a_text, a_value, a_flags)
+EndFunction
+
+Int Function AddToggleOption(String a_text, Bool a_checked, Int a_flags = 0)
+	If SLSFW_Capturing
+		Return SLSFW_Cap("G", a_text, (a_checked as Int) as String, "", a_flags)
+	EndIf
+	Return Parent.AddToggleOption(a_text, a_checked, a_flags)
+EndFunction
+
+Int Function AddSliderOption(String a_text, Float a_value, String a_formatString = "{0}", Int a_flags = 0)
+	If SLSFW_Capturing
+		Return SLSFW_Cap("S", a_text, a_value as String, a_formatString, a_flags)
+	EndIf
+	Return Parent.AddSliderOption(a_text, a_value, a_formatString, a_flags)
+EndFunction
+
+Int Function AddMenuOption(String a_text, String a_value, Int a_flags = 0)
+	If SLSFW_Capturing
+		Return SLSFW_Cap("M", a_text, a_value, "", a_flags)
+	EndIf
+	Return Parent.AddMenuOption(a_text, a_value, a_flags)
+EndFunction
+
+Int Function AddColorOption(String a_text, Int a_color, Int a_flags = 0)
+	If SLSFW_Capturing
+		Return SLSFW_Cap("C", a_text, a_color as String, "", a_flags)
+	EndIf
+	Return Parent.AddColorOption(a_text, a_color, a_flags)
+EndFunction
+
+Int Function AddKeyMapOption(String a_text, Int a_keyCode, Int a_flags = 0)
+	If SLSFW_Capturing
+		Return SLSFW_Cap("K", a_text, a_keyCode as String, "", a_flags)
+	EndIf
+	Return Parent.AddKeyMapOption(a_text, a_keyCode, a_flags)
+EndFunction
+
+Function SetCursorPosition(Int a_position)
+	If !SLSFW_Capturing && !SLSFW_Silent
+		Parent.SetCursorPosition(a_position)
+	EndIf
+EndFunction
+
+Function SetCursorFillMode(Int a_fillMode)
+	If !SLSFW_Capturing && !SLSFW_Silent
+		Parent.SetCursorFillMode(a_fillMode)
+	EndIf
+EndFunction
+
+Function ForcePageReset()
+	If !SLSFW_Capturing && !SLSFW_Silent
+		Parent.ForcePageReset()
+	EndIf
+EndFunction
+
+Function SetInfoText(String a_text)
+	If SLSFW_Capturing
+		SLSFW_CapSet("_SLSFW_CapInfo", a_text)
+	ElseIf !SLSFW_Silent
+		Parent.SetInfoText(a_text)
+	EndIf
+EndFunction
+
+Function SetOptionFlags(Int a_option, Int a_flags, Bool a_noUpdate = false)
+	If !SLSFW_Capturing && !SLSFW_Silent
+		Parent.SetOptionFlags(a_option, a_flags, a_noUpdate)
+	EndIf
+EndFunction
+
+Function SetTextOptionValue(Int a_option, String a_value, Bool a_noUpdate = false)
+	If !SLSFW_Capturing && !SLSFW_Silent
+		Parent.SetTextOptionValue(a_option, a_value, a_noUpdate)
+	EndIf
+EndFunction
+
+Function SetToggleOptionValue(Int a_option, Bool a_checked, Bool a_noUpdate = false)
+	If !SLSFW_Capturing && !SLSFW_Silent
+		Parent.SetToggleOptionValue(a_option, a_checked, a_noUpdate)
+	EndIf
+EndFunction
+
+Function SetSliderOptionValue(Int a_option, Float a_value, String a_formatString = "{0}", Bool a_noUpdate = false)
+	If !SLSFW_Capturing && !SLSFW_Silent
+		Parent.SetSliderOptionValue(a_option, a_value, a_formatString, a_noUpdate)
+	EndIf
+EndFunction
+
+Function SetMenuOptionValue(Int a_option, String a_value, Bool a_noUpdate = false)
+	If !SLSFW_Capturing && !SLSFW_Silent
+		Parent.SetMenuOptionValue(a_option, a_value, a_noUpdate)
+	EndIf
+EndFunction
+
+Function SetColorOptionValue(Int a_option, Int a_color, Bool a_noUpdate = false)
+	If !SLSFW_Capturing && !SLSFW_Silent
+		Parent.SetColorOptionValue(a_option, a_color, a_noUpdate)
+	EndIf
+EndFunction
+
+Function SetKeyMapOptionValue(Int a_option, Int a_keyCode, Bool a_noUpdate = false)
+	If !SLSFW_Capturing && !SLSFW_Silent
+		Parent.SetKeyMapOptionValue(a_option, a_keyCode, a_noUpdate)
+	EndIf
+EndFunction
+
+Function SetSliderDialogStartValue(Float a_value)
+	If SLSFW_Capturing
+		SLSFW_CapSet("_SLSFW_CapStart", a_value as String)
+	ElseIf !SLSFW_Silent
+		Parent.SetSliderDialogStartValue(a_value)
+	EndIf
+EndFunction
+
+Function SetSliderDialogDefaultValue(Float a_value)
+	If SLSFW_Capturing
+		SLSFW_CapSet("_SLSFW_CapDef", a_value as String)
+	ElseIf !SLSFW_Silent
+		Parent.SetSliderDialogDefaultValue(a_value)
+	EndIf
+EndFunction
+
+Function SetSliderDialogRange(Float a_minValue, Float a_maxValue)
+	If SLSFW_Capturing
+		SLSFW_CapSet("_SLSFW_CapMin", a_minValue as String)
+		SLSFW_CapSet("_SLSFW_CapMax", a_maxValue as String)
+	ElseIf !SLSFW_Silent
+		Parent.SetSliderDialogRange(a_minValue, a_maxValue)
+	EndIf
+EndFunction
+
+Function SetSliderDialogInterval(Float a_value)
+	If SLSFW_Capturing
+		SLSFW_CapSet("_SLSFW_CapStep", a_value as String)
+	ElseIf !SLSFW_Silent
+		Parent.SetSliderDialogInterval(a_value)
+	EndIf
+EndFunction
+
+Function SetMenuDialogStartIndex(Int a_value)
+	If SLSFW_Capturing
+		SLSFW_CapSet("_SLSFW_CapStart", a_value as String)
+	ElseIf !SLSFW_Silent
+		Parent.SetMenuDialogStartIndex(a_value)
+	EndIf
+EndFunction
+
+Function SetMenuDialogDefaultIndex(Int a_value)
+	If SLSFW_Capturing
+		SLSFW_CapSet("_SLSFW_CapDef", a_value as String)
+	ElseIf !SLSFW_Silent
+		Parent.SetMenuDialogDefaultIndex(a_value)
+	EndIf
+EndFunction
+
+Function SetMenuDialogOptions(String[] a_options)
+	If SLSFW_Capturing
+		SLSFW_CapSet("_SLSFW_CapMenu", PapyrusUtil.StringJoin(a_options, "^"))
+	ElseIf !SLSFW_Silent
+		Parent.SetMenuDialogOptions(a_options)
+	EndIf
+EndFunction
+
+Bool Function ShowMessage(String a_message, Bool a_withCancel = true, String a_acceptLabel = "$Accept", String a_cancelLabel = "$Cancel")
+	If SLSFW_Silent
+		Return true ; the SKSE menu asked the player before queueing this option
+	ElseIf SLSFW_Capturing
+		Return false ; no handler that runs while capturing should ask anything
+	EndIf
+	Return Parent.ShowMessage(a_message, a_withCancel, a_acceptLabel, a_cancelLabel)
+EndFunction
+
+; SLSFW 0.9.2 (owner 2026-11-08): with the SKSE menu loaded this script stays out of SkyUI's MCM list - the menu is the
+; one settings screen, and it still runs every option through this script's own handlers. SkyUI registers the config
+; on every load and then calls OnConfigRegister; it is taken straight off the list again here. Without the framework
+; DLL or SKSE Menu Framework the MCM stays listed, so the settings are never unreachable.
+Event OnConfigRegister()
+	If _SLS_IntSlsfw.MenuActive()
+		SKI_ConfigManager Manager = Game.GetFormFromFile(0x000802, "SkyUI_SE.esp") as SKI_ConfigManager ; SKI_ConfigManagerInstance
+		If Manager
+			Manager.UnregisterMod(Self)
+			Debug.Trace("_SLS_: SKSE menu active - SL Survival taken off the SkyUI MCM list")
+		EndIf
+	EndIf
+EndEvent
+
+Function PapyrusUtilCheck()
+	; 3.0.2: this looped forever when PapyrusUtil was missing or old, and the loop runs inside the MCM's own
+	; OnConfigInit/OnGameReload - the SL Survival menu then never answered again. Warn once per load instead.
+	If PapyrusUtil.GetVersion() < 33
+		Debug.Messagebox("SL Survival: PapyrusUtil SE is missing or outdated!\n\nExit the game and install or update it - many SL Survival features will not work until then.")
+	EndIf
 EndFunction
 
 Function BuildPages()
@@ -460,6 +801,10 @@ Event OnConfigClose()
 		StorageUtil.UnSetIntValue(Self, "DoToggleOrgasmFatigue")
 		ToggleOrgasmFatigue()
 	EndIf
+	If StorageUtil.GetIntValue(Self, "DoRefreshOrgasmFatigue", Missing = 0) == 1
+		StorageUtil.UnSetIntValue(Self, "DoRefreshOrgasmFatigue")
+		(Game.GetFormFromFile(0x0E857D, "SL Survival.esp") as _SLS_OrgasmFatigue).Refresh()
+	EndIf
 	If StorageUtil.GetIntValue(Self, "DoToggleCurfew", Missing = 0) == 1
 		StorageUtil.UnSetIntValue(Self, "DoToggleCurfew")
 		ToggleCurfew(LicUtil.LicCurfewEnable)
@@ -573,6 +918,7 @@ event OnPageReset(string page)
 		StorageUtil.SetIntValue(Self, "GrowthWeightGainOID_S", AddSliderOption("$SLS_GrowthWeightGain", StorageUtil.GetFloatValue(Self, "WeightGainPerDay", Missing = 0.0), "{2}"))
 		EasyBedTrapsOID = AddToggleOption("$SLS_EasyBedTraps", EasyBedTraps, HardMode)
 		HardcoreModeOID = AddToggleOption("$SLS_HardcoreMode", HardcoreMode)
+		StorageUtil.SetIntValue(Self, "DebuffNotifyOID", AddToggleOption("$SLS_DebuffNotify", StorageUtil.GetIntValue(None, "_SLS_DebuffNotify", Missing = 1) as Bool))
 		DebugModeOID = AddToggleOption("$SLS_DebugMode", Init.DebugMode)
 		AddEmptyOption()
 		
@@ -776,12 +1122,13 @@ event OnPageReset(string page)
 		StorageUtil.SetIntValue(Self, "OrgasmFatigueOID", AddToggleOption("$SLS_hOrgasmFatigue", StorageUtil.GetIntValue(Self, "OrgasmFatigue", Missing = 1)))
 		;StorageUtil.SetIntValue(Self, "OrgasmFatigueThresholdOID_S", AddSliderOption("$SLS_OrgasmFatigueThreshold", (Game.GetFormFromFile(0x0E857D, "SL Survival.esp") as _SLS_OrgasmFatigue).OrgasmThreshold, "{0}", OrgasmFatigueFlag))
 		StorageUtil.SetIntValue(Self, "OrgasmFatigueRecoveryOID_S", AddSliderOption("$SLS_OrgasmFatigueRecovery", (Game.GetFormFromFile(0x0E857D, "SL Survival.esp") as _SLS_OrgasmFatigue).OrgasmRecoveryPerHour, "{1}", OrgasmFatigueFlag))
+		StorageUtil.SetIntValue(Self, "OrgasmFatigueExpBonusOID_S", AddSliderOption("$SLS_OrgasmFatigueExpBonus", (Game.GetFormFromFile(0x0E857D, "SL Survival.esp") as _SLS_OrgasmFatigue).ExperienceLimitBonus, "{0}", OrgasmFatigueFlag))
 		AddEmptyOption()
 		
 		AddHeaderOption("$SLS_hAhegao")
 		StorageUtil.SetIntValue(Self, "AhegaoEnableOID", AddToggleOption("$SLS_AhegaoEnable", StorageUtil.GetIntValue(Self, "AhegaoEnable", Missing = 1)))
 		StorageUtil.SetIntValue(Self, "AhegaoDurPerOrgasmOID_S", AddSliderOption("$SLS_AhegaoDurPerOrgasm", (Game.GetFormFromFile(0x0FCE71, "SL Survival.esp") as _SLS_Ahegao).DurPerOrgasm, "{1}"))
-		AddEmptyOption()
+		StorageUtil.SetIntValue(Self, "AhegaoBlushOID", AddToggleOption("Blush during ahegao", StorageUtil.GetIntValue(Self, "AhegaoBlush", Missing = 1)))
 		
 		AddHeaderOption("$SLS_hMinimumSexStamina_Magicka")
 		SexMinStamMagRatesOID = AddToggleOption("$SLS_SexMinStamMagRates", SexMinStamMagRates, SexExpEnFlag)
@@ -899,6 +1246,15 @@ event OnPageReset(string page)
 		GuardBehavWeapEquipOID = AddToggleOption("$SLS_GuardBehavWeapEquip", GuardBehavWeapEquip, HardMode)
 		GuardBehavArmorEquipOID = AddToggleOption("$SLS_GuardBehavArmorEquip", GuardBehavArmorEquip, HardMode)
 		StorageUtil.SetIntValue(Self, "GuardBehavArmorEquipAnyArmorOID", AddToggleOption("$SLS_GuardBehavArmorEquipAnyArmor", StorageUtil.GetIntValue(Self, "GuardBehavArmorEquipAnyArmor", Missing = 0), HardMode))
+		AddEmptyOption()
+		AddHeaderOption("$SLS_hGuardPunish")
+		StorageUtil.SetIntValue(Self, "GuardPunishDrugsOID", AddToggleOption("$SLS_GuardPunishDrugs", LicUtil.GuardPunishDrugs, HardMode))
+		StorageUtil.SetIntValue(Self, "GuardPunishDevicesOID", AddToggleOption("$SLS_GuardPunishDevices", LicUtil.GuardPunishDevices, HardMode))
+		StorageUtil.SetIntValue(Self, "GuardPunishKennelOID", AddToggleOption("$SLS_GuardPunishKennel", LicUtil.GuardPunishKennel, HardMode))
+		StorageUtil.SetIntValue(Self, "GuardPunishClothesOID", AddToggleOption("$SLS_GuardPunishClothes", LicUtil.GuardPunishClothes, HardMode))
+		StorageUtil.SetIntValue(Self, "GuardPunishMilkOID", AddToggleOption("$SLS_GuardPunishMilk", LicUtil.GuardPunishMilk, HardMode))
+		StorageUtil.SetIntValue(Self, "GuardPunishConfineOID", AddToggleOption("$SLS_GuardPunishConfine", LicUtil.GuardPunishConfine, HardMode))
+		StorageUtil.SetIntValue(Self, "GuardPunishTattooOID", AddToggleOption("$SLS_GuardPunishTattoo", LicUtil.GuardPunishTattoo, HardMode))
 		AddEmptyOption()
 
 		Int IneqStatsFlag = OPTION_FLAG_DISABLED
@@ -2240,7 +2596,42 @@ event OnPageReset(string page)
 	EndIf
 EndEvent
 
+Bool Function GuardPunishInfo(Int Option)
+	If Option == StorageUtil.GetIntValue(Self, "GuardPunishDrugsOID")
+		SetInfoText("$SLS_GuardPunishDrugs_Info")
+		Return true
+	EndIf
+	If Option == StorageUtil.GetIntValue(Self, "GuardPunishDevicesOID")
+		SetInfoText("$SLS_GuardPunishDevices_Info")
+		Return true
+	EndIf
+	If Option == StorageUtil.GetIntValue(Self, "GuardPunishKennelOID")
+		SetInfoText("$SLS_GuardPunishKennel_Info")
+		Return true
+	EndIf
+	If Option == StorageUtil.GetIntValue(Self, "GuardPunishClothesOID")
+		SetInfoText("$SLS_GuardPunishClothes_Info")
+		Return true
+	EndIf
+	If Option == StorageUtil.GetIntValue(Self, "GuardPunishMilkOID")
+		SetInfoText("$SLS_GuardPunishMilk_Info")
+		Return true
+	EndIf
+	If Option == StorageUtil.GetIntValue(Self, "GuardPunishConfineOID")
+		SetInfoText("$SLS_GuardPunishConfine_Info")
+		Return true
+	EndIf
+	If Option == StorageUtil.GetIntValue(Self, "GuardPunishTattooOID")
+		SetInfoText("$SLS_GuardPunishTattoo_Info")
+		Return true
+	EndIf
+	Return false
+EndFunction
+
 event OnOptionHighlight(int option)
+	If GuardPunishInfo(option) ; 3.0.2 guard punishments
+		Return
+	EndIf
 	If StorageUtil.GetStringValue(Self, "CurrentPage") == "$SLS_pSettings" ; <----------------->
 		If(option == ImportSettingsOID_T)
 			SetInfoText("$SLS_ImportSettings_Info")
@@ -2272,6 +2663,8 @@ event OnOptionHighlight(int option)
 			SetInfoText("$SLS_EasyBedTraps_Info")
 		ElseIf(option == HardcoreModeOID)
 			SetInfoText("$SLS_HardcoreMode_Info")
+		ElseIf(option == StorageUtil.GetIntValue(Self, "DebuffNotifyOID"))
+			SetInfoText("$SLS_DebuffNotify_Info")
 		ElseIf(option == DebugModeOID)
 			SetInfoText("$SLS_DebugMode_Info")
 		ElseIf(option == StorageUtil.GetIntValue(Self, "SteepFall"))
@@ -2371,6 +2764,8 @@ event OnOptionHighlight(int option)
 			SetInfoText("$SLS_SlsCreatureEvent_Info")
 		ElseIf option == StorageUtil.GetIntValue(Self, "AhegaoEnableOID")
 			SetInfoText("$SLS_AhegaoEnable_Info")
+		ElseIf option == StorageUtil.GetIntValue(Self, "AhegaoBlushOID")
+			SetInfoText("Blush on the cheeks and nose while the ahegao face is on (face overlays, UBE heads included)")
 		ElseIf option == StorageUtil.GetIntValue(Self, "AhegaoDurPerOrgasmOID_S")
 			SetInfoText("When ahegao face conditions are reached you will keep the face for 6 seconds + (this slider X your orgasm count)\nThe more times you cum the longer you keep the face")
 		ElseIf(option == SexExpEnableOID)
@@ -2397,6 +2792,8 @@ event OnOptionHighlight(int option)
 			SetInfoText("$SLS_OrgasmFatigueThreshold_Info")
 		ElseIf Option == StorageUtil.GetIntValue(Self, "OrgasmFatigueRecoveryOID_S")
 			SetInfoText("$SLS_OrgasmFatigueRecovery_Info")
+		ElseIf Option == StorageUtil.GetIntValue(Self, "OrgasmFatigueExpBonusOID_S")
+			SetInfoText("$SLS_OrgasmFatigueExpBonus_Info")
 		
 		ElseIf Option == StorageUtil.GetIntValue(Self, "RapeDrugLactacidOID")
 			SetInfoText("$SLS_RapeDrugLactacid_Info")
@@ -3596,6 +3993,27 @@ Event OnOptionSelect(int option)
 		LoadSettings()
 	ElseIf (option == ExportSettingsOID_T)
 		SaveSettings()
+	ElseIf Option == StorageUtil.GetIntValue(Self, "GuardPunishDrugsOID")
+		LicUtil.GuardPunishDrugs = !LicUtil.GuardPunishDrugs
+		SetToggleOptionValue(Option, LicUtil.GuardPunishDrugs)
+	ElseIf Option == StorageUtil.GetIntValue(Self, "GuardPunishDevicesOID")
+		LicUtil.GuardPunishDevices = !LicUtil.GuardPunishDevices
+		SetToggleOptionValue(Option, LicUtil.GuardPunishDevices)
+	ElseIf Option == StorageUtil.GetIntValue(Self, "GuardPunishKennelOID")
+		LicUtil.GuardPunishKennel = !LicUtil.GuardPunishKennel
+		SetToggleOptionValue(Option, LicUtil.GuardPunishKennel)
+	ElseIf Option == StorageUtil.GetIntValue(Self, "GuardPunishClothesOID")
+		LicUtil.GuardPunishClothes = !LicUtil.GuardPunishClothes
+		SetToggleOptionValue(Option, LicUtil.GuardPunishClothes)
+	ElseIf Option == StorageUtil.GetIntValue(Self, "GuardPunishMilkOID")
+		LicUtil.GuardPunishMilk = !LicUtil.GuardPunishMilk
+		SetToggleOptionValue(Option, LicUtil.GuardPunishMilk)
+	ElseIf Option == StorageUtil.GetIntValue(Self, "GuardPunishConfineOID")
+		LicUtil.GuardPunishConfine = !LicUtil.GuardPunishConfine
+		SetToggleOptionValue(Option, LicUtil.GuardPunishConfine)
+	ElseIf Option == StorageUtil.GetIntValue(Self, "GuardPunishTattooOID")
+		LicUtil.GuardPunishTattoo = !LicUtil.GuardPunishTattoo
+		SetToggleOptionValue(Option, LicUtil.GuardPunishTattoo)
 	ElseIf (option == SlaverunAutoStartOID)
 		SlaverunAutoStart = !SlaverunAutoStart
 		SetToggleOptionValue(SlaverunAutoStartOID, SlaverunAutoStart)
@@ -3697,6 +4115,10 @@ Event OnOptionSelect(int option)
 		ForcePageReset()
 		;Debug.Messagebox("IsHardcoreLocked: " + IsHardcoreLocked)
 		
+	ElseIf (option == StorageUtil.GetIntValue(Self, "DebuffNotifyOID"))
+		StorageUtil.SetIntValue(None, "_SLS_DebuffNotify", (!StorageUtil.GetIntValue(None, "_SLS_DebuffNotify", Missing = 1) as Bool) as Int)
+		SetToggleOptionValue(StorageUtil.GetIntValue(Self, "DebuffNotifyOID"), StorageUtil.GetIntValue(None, "_SLS_DebuffNotify") as Bool)
+
 	ElseIf (option == DebugModeOID)
 		Init.DebugMode = !Init.DebugMode
 		SetToggleOptionValue(DebugModeOID, Init.DebugMode)
@@ -3739,6 +4161,10 @@ Event OnOptionSelect(int option)
 			StorageUtil.SetIntValue(Self, "DoToggleAhegaoEnable", 1)
 			SetToggleOptionValue(StorageUtil.GetIntValue(Self, "AhegaoEnableOID"), 0)
 		EndIf
+		
+	ElseIf Option == StorageUtil.GetIntValue(Self, "AhegaoBlushOID")
+		StorageUtil.SetIntValue(Self, "AhegaoBlush", (!StorageUtil.GetIntValue(Self, "AhegaoBlush", Missing = 1) as Bool) as Int)
+		SetToggleOptionValue(StorageUtil.GetIntValue(Self, "AhegaoBlushOID"), StorageUtil.GetIntValue(Self, "AhegaoBlush"))
 		
 	ElseIf (option == SexExpEnableOID)
 		SexExpEn = !SexExpEn
@@ -4647,6 +5073,9 @@ event OnOptionDefault(int option)
 	ElseIf(option == CumBreathNotifyOID)
 		CumBreathNotify = true
 		SetToggleOptionValue(CumBreathNotifyOID, CumBreathNotify)
+	ElseIf(option == StorageUtil.GetIntValue(Self, "DebuffNotifyOID"))
+		StorageUtil.SetIntValue(None, "_SLS_DebuffNotify", 1)
+		SetToggleOptionValue(StorageUtil.GetIntValue(Self, "DebuffNotifyOID"), true)
 	ElseIf(option == DebugModeOID)
 		Init.DebugMode = false
 		SetToggleOptionValue(DebugModeOID, Init.DebugMode)
@@ -5086,6 +5515,8 @@ Event OnOptionSliderOpen(int option)
 			SetSliderOptions(Value = (Game.GetFormFromFile(0x0E857D, "SL Survival.esp") as _SLS_OrgasmFatigue).OrgasmThreshold, Default = 3.0, Min = 1.0, Max = 10.0, Interval = 1.0)
 		ElseIf Option == StorageUtil.GetIntValue(Self, "OrgasmFatigueRecoveryOID_S")
 			SetSliderOptions(Value = (Game.GetFormFromFile(0x0E857D, "SL Survival.esp") as _SLS_OrgasmFatigue).OrgasmRecoveryPerHour, Default = 0.8, Min = 0.0, Max = 2.0, Interval = 0.1)
+		ElseIf Option == StorageUtil.GetIntValue(Self, "OrgasmFatigueExpBonusOID_S")
+			SetSliderOptions(Value = (Game.GetFormFromFile(0x0E857D, "SL Survival.esp") as _SLS_OrgasmFatigue).ExperienceLimitBonus, Default = 9.0, Min = 0.0, Max = 15.0, Interval = 1.0)
 		ElseIf Option == StorageUtil.GetIntValue(Self, "AhegaoDurPerOrgasmOID_S")
 			SetSliderOptions(Value = (Game.GetFormFromFile(0x0FCE71, "SL Survival.esp") as _SLS_Ahegao).DurPerOrgasm, Default = 6.0, Min = 0.0, Max = 20.0, Interval = 0.5)
 		ElseIf (option == SexMinStaminaRateOID_S)
@@ -5815,6 +6246,10 @@ Event OnOptionSliderAccept(int option, float value)
 		ElseIf Option == StorageUtil.GetIntValue(Self, "OrgasmFatigueRecoveryOID_S")
 			(Game.GetFormFromFile(0x0E857D, "SL Survival.esp") as _SLS_OrgasmFatigue).OrgasmRecoveryPerHour = value
 			SetSliderOptionValue(StorageUtil.GetIntValue(Self, "OrgasmFatigueRecoveryOID_S"), (Game.GetFormFromFile(0x0E857D, "SL Survival.esp") as _SLS_OrgasmFatigue).OrgasmRecoveryPerHour)
+		ElseIf Option == StorageUtil.GetIntValue(Self, "OrgasmFatigueExpBonusOID_S")
+			(Game.GetFormFromFile(0x0E857D, "SL Survival.esp") as _SLS_OrgasmFatigue).ExperienceLimitBonus = value
+			SetSliderOptionValue(StorageUtil.GetIntValue(Self, "OrgasmFatigueExpBonusOID_S"), value)
+			StorageUtil.SetIntValue(Self, "DoRefreshOrgasmFatigue", 1) ; on close: Refresh() waits, which stalls inside a menu
 		ElseIf Option == StorageUtil.GetIntValue(Self, "AhegaoDurPerOrgasmOID_S")
 			(Game.GetFormFromFile(0x0FCE71, "SL Survival.esp") as _SLS_Ahegao).DurPerOrgasm = value
 			SetSliderOptionValue(StorageUtil.GetIntValue(Self, "AhegaoDurPerOrgasmOID_S"), value)
@@ -7054,7 +7489,7 @@ Function ToggleLicences(Bool Enabled)
 		_SLS_LicTownCheckEnforcerAliases.Start()
 		_SLS_LicTownCheckPlayerAliasQuest.Start()
 		_SLS_LicTownCheckQuest.Start()
-		Utility.Wait(2.0) ; Wait for quest aliases to fill just in case
+		Utility.WaitMenuMode(2.0) ; Wait for quest aliases to fill just in case
 		i = _SLS_LicTownCheckEnforcerAliases.GetNumAliases()
 		Actor Enforcer
 		While i > 0
@@ -7116,6 +7551,10 @@ EndFunction
 Bool GenderGateBusy = false
 Bool GenderGateRerun = false ; a call that arrived while a pass was running: run once more at the end
 
+Event OnUpdateGameTime() ; the gender gate looking again for a chosen sex on a new game (ApplyGenderGate)
+	ApplyGenderGate()
+EndEvent
+
 Event OnMenuClose(String MenuName)
 	If MenuName == "RaceSex Menu"
 		StorageUtil.SetIntValue(Self, "_SLS_GG_SexSeen", 1) ; whatever the player chose in there is their own choice
@@ -7136,14 +7575,47 @@ Function ApplyGenderGate()
 	Bool WantGate = !IsFemale && JsonUtil.GetIntValue("SL Survival/GenderGate.json", "enabled", missing = 1) != 0
 	Bool IsGated = StorageUtil.GetIntValue(Self, "_SLS_GG_Active", Missing = 0) == 1
 	If WantGate == IsGated
+		If IsGated && StorageUtil.GetIntValue(Self, "_SLS_GG_Version", Missing = 1) < 2
+			; gate v2 added ahegao, jiggles and cum magic effects: a save already gated by v1 gets just those
+			StorageUtil.SetIntValue(Self, "_SLS_GG_Version", 2)
+			StorageUtil.SetIntValue(Self, "_SLS_GG_Ahegao", StorageUtil.GetIntValue(Self, "AhegaoEnable", Missing = 1))
+			StorageUtil.SetIntValue(Self, "_SLS_GG_Jiggles", StorageUtil.GetIntValue(Self, "Jiggles", Missing = 1))
+			StorageUtil.SetIntValue(Self, "_SLS_GG_CumEffects", CumEffectsEnable as Int)
+			StorageUtil.SetIntValue(Self, "AhegaoEnable", 0)
+			StorageUtil.SetIntValue(Self, "Jiggles", 0)
+			CumEffectsEnable = false
+			ToggleAhegao()
+			ToggleJiggles()
+			ToggleCumEffects()
+		EndIf
+		If IsGated && StorageUtil.GetIntValue(Self, "_SLS_GG_Version", Missing = 1) < 3
+			; gate v3 (SLS-MALE-1) added three guard behaviour rules: a save already gated by v1/v2 gets just those
+			StorageUtil.SetIntValue(Self, "_SLS_GG_Version", 3)
+			GateGuardBehaviour(true)
+		EndIf
 		Return
 	EndIf
 	If WantGate && StorageUtil.GetIntValue(Self, "_SLS_GG_SexSeen", Missing = 0) != 1
 		; SLS-009: PlayerLoadsGame runs at quest start on a new game, before RaceMenu, when the player base is still
 		; the default male. The male pass used to run there on every new game, and its mirror restore pass then ran at
 		; the next load - the pass that deadlocked on 2026-10-15. Wait for a sex the player has actually chosen.
-		Debug.Trace("_SLS_: Gender gate: waiting for the player's sex - RaceMenu has not been through yet")
-		Return
+		; The RaceMenu close alone is not enough: with an Alternate Perspective start SLS can come up after RaceMenu
+		; has already closed (2026-11-01: closed 23:22:52, this ran 23:23:40), and a male player stayed ungated for good.
+		; Once the game has started (out of the start cell / Helgen) the sex is chosen; until then look again later.
+		; Alternate Perspective runs RaceMenu inside its start cell and starts AP_DialogueHelgen right after it, so a
+		; running AP_DialogueHelgen proves the sex too (2026-11-02: a male player sat ungated in APStartCell and got
+		; ass slaps while this waited for him to leave it).
+		Quest ApDialogue = None
+		If Game.GetModByName("AlternatePerspective.esp") != 255
+			ApDialogue = Game.GetFormFromFile(0x1E301D, "AlternatePerspective.esp") as Quest ; AP_DialogueHelgen
+		EndIf
+		If (_SLS_GameStart.HasStarted() || (ApDialogue && ApDialogue.IsRunning())) && !UI.IsMenuOpen("RaceSex Menu")
+			StorageUtil.SetIntValue(Self, "_SLS_GG_SexSeen", 1)
+		Else
+			Debug.Trace("_SLS_: Gender gate: waiting for the player's sex - the game has not started yet")
+			RegisterForSingleUpdateGameTime(0.25)
+			Return
+		EndIf
 	EndIf
 	GenderGateBusy = true
 	; This pass holds SLS_Mcm, and SLS_Init too when it runs from PlayerLoadsGame, while it writes the very options the
@@ -7178,6 +7650,9 @@ Function ApplyGenderGate()
 		StorageUtil.SetIntValue(Self, "_SLS_GG_CompulsiveSex", StorageUtil.GetIntValue(Self, "CompulsiveSex", Missing = 0))
 		StorageUtil.SetIntValue(Self, "_SLS_GG_OrgasmFatigue", StorageUtil.GetIntValue(Self, "OrgasmFatigue", Missing = 1))
 		StorageUtil.SetIntValue(Self, "_SLS_GG_AnimalBreed", AnimalBreedEnable as Int)
+		StorageUtil.SetIntValue(Self, "_SLS_GG_Ahegao", StorageUtil.GetIntValue(Self, "AhegaoEnable", Missing = 1))
+		StorageUtil.SetIntValue(Self, "_SLS_GG_Jiggles", StorageUtil.GetIntValue(Self, "Jiggles", Missing = 1))
+		StorageUtil.SetIntValue(Self, "_SLS_GG_CumEffects", CumEffectsEnable as Int)
 		AssSlappingEvents = false
 		ProxSpankNpcType = 5
 		NpcComments.SetValueInt(0)
@@ -7199,6 +7674,9 @@ Function ApplyGenderGate()
 		StorageUtil.SetIntValue(Self, "CompulsiveSex", 0)
 		StorageUtil.SetIntValue(Self, "OrgasmFatigue", 0)
 		AnimalBreedEnable = false
+		StorageUtil.SetIntValue(Self, "AhegaoEnable", 0)
+		StorageUtil.SetIntValue(Self, "Jiggles", 0)
+		CumEffectsEnable = false
 	Else
 		Debug.Trace("_SLS_: Gender gate: female player - restoring female-only systems")
 		AssSlappingEvents = StorageUtil.GetIntValue(Self, "_SLS_GG_AssSlap", 1) as Bool
@@ -7222,6 +7700,9 @@ Function ApplyGenderGate()
 		StorageUtil.SetIntValue(Self, "CompulsiveSex", StorageUtil.GetIntValue(Self, "_SLS_GG_CompulsiveSex", 0))
 		StorageUtil.SetIntValue(Self, "OrgasmFatigue", StorageUtil.GetIntValue(Self, "_SLS_GG_OrgasmFatigue", 1))
 		AnimalBreedEnable = StorageUtil.GetIntValue(Self, "_SLS_GG_AnimalBreed", 0) as Bool
+		StorageUtil.SetIntValue(Self, "AhegaoEnable", StorageUtil.GetIntValue(Self, "_SLS_GG_Ahegao", 1))
+		StorageUtil.SetIntValue(Self, "Jiggles", StorageUtil.GetIntValue(Self, "_SLS_GG_Jiggles", 1))
+		CumEffectsEnable = StorageUtil.GetIntValue(Self, "_SLS_GG_CumEffects", 1) as Bool
 	EndIf
 	ToggleAssSlapping()
 	ToggleProxSpank()
@@ -7255,13 +7736,41 @@ Function ApplyGenderGate()
 	ToggleCompulsiveSex()
 	ToggleOrgasmFatigue()
 	ToggleAnimalBreeding()
+	ToggleAhegao()
+	ToggleJiggles()
+	ToggleCumEffects()
+	GateGuardBehaviour(WantGate)
 	StorageUtil.SetIntValue(Self, "_SLS_GG_Active", WantGate as Int)
+	StorageUtil.SetIntValue(Self, "_SLS_GG_Version", 3)
 	_SLS_IntSlsfw.GatesHold(false) ; one gate recheck now runs on the framework's side
 	GenderGateBusy = false
 	If GenderGateRerun ; the sex changed (RaceMenu closed, load) while this pass ran
 		GenderGateRerun = false
 		ApplyGenderGate()
 	EndIf
+EndFunction
+
+; Gate v3 (SLS-MALE-1, 2026-11-08): the town guards' "weapon or spell drawn", "drugs" and "lockpicking" rules are the
+; same "a woman may not..." enforcement as the rest of the gate (their lines call the player girl/woman/whore). Weapon
+; and armour EQUIPPED are already off for a man: ToggleTollDodging clears them along with toll evasion.
+Function GateGuardBehaviour(Bool Gate)
+	If Gate
+		StorageUtil.SetIntValue(Self, "_SLS_GG_GuardDrawn", GuardBehavWeapDrawn as Int)
+		StorageUtil.SetIntValue(Self, "_SLS_GG_GuardDrugs", GuardBehavDrugs as Int)
+		StorageUtil.SetIntValue(Self, "_SLS_GG_GuardLockpick", GuardBehavLockpicking as Int)
+		GuardBehavWeapDrawn = false
+		GuardBehavDrugs = false
+		GuardBehavLockpicking = false
+	ElseIf StorageUtil.HasIntValue(Self, "_SLS_GG_GuardDrawn") ; only a save this gate switched off has values to restore
+		GuardBehavWeapDrawn = StorageUtil.GetIntValue(Self, "_SLS_GG_GuardDrawn", 1) as Bool
+		GuardBehavDrugs = StorageUtil.GetIntValue(Self, "_SLS_GG_GuardDrugs", 1) as Bool
+		GuardBehavLockpicking = StorageUtil.GetIntValue(Self, "_SLS_GG_GuardLockpick", 1) as Bool
+	Else
+		Return
+	EndIf
+	ToggleGuardBehavWeapDrawn()
+	ToggleGuardBehavDrugs()
+	ToggleGuardBehavLockpick()
 EndFunction
 
 Function ToggleTollGateGuards()
@@ -8360,7 +8869,7 @@ Function RefreshBikiniExpEffects() ; Changes to bikini mgefs will require reload
 	PlayerRef.RemoveSpell(_SLS_BikiniExpSpell)
 	PlayerRef.RemovePerk(_SLS_BikiniExpPerk)
 	If BikiniExpT
-		Utility.Wait(5.0)
+		Utility.WaitMenuMode(5.0)
 		PlayerRef.AddSpell(_SLS_BikiniExpSpell)
 		PlayerRef.AddPerk(_SLS_BikiniExpPerk)
 	EndIf
@@ -8586,7 +9095,7 @@ Function ToggleBarefootMag()
 	PlayerRef.RemoveSpell(Main._SLS_BarefootSpeedSpell)
 	If BarefootMag > 0.0
 		Main.BarefootMaintenance()
-		Utility.Wait(0.1)
+		Utility.WaitMenuMode(0.1)
 		PlayerRef.AddSpell(Main._SLS_BarefootSpeedSpell, false)
 	EndIf
 EndFunction
@@ -8608,6 +9117,7 @@ Function ToggleGuardBehavLockpick()
 		_SLS_GuardWarnLockpickQuest.Start()
 	Else
 		_SLS_GuardWarnLockpickQuest.Stop()
+		Util.StopAllGuardWarnApproachQuests(None, DoCooldown = false) ; 3.0.2: also the approach already under way
 	EndIf
 EndFunction
 
@@ -8616,6 +9126,7 @@ Function ToggleGuardBehavDrugs()
 		_SLS_GuardWarnDrugsQuest.Start()
 	Else
 		_SLS_GuardWarnDrugsQuest.Stop()
+		Util.StopAllGuardWarnApproachQuests(None, DoCooldown = false) ; 3.0.2: also the approach already under way
 	EndIf
 EndFunction
 
@@ -8627,6 +9138,7 @@ Function ToggleGuardBehavWeapDrawn()
 			PlayerRef.RemoveSpell(_SLS_WeaponReadySpell)
 		EndIf
 		_SLS_GuardWarnWeapDrawnQuest.Stop()
+		Util.StopAllGuardWarnApproachQuests(None, DoCooldown = false) ; 3.0.2: also the approach already under way
 		;_SLS_GuardWarnWeapDrawnDetectionQuest.Stop()
 	EndIf
 EndFunction
@@ -8636,6 +9148,7 @@ Function ToggleGuardBehavWeapEquip()
 		_SLS_GuardWarnWeapEquippedQuest.Start()
 	Else
 		_SLS_GuardWarnWeapEquippedQuest.Stop()
+		Util.StopAllGuardWarnApproachQuests(None, DoCooldown = false) ; 3.0.2: also the approach already under way
 		;_SLS_GuardWarnWeapEquippedDetectQuest.Stop()
 	EndIf
 EndFunction
@@ -8645,6 +9158,7 @@ Function ToggleGuardBehavArmorEquip()
 		_SLS_GuardWarnArmorEquippedQuest.Start()
 	Else
 		_SLS_GuardWarnArmorEquippedQuest.Stop()
+		Util.StopAllGuardWarnApproachQuests(None, DoCooldown = false) ; 3.0.2: also the approach already under way
 		;_SLS_GuardWarnArmorEquippedDetectQuest.Stop()
 	EndIf
 EndFunction
@@ -8724,7 +9238,7 @@ Function ToggleCumAddiction()
 	Else
 		PlayerRef.RemoveSpell(_SLS_CumAddictHungerSpell)
 		CumAddict.ToggleDaydreaming(false)
-		Utility.Wait(0.1)
+		Utility.WaitMenuMode(0.1)
 		PlayerRef.RemoveSpell(_SLS_CumAddictStatusSpell)
 		(Game.GetFormFromFile(0x097F8F, "SL Survival.esp") as Quest).Stop() ; _SLS_CumAddictQuest
 		(Game.GetFormFromFile(0x0850D2, "SL Survival.esp") as _SLS_Api).SendCumHungerChangeEvent(HungerState = -1)
@@ -9081,7 +9595,7 @@ Function SearchEscorts()
 	
 		_SLS_FindEscortsQuest.Stop()
 		_SLS_FindEscortsQuest.Start()
-		Utility.Wait(1.0)
+		Utility.WaitMenuMode(1.0)
 		NewFolCount = 0
 		i = 0
 		;Debug.Trace("_SLS_: Escorts: LOOP START ====================================")
@@ -9439,6 +9953,13 @@ Function LoadSettings()
 		_SLS_BikiniExpReflexes.SetValueInt(JsonUtil.GetIntValue("SL Survival/Settings.json", "_SLS_BikiniExpReflexes", missing = 1))
 		LicUtil.AlwaysAwardBikiniLicFirst = JsonUtil.GetIntValue("SL Survival/Settings.json", "AlwaysAwardBikiniLicFirst", missing = 1)
 		_SLS_GuardBehavWeapDropEn.SetValueInt(JsonUtil.GetIntValue("SL Survival/Settings.json", "_SLS_GuardBehavWeapDropEn", missing = 1))
+		LicUtil.GuardPunishDrugs = JsonUtil.GetIntValue("SL Survival/Settings.json", "GuardPunishDrugs", missing = 1)
+		LicUtil.GuardPunishDevices = JsonUtil.GetIntValue("SL Survival/Settings.json", "GuardPunishDevices", missing = 1)
+		LicUtil.GuardPunishKennel = JsonUtil.GetIntValue("SL Survival/Settings.json", "GuardPunishKennel", missing = 1)
+		LicUtil.GuardPunishClothes = JsonUtil.GetIntValue("SL Survival/Settings.json", "GuardPunishClothes", missing = 1)
+		LicUtil.GuardPunishMilk = JsonUtil.GetIntValue("SL Survival/Settings.json", "GuardPunishMilk", missing = 1)
+		LicUtil.GuardPunishConfine = JsonUtil.GetIntValue("SL Survival/Settings.json", "GuardPunishConfine", missing = 1)
+		LicUtil.GuardPunishTattoo = JsonUtil.GetIntValue("SL Survival/Settings.json", "GuardPunishTattoo", missing = 1)
 		_SLS_GuardBehavShoutEn.SetValueInt(JsonUtil.GetIntValue("SL Survival/Settings.json", "_SLS_GuardBehavShoutEn", missing = 1))
 		GuardBehavWeapDrawn = JsonUtil.GetIntValue("SL Survival/Settings.json", "GuardBehavWeapDrawn", missing = 1)
 		GuardBehavLockpicking = JsonUtil.GetIntValue("SL Survival/Settings.json", "GuardBehavLockpicking", missing = 1)
@@ -9491,6 +10012,7 @@ Function LoadSettings()
 		StorageUtil.SetIntValue(Self, "GuardBehavArmorEquipAnyArmor", JsonUtil.GetIntValue("SL Survival/Settings.json", "GuardBehavArmorEquipAnyArmor", missing = 0))
 		Init.TollEnable = JsonUtil.GetIntValue("SL Survival/Settings.json", "Init.TollEnable", missing = 1)
 		StorageUtil.SetIntValue(Self, "AhegaoEnable", JsonUtil.GetIntValue("SL Survival/Settings.json", "AhegaoEnable", missing = 1))
+		StorageUtil.SetIntValue(Self, "AhegaoBlush", JsonUtil.GetIntValue("SL Survival/Settings.json", "AhegaoBlush", missing = 1))
 		RapeDrainsAttributes = JsonUtil.GetIntValue("SL Survival/Settings.json", "RapeDrainsAttributes", missing = 1)
 		(Game.GetFormFromFile(0x0E3F3D, "SL Survival.esp") as _SLS_Curfew).DoCurfewNotification = JsonUtil.GetIntValue("SL Survival/Settings.json", "Curfew.DoCurfewNotification", missing = 1)
 		LicUtil.CheckFollowers = JsonUtil.GetIntValue("SL Survival/Settings.json", "LicUtil.CheckFollowers", missing = 1)
@@ -9626,6 +10148,7 @@ Function LoadSettings()
 
 		; Patch: MCM options the original never wired into import (mirrored in SaveSettings)
 		StorageUtil.SetIntValue(Self, "CombatEquipEnabled", JsonUtil.GetIntValue("SL Survival/Settings.json", "CombatEquipEnabled", missing = 1))
+		StorageUtil.SetIntValue(None, "_SLS_DebuffNotify", JsonUtil.GetIntValue("SL Survival/Settings.json", "DebuffNotify", missing = 1))
 		StorageUtil.SetIntValue(Self, "SteepFallEnabled", JsonUtil.GetIntValue("SL Survival/Settings.json", "SteepFallEnabled", missing = 0))
 		HalfNakedStrips = JsonUtil.GetIntValue("SL Survival/Settings.json", "HalfNakedStrips", missing = 0)
 		DremoraCorruption = JsonUtil.GetIntValue("SL Survival/Settings.json", "DremoraCorruption", missing = 0)
@@ -9815,6 +10338,7 @@ Function LoadSettings()
 		(Game.GetFormFromFile(0x0E7553, "SL Survival.esp") as _SLS_CompulsiveSex).TimeBetweenFucks = JsonUtil.GetFloatValue("SL Survival/Settings.json", "TimeBetweenFucks", missing = 1.0)
 		;(Game.GetFormFromFile(0x0E857D, "SL Survival.esp") as _SLS_OrgasmFatigue).OrgasmThreshold = JsonUtil.GetFloatValue("SL Survival/Settings.json", "OrgasmFatigueThreshold", missing = 3.0)
 		(Game.GetFormFromFile(0x0E857D, "SL Survival.esp") as _SLS_OrgasmFatigue).OrgasmRecoveryPerHour = JsonUtil.GetFloatValue("SL Survival/Settings.json", "OrgasmFatigueRecovery", missing = 0.8)
+		(Game.GetFormFromFile(0x0E857D, "SL Survival.esp") as _SLS_OrgasmFatigue).ExperienceLimitBonus = JsonUtil.GetFloatValue("SL Survival/Settings.json", "OrgasmFatigueExpBonus", missing = 9.0)
 		(Game.GetFormFromFile(0x0E3F3D, "SL Survival.esp") as _SLS_Curfew).TimeToClearStreets = JsonUtil.GetFloatValue("SL Survival/Settings.json", "TimeToClearStreets", missing = 60.0)
 		(Game.GetFormFromFile(0x07B44C, "SL Survival.esp") as GlobalVariable).SetValue(JsonUtil.GetFloatValue("SL Survival/Settings.json", "_SLS_CurfewBegin", missing = 21.0)) ; _SLS_CurfewBegin
 		(Game.GetFormFromFile(0x07B44D, "SL Survival.esp") as GlobalVariable).SetValue(JsonUtil.GetFloatValue("SL Survival/Settings.json", "_SLS_CurfewEnd", missing = 6.0)) ; _SLS_CurfewEnd
@@ -9965,6 +10489,7 @@ Function LoadSettings()
 		CumSwallow.SetOpenMouthKey(JsonUtil.GetIntValue("SL Survival/Settings.json", "OpenMouthKey", missing = 0))
 		StorageUtil.SetIntValue(Self, "DoToggleCompulsiveSex", 1)
 		StorageUtil.SetIntValue(Self, "DoToggleOrgasmFatigue", 1)
+		StorageUtil.SetIntValue(Self, "DoRefreshOrgasmFatigue", 1) ; the imported experience bonus
 		(Game.GetFormFromFile(0x0E3F3D, "SL Survival.esp") as _SLS_Curfew).CheckCurfewState()
 		LocTrack.SetInnCostByString(LocTrack.PlayerCurrentLocString)
 		StorageUtil.SetIntValue(Self, "DoToggleTrauma", 1)
@@ -10074,6 +10599,13 @@ Function SaveSettings()
 		JsonUtil.SetIntValue("SL Survival/Settings.json", "_SLS_BikiniExpReflexes", _SLS_BikiniExpReflexes.GetValueInt())
 		JsonUtil.SetIntValue("SL Survival/Settings.json", "AlwaysAwardBikiniLicFirst", LicUtil.AlwaysAwardBikiniLicFirst as Int)
 		JsonUtil.SetIntValue("SL Survival/Settings.json", "_SLS_GuardBehavWeapDropEn", _SLS_GuardBehavWeapDropEn.GetValueInt())
+		JsonUtil.SetIntValue("SL Survival/Settings.json", "GuardPunishDrugs", LicUtil.GuardPunishDrugs as Int)
+		JsonUtil.SetIntValue("SL Survival/Settings.json", "GuardPunishDevices", LicUtil.GuardPunishDevices as Int)
+		JsonUtil.SetIntValue("SL Survival/Settings.json", "GuardPunishKennel", LicUtil.GuardPunishKennel as Int)
+		JsonUtil.SetIntValue("SL Survival/Settings.json", "GuardPunishClothes", LicUtil.GuardPunishClothes as Int)
+		JsonUtil.SetIntValue("SL Survival/Settings.json", "GuardPunishMilk", LicUtil.GuardPunishMilk as Int)
+		JsonUtil.SetIntValue("SL Survival/Settings.json", "GuardPunishConfine", LicUtil.GuardPunishConfine as Int)
+		JsonUtil.SetIntValue("SL Survival/Settings.json", "GuardPunishTattoo", LicUtil.GuardPunishTattoo as Int)
 		JsonUtil.SetIntValue("SL Survival/Settings.json", "_SLS_GuardBehavShoutEn", _SLS_GuardBehavShoutEn.GetValueInt())
 		JsonUtil.SetIntValue("SL Survival/Settings.json", "GuardBehavWeapDrawn", GuardBehavWeapDrawn as Int)
 		JsonUtil.SetIntValue("SL Survival/Settings.json", "GuardBehavLockpicking", GuardBehavLockpicking as Int)
@@ -10124,6 +10656,7 @@ Function SaveSettings()
 		JsonUtil.SetIntValue("SL Survival/Settings.json", "GuardBehavArmorEquipAnyArmor", StorageUtil.GetIntValue(Self, "GuardBehavArmorEquipAnyArmor", Missing = 0))
 		JsonUtil.SetIntValue("SL Survival/Settings.json", "Init.TollEnable", Init.TollEnable as Int)
 		JsonUtil.SetIntValue("SL Survival/Settings.json", "AhegaoEnable", StorageUtil.GetIntValue(Self, "AhegaoEnable", Missing = 1))
+		JsonUtil.SetIntValue("SL Survival/Settings.json", "AhegaoBlush", StorageUtil.GetIntValue(Self, "AhegaoBlush", Missing = 1))
 		JsonUtil.SetIntValue("SL Survival/Settings.json", "RapeDrainsAttributes", RapeDrainsAttributes as Int)
 		JsonUtil.SetIntValue("SL Survival/Settings.json", "Curfew.DoCurfewNotification", (Game.GetFormFromFile(0x0E3F3D, "SL Survival.esp") as _SLS_Curfew).DoCurfewNotification as Int)
 		JsonUtil.SetIntValue("SL Survival/Settings.json", "LicUtil.CheckFollowers", LicUtil.CheckFollowers as Int)
@@ -10391,6 +10924,7 @@ Function SaveSettings()
 		JsonUtil.SetFloatValue("SL Survival/Settings.json", "TimeBetweenFucks", (Game.GetFormFromFile(0x0E7553, "SL Survival.esp") as _SLS_CompulsiveSex).TimeBetweenFucks)
 		;JsonUtil.SetFloatValue("SL Survival/Settings.json", "OrgasmFatigueThreshold", (Game.GetFormFromFile(0x0E857D, "SL Survival.esp") as _SLS_OrgasmFatigue).OrgasmThreshold)
 		JsonUtil.SetFloatValue("SL Survival/Settings.json", "OrgasmFatigueRecovery", (Game.GetFormFromFile(0x0E857D, "SL Survival.esp") as _SLS_OrgasmFatigue).OrgasmRecoveryPerHour)
+		JsonUtil.SetFloatValue("SL Survival/Settings.json", "OrgasmFatigueExpBonus", (Game.GetFormFromFile(0x0E857D, "SL Survival.esp") as _SLS_OrgasmFatigue).ExperienceLimitBonus)
 		JsonUtil.SetFloatValue("SL Survival/Settings.json", "TimeToClearStreets", (Game.GetFormFromFile(0x0E3F3D, "SL Survival.esp") as _SLS_Curfew).TimeToClearStreets)
 		JsonUtil.SetFloatValue("SL Survival/Settings.json", "_SLS_CurfewBegin", (Game.GetFormFromFile(0x07B44C, "SL Survival.esp") as GlobalVariable).GetValue()) ; _SLS_CurfewBegin
 		JsonUtil.SetFloatValue("SL Survival/Settings.json", "_SLS_CurfewEnd", (Game.GetFormFromFile(0x07B44D, "SL Survival.esp") as GlobalVariable).GetValue()) ; _SLS_CurfewEnd
@@ -10424,6 +10958,7 @@ Function SaveSettings()
 		
 		; Patch: MCM options the original never wired into export (mirrored in LoadSettings)
 		JsonUtil.SetIntValue("SL Survival/Settings.json", "CombatEquipEnabled", StorageUtil.GetIntValue(Self, "CombatEquipEnabled", Missing = 1))
+		JsonUtil.SetIntValue("SL Survival/Settings.json", "DebuffNotify", StorageUtil.GetIntValue(None, "_SLS_DebuffNotify", Missing = 1))
 		JsonUtil.SetIntValue("SL Survival/Settings.json", "SteepFallEnabled", StorageUtil.GetIntValue(Self, "SteepFallEnabled", Missing = 0))
 		JsonUtil.SetIntValue("SL Survival/Settings.json", "HalfNakedStrips", HalfNakedStrips as Int)
 		JsonUtil.SetIntValue("SL Survival/Settings.json", "DremoraCorruption", DremoraCorruption as Int)

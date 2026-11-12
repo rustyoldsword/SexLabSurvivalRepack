@@ -82,7 +82,12 @@ Bool Function Free(Actor akPlayer)
 		Return false
 	EndIf
 	Faction Animating = Game.GetFormFromFile(0x00E50F, "SexLab.esm") as Faction
-	Return !(Animating && akPlayer.IsInFaction(Animating))
+	If Animating && akPlayer.IsInFaction(Animating)
+		Return false
+	EndIf
+	; the shared _SG_SceneBusy of "BaboDialogue - Patches": a DoM capture, the knocked-out menu or SLHH owns her
+	GlobalVariable SceneBusy = Game.GetFormFromFile(0x000800, "BaboDialogue - Patches.esp") as GlobalVariable
+	Return !(SceneBusy && SceneBusy.GetValue() != 0.0)
 EndFunction
 
 Function Hourly()

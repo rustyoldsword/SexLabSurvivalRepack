@@ -10,6 +10,9 @@
 //
 // This module only READS BaboDialogue. The shared _SG_SceneBusy bit 4 stays unused: SL Survival never owns the player
 // the way a capture does, so it has no business blocking Babo's events.
+//
+// Since 0.8.1 the guards also pause while another scene holds the shared _SG_SceneBusy (bit 1 a Diary of Mine capture,
+// bit 2 the knocked-out menu, bit 8 SexLab Horrible Harassment) - read only, SL Survival still sets no bit.
 namespace SLSFW::BaboGuard
 {
 	void Configure(bool a_enabled);

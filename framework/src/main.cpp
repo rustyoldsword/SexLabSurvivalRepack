@@ -1,9 +1,11 @@
 #include "BaboGuard.h"
+#include "Bridge.h"
 #include "DomGuard.h"
 #include "Equip.h"
 #include "Forms.h"
 #include "Gates.h"
 #include "Inequality.h"
+#include "MagicCurse.h"
 #include "GuardWatch.h"
 #include "LostItems.h"
 #include "Nudity.h"
@@ -11,6 +13,7 @@
 #include "Profiler.h"
 #include "Scheduler.h"
 #include "Session.h"
+#include "SlsMenu.h"
 #include "SteepFall.h"
 #include "Swim.h"
 
@@ -30,6 +33,20 @@ namespace
 
 		spdlog::set_default_logger(std::move(log));
 		spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] %v");
+	}
+
+	// 3.0.2: _SLS_LocTrackCentral reports town changes as mod events instead of calling _SLS_Curfew and
+	// _SLS_LicTownCheck while it holds its own lock. Saves from before that never registered those events, so ask the
+	// two scripts to register on every load - dispatched from here, so no SLS script waits for another's lock.
+	void RegisterLocationEvents()
+	{
+		using namespace SLSFW;
+		auto* data = RE::TESDataHandler::GetSingleton();
+		auto* curfew = data ? data->LookupForm<RE::TESQuest>(0x0E3F3D, Forms::kPlugin) : nullptr;     // _SLS_CurfewQuest
+		auto* townCheck = data ? data->LookupForm<RE::TESQuest>(0x058C8E, Forms::kPlugin) : nullptr;  // _SLS_LicTownCheckQuest
+		const bool a = Bridge::Call(Bridge::Find(curfew, "_SLS_Curfew"), "EnsureLocEvent");
+		const bool b = Bridge::Call(Bridge::Find(townCheck, "_SLS_LicTownCheck"), "RegisterForLocEvents");
+		logger::info("location events: curfew {}, town check {}", a ? "asked" : "not found", b ? "asked" : "not found");
 	}
 
 	void OnMessage(SKSE::MessagingInterface::Message* a_message)
@@ -53,8 +70,13 @@ namespace
 					if (Inequality::Load()) {
 						Scheduler::Add(Inequality::Tick);
 					}
+					if (MagicCurse::Load()) {
+						Scheduler::Add(MagicCurse::Tick);
+					}
 					Swim::Load();
 					Scheduler::Add(Swim::Tick);
+					SlsMenu::Load();
+					Scheduler::Add(SlsMenu::Tick);
 					Equip::Register();
 					Nudity::Register();
 					GuardWatch::Register();
@@ -73,8 +95,10 @@ namespace
 			break;
 		case SKSE::MessagingInterface::kNewGame:
 			Session::OnNewGame();
+			SlsMenu::OnNewGame();
 			Gates::Reset();
 			Profiler::Reset();
+			Inequality::Reset();
 			LostItems::Reset();
 			Nudity::Reset();
 			GuardWatch::Reset();
@@ -90,8 +114,10 @@ namespace
 			if (!a_message->data) {
 				break;
 			}
+			SlsMenu::OnLoaded();
 			Gates::Reset();
 			Profiler::Reset();
+			Inequality::Reset();
 			LostItems::Reset();
 			Nudity::Reset();
 			GuardWatch::Reset();
@@ -99,6 +125,7 @@ namespace
 			Swim::Reset();
 			Equip::OnGameLoaded();
 			Papyrus::ScheduleLoadReport();
+			RegisterLocationEvents();
 			break;
 		default:
 			break;

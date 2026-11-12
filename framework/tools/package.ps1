@@ -11,7 +11,7 @@ $name    = 'SexLab Survival Framework'
 $version = (Select-String -Path (Join-Path $root 'xmake.lua') -Pattern 'set_version\("([^"]+)"\)').Matches[0].Groups[1].Value
 $stage   = Join-Path $root "dist\$name"
 $archive = Join-Path $root "dist\$name $version.7z"
-$deploy  = "C:\Modding\MO2\mods\$name"
+$deploy  = 'C:\Modding\MO2\mods\SexLab Survival Repack'  # since 2026-10-27 the framework lives inside the merged SLS mod (RUS-142)
 
 if (Test-Path $stage) { Remove-Item $stage -Recurse -Force }
 New-Item -ItemType Directory -Force "$stage\SKSE\Plugins", "$stage\Scripts\Source", "$stage\docs" | Out-Null

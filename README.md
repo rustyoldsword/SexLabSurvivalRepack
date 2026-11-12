@@ -8,14 +8,18 @@ SexLab Survival was created by **Monoman1**; the 0.716 base this repack builds o
 (<https://github.com/crajjjj/SLSurvival>). The repack's changes are released here with the permission of the
 original authors.
 
+Current version: **Beta 1.0** (after 3.2 alpha; the alphas are over and the numbering starts again at 1.0). From 3.0
+the repack has its own version numbers; earlier releases (0.716.1, 0.800) were numbered after crajjjj's updates.
+
 ## What is in the repack
 
 - **Integration and fix patch** for SL Survival 0.716: SexLab P+ (2.18 and 2.19 interaction API), Creation Club
   Survival Mode / Survival Mode Improved, WetFunction NG, SLSF Reloaded, SlaveTats NG, a script audit with fixes,
   a cleaned plugin, faster licence issuing, a male-player gate, calmer Steep Fall drops and more.
 - **SexLab Survival Framework** — an SKSE plugin (CommonLibSSE-NG) that takes the heaviest Papyrus work off the
-  script engine: town gates, the equip hub, nudity checks, guard searches, follower counting, the HUD export and a
-  message feed.
+  script engine: town gates, the equip hub, nudity checks, guard searches, follower counting, Inequality, the magic
+  curse, the HUD export and a message feed. Version 0.9.4. It also runs the settings menu in SKSE Menu Framework
+  (`framework/src/SlsMenu.cpp`), which remembers your choices for the next new game.
 - **Hopeless Escorts** — six spawned, mostly useless escorts that the guards hand out, or that the toll collector
   lets you pick from a list, with situational idle chatter, combat lines and their own dialogue.
 

@@ -42,16 +42,65 @@ namespace SLSFW::Inequality
 			return rank && *rank >= 0;
 		}
 
-		// move the permanent modifier of a_av from what is in place (a_global) to a_want
-		void Apply(RE::PlayerCharacter* a_player, RE::ActorValue a_av, RE::TESGlobal* a_global, float a_want)
+		// The amount in place is kept in the base value, not in a modifier: the stats menu and the HUD paint ANY value
+		// below its base red - a permanent modifier (the first native version) as much as the spell's effect did. The
+		// globals hold kBaseMode + amount once the amount lives in the base; a value below kBaseMode is an older save
+		// whose amount is still a permanent modifier, moved into the base once (the maximum stays the same).
+		constexpr float kBaseMode = 10000.0f;
+
+		float InPlace(const RE::TESGlobal* a_global)
 		{
-			const float have = a_global->value;
-			if (std::abs(a_want - have) < 0.01f) {
+			return a_global->value >= kBaseMode ? a_global->value - kBaseMode : a_global->value;
+		}
+
+		void Migrate(RE::PlayerCharacter* a_player, RE::ActorValue a_av, RE::TESGlobal* a_global, bool a_last)
+		{
+			if (a_global->value >= kBaseMode) {
 				return;
 			}
-			a_player->AsActorValueOwner()->ModActorValue(RE::ACTOR_VALUE_MODIFIER::kPermanent, a_av, have - a_want);  // the maximum, not a red "drained" part
-			logger::info("inequality: {} {} -> {}", static_cast<int>(a_av), have, a_want);
+			const float have = a_global->value;
+			if (have > 0.0f) {
+				auto* avs = a_player->AsActorValueOwner();
+				avs->ModActorValue(RE::ACTOR_VALUE_MODIFIER::kPermanent, a_av, have);
+				avs->SetBaseActorValue(a_av, avs->GetBaseActorValue(a_av) - have);
+				logger::info("inequality: {} moved {} from the permanent modifier into the base value", static_cast<int>(a_av), have);
+			}
+			if (a_last) {
+				a_global->value = kBaseMode + have;
+			}
 		}
+
+		// move the base value of a_av from a_have (what is in place) to a_want
+		void Apply(RE::PlayerCharacter* a_player, RE::ActorValue a_av, float a_have, float a_want)
+		{
+			if (std::abs(a_want - a_have) < 0.01f) {
+				return;
+			}
+			auto* avs = a_player->AsActorValueOwner();
+			avs->SetBaseActorValue(a_av, avs->GetBaseActorValue(a_av) + a_have - a_want);  // a shorter bar, not a red one
+			logger::info("inequality: {} {} -> {}", static_cast<int>(a_av), a_have, a_want);
+		}
+
+		// A race switch rebuilds the player's base health, magicka and stamina (2026-11-10: AP's RaceMenu on a new game
+		// put them back to 100 after the amount was in place, the globals still said 40 and nothing was taken off again).
+		// The base each value had after our last change is kept here; after a race switch a different base means the
+		// game rebuilt it and nothing of ours is in it any more. Only a race switch is checked: a level-up raises the base
+		// legitimately.
+		constexpr std::array<RE::ActorValue, 3> kAvs{ RE::ActorValue::kHealth, RE::ActorValue::kMagicka, RE::ActorValue::kStamina };
+		std::array<float, 3> g_expected{};
+		bool                 g_expectedKnown{ false };
+		std::atomic_bool     g_raceSwitched{ false };
+
+		struct RaceSink final : RE::BSTEventSink<RE::TESSwitchRaceCompleteEvent>
+		{
+			RE::BSEventNotifyControl ProcessEvent(const RE::TESSwitchRaceCompleteEvent* a_event, RE::BSTEventSource<RE::TESSwitchRaceCompleteEvent>*) override
+			{
+				if (a_event && a_event->subject && a_event->subject->IsPlayerRef()) {
+					g_raceSwitched = true;
+				}
+				return RE::BSEventNotifyControl::kContinue;
+			}
+		};
 	}
 
 	bool Load()
@@ -67,8 +116,17 @@ namespace SLSFW::Inequality
 		logger::info("inequality: {}", ok ? "native player stats on" : "off (SL Survival - Revision Tweaks.esp or an SLS form missing)");
 		if (!ok) {
 			g_spell = nullptr;
+			return false;
 		}
-		return ok;
+		static RaceSink sink;
+		RE::ScriptEventSourceHolder::GetSingleton()->AddEventSink<RE::TESSwitchRaceCompleteEvent>(std::addressof(sink));
+		return true;
+	}
+
+	void Reset()
+	{
+		g_expectedKnown = false;
+		g_raceSwitched = false;
 	}
 
 	void Suspend(bool a_suspend)
@@ -92,21 +150,45 @@ namespace SLSFW::Inequality
 		if (!base) {
 			return;
 		}
+		// RaceMenu may still switch the race, which rebuilds the base: take the amount off once it is closed
+		if (auto* ui = RE::UI::GetSingleton(); ui && ui->IsMenuOpen(RE::RaceSexMenu::MENU_NAME)) {
+			return;
+		}
+		Migrate(player, RE::ActorValue::kHealth, g_inHealth, true);
+		Migrate(player, RE::ActorValue::kMagicka, g_inMagStam, false);
+		Migrate(player, RE::ActorValue::kStamina, g_inMagStam, true);
+
+		auto*                avs = player->AsActorValueOwner();
+		std::array<float, 3> have{ InPlace(g_inHealth), InPlace(g_inMagStam), InPlace(g_inMagStam) };
+		if (g_raceSwitched.exchange(false) && g_expectedKnown) {
+			for (std::size_t i = 0; i < kAvs.size(); ++i) {
+				const float now = avs->GetBaseActorValue(kAvs[i]);
+				if (have[i] > 0.0f && std::abs(now - g_expected[i]) > 0.5f) {
+					logger::info("inequality: race switch rebuilt {} ({} -> {}), its {} is no longer in place", static_cast<int>(kAvs[i]),
+						g_expected[i], now, have[i]);
+					have[i] = 0.0f;
+				}
+			}
+		}
+
 		const bool on = !g_suspended && g_statOn->value == 1.0f && base->GetSex() == RE::SEX::kFemale && !InFaction(player, g_strong);
 
 		float health = on ? Magnitude(1) : 0.0f;
 		if (health > 0.0f) {
 			// SLS's cushion: the debuff never takes the maximum below the cushion
-			const float maxWithout = player->AsActorValueOwner()->GetPermanentActorValue(RE::ActorValue::kHealth) + g_inHealth->value;
+			const float maxWithout = avs->GetPermanentActorValue(RE::ActorValue::kHealth) + have[0];
 			health = std::clamp(maxWithout - g_cushion->value, 0.0f, health);
 		}
 		const float magStam = on ? Magnitude(3) : 0.0f;
+		const std::array<float, 3> want{ health, magStam, magStam };
 
-		Apply(player, RE::ActorValue::kHealth, g_inHealth, health);
-		g_inHealth->value = health;
-		Apply(player, RE::ActorValue::kMagicka, g_inMagStam, magStam);
-		Apply(player, RE::ActorValue::kStamina, g_inMagStam, magStam);
-		g_inMagStam->value = magStam;
+		for (std::size_t i = 0; i < kAvs.size(); ++i) {
+			Apply(player, kAvs[i], have[i], want[i]);
+			g_expected[i] = avs->GetBaseActorValue(kAvs[i]);
+		}
+		g_expectedKnown = true;
+		g_inHealth->value = kBaseMode + health;
+		g_inMagStam->value = kBaseMode + magStam;
 	}
 
 	std::string Report()
@@ -114,6 +196,6 @@ namespace SLSFW::Inequality
 		if (!g_spell) {
 			return "inequality: off\n";
 		}
-		return std::format("inequality: health -{} magicka/stamina -{}{}\n", g_inHealth->value, g_inMagStam->value, g_suspended ? " (suspended)" : "");
+		return std::format("inequality: health -{} magicka/stamina -{}{}\n", InPlace(g_inHealth), InPlace(g_inMagStam), g_suspended ? " (suspended)" : "");
 	}
 }

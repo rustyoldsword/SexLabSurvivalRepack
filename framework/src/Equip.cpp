@@ -47,6 +47,8 @@ namespace SLSFW::Equip
 			std::string_view     state;
 		};
 
+		constexpr std::int32_t kEquipInFlight = 16;  // per subscriber, see Subscriber::inFlight
+
 		struct Subscriber
 		{
 			std::string_view script;
@@ -55,6 +57,9 @@ namespace SLSFW::Equip
 			bool (*wants)(const Event&);
 			std::uint32_t    dispatched{ 0 };
 			RE::TESQuest*    questForm{ nullptr };
+			// equip events carry their item, so they are not dropped like a state update: a burst (outfit swap,
+			// SexLab strip) passes, only a handler that has stopped returning gets no more than kEquipInFlight
+			Bridge::InFlight inFlight{};
 			// no cached BGSBaseAlias*: the engine frees and re-creates alias objects when quests revert on a load or a
 			// new game, and a pointer taken at kDataLoaded pointed at freed memory on the first tick after a load
 			// (CRASH-004). The alias is looked up on the quest at every use instead.
@@ -289,8 +294,9 @@ namespace SLSFW::Equip
 					const auto  state = Bridge::State(script);
 					const Event e{ base, ref, a_event->equipped, script, state };
 					if (sub.wants(e)) {
-						++sub.dispatched;
-						Bridge::Call(script, a_event->equipped ? "SLSFW_Equipped" : "SLSFW_Unequipped", const_cast<RE::TESForm*>(base), ref);
+						if (Bridge::CallTracked(sub.inFlight, kEquipInFlight, script, a_event->equipped ? "SLSFW_Equipped" : "SLSFW_Unequipped", const_cast<RE::TESForm*>(base), ref)) {
+							++sub.dispatched;
+						}
 					}
 				}
 
@@ -364,8 +370,9 @@ namespace SLSFW::Equip
 		for (auto& sub : g_subscribers) {
 			const bool running = QuestRunning(sub.questForm);
 			const auto script = running ? ScriptOf(sub) : Bridge::Object{};
-			out += std::format("  {} {} state=\"{}\" calls={}\n", sub.script, running ? (script ? "bound" : "running, unbound") : "stopped",
-				Bridge::State(script), sub.dispatched);
+			out += std::format("  {} {} state=\"{}\" calls={} running={} refused={}\n", sub.script,
+				running ? (script ? "bound" : "running, unbound") : "stopped", Bridge::State(script), sub.dispatched,
+				sub.inFlight.count.load(), sub.inFlight.skipped.load());
 		}
 		return out;
 	}

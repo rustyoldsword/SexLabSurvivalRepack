@@ -865,7 +865,7 @@ Function ToggleTongue(Int MenuSelect)
 					CumSwallow.OnKeyDown(0)
 				EndIf
 				PlayerRef.AddItem(akTongue, 1, abSilent = true)
-				PlayerRef.EquipItem(akTongue, abSilent = true)
+				PlayerRef.EquipItemEx(akTongue, equipSound = false) ; silent, as OStim equips its tongues (EquipObjectHandler: equipItemEx(..., false, false))
 				FixTonguePosition()
 			EndIf
 			If Game.GetCameraState() == 3
@@ -897,7 +897,7 @@ Function ToggleTongue(Int MenuSelect)
 			Return
 		EndIf
 		PlayerRef.AddItem(akTongue, 1, abSilent = true)
-		PlayerRef.EquipItem(akTongue, abSilent = true)
+		PlayerRef.EquipItemEx(akTongue, equipSound = false) ; silent, as OStim equips its tongues (EquipObjectHandler: equipItemEx(..., false, false))
 		FixTonguePosition()
 		;TongueSlotMask = (akTongue as Armor).GetSlotMask()
 		If Game.GetCameraState() == 3
@@ -931,15 +931,20 @@ Function ToggleTongue(Int MenuSelect)
 	/;
 EndFunction
 
-Function AhegaoClear(Actor akActor)
-	Form akTongue
-	If akActor.WornHasKeyword(_SLS_TongueKeyword) ; Unequip old tongue
-		akTongue = akActor.GetWornForm(TongueSlotMask)
+Function AhegaoDropTongue(Actor akActor)
+	If akActor.WornHasKeyword(_SLS_TongueKeyword)
+		Form akTongue = akActor.GetWornForm(TongueSlotMask)
 		If akTongue && akTongue.HasKeyword(_SLS_TongueKeyword)
 			akActor.UnequipItem(akTongue, abPreventEquip = false, abSilent = true)
 			akActor.RemoveItem(akTongue, 10, abSilent = true)
 		EndIf
 	EndIf
+EndFunction
+
+Function AhegaoClear(Actor akActor)
+	AhegaoDropTongue(akActor)
+	SetSceneMouthForcedOpen(akActor, false)
+	AhegaoBlush(akActor, false)
 	Utility.Wait(0.5)
 	sslBaseExpression.ClearPhoneme(akActor)
 	MfgConsoleFunc.ResetPhonemeModifier(akActor)
@@ -959,6 +964,9 @@ EndFunction
 
 Function AhegaoFace(Actor akActor, String Face)
 	AhegaoClear(akActor)
+	If akActor.GetLeveledActorBase().GetSex() == 0 ; ahegao is a female face: the wheel, the scene trigger and the timer all land here
+		Return
+	EndIf
 	Int[] AhegaoValues = JsonUtil.IntListToArray("SL Survival/AhegaoFaces.json", Face)
 	StorageUtil.IntListCopy(akActor, "_SLS_AhegaoExpression", AhegaoValues)
 	
@@ -971,14 +979,21 @@ Function AhegaoFace(Actor akActor, String Face)
 		EndIf
 	EndIf
 	
+	; Mouth first, tongue second - OStim ties the tongue to the open-mouth phonemes ("phonemeObjects" in
+	; facial expressions\tongue1.json), so it never shows outside an open mouth. The tongue used to go on
+	; first and the face 0.3s+ later, while ToggleTongue opened the mouth with SexLab's generic phonemes.
+	DoAhegaoExpression(akActor, AhegaoValues)
+	; In a P+ scene the actor alias closes the mouth on every expression refresh and lip-syncs moans unless
+	; the mouth is forced open - P+'s own switch for that, released in AhegaoClear.
+	SetSceneMouthForcedOpen(akActor, true)
+	AhegaoBlush(akActor, true)
+
 	Int TongueSelect = JsonUtil.IntListGet("SL Survival/AhegaoFaces.json", Face, 6)
 	If TongueSelect == -1 ; Random
 		ToggleTongue(1)
 	ElseIf TongueSelect >= 0 ; Specific
 		ToggleTongue(TongueSelect + 2)
 	EndIf
-	
-	DoAhegaoExpression(akActor, AhegaoValues)
 	;/
 	akActor.SetExpressionOverride(JsonUtil.IntListGet("SL Survival/AhegaoFaces.json", Face, 0), JsonUtil.IntListGet("SL Survival/AhegaoFaces.json", Face, 1))
 	MfgConsoleFunc.SetPhoneme(akActor, id = JsonUtil.IntListGet("SL Survival/AhegaoFaces.json", Face, 2), value = JsonUtil.IntListGet("SL Survival/AhegaoFaces.json", Face, 3))
@@ -987,6 +1002,106 @@ Function AhegaoFace(Actor akActor, String Face)
 	;Utility.Wait(0.5)
 	
 	StorageUtil.SetIntValue(PlayerRef, "Sexlab.ManualMouthOpen", 2)
+EndFunction
+
+; Blush on the ahegao face, taken from Blush When Aroused (used with its author's permission): two face overlay layers
+; (cheeks p1, nose/brow p2) in the first free "Face [OvlN]" slots, tint 0xFFB900, alpha 0.6 / 0.336 - BWA's default
+; player preset (texture set 3, preset multiplier 0.6). UBE heads get the textures remapped to the UBE head UV.
+; MCM: Ahegao > "Blush during ahegao" (StorageUtil AhegaoBlush on the MCM, default on).
+Function AhegaoBlush(Actor akActor, Bool abOn)
+	Bool Fem = akActor.GetLeveledActorBase().GetSex() == 1
+	String Ov1 = StorageUtil.GetStringValue(akActor, "_SLS_BlushOv1")
+	String Ov2 = StorageUtil.GetStringValue(akActor, "_SLS_BlushOv2")
+	String DefTex = "textures\\Actors\\character\\overlays\\default.dds"
+	If Ov1 != "" ; take off what is on (also before a new face, so a slot is never claimed twice)
+		NiOverride.AddNodeOverrideFloat(akActor, Fem, Ov1, 8, -1, 0.0, false)
+		NiOverride.AddNodeOverrideString(akActor, Fem, Ov1, 9, 0, DefTex, false)
+		NiOverride.RemoveAllNodeNameOverrides(akActor, Fem, Ov1)
+		StorageUtil.UnSetStringValue(akActor, "_SLS_BlushOv1")
+	EndIf
+	If Ov2 != ""
+		NiOverride.AddNodeOverrideFloat(akActor, Fem, Ov2, 8, -1, 0.0, false)
+		NiOverride.AddNodeOverrideString(akActor, Fem, Ov2, 9, 0, DefTex, false)
+		NiOverride.RemoveAllNodeNameOverrides(akActor, Fem, Ov2)
+		StorageUtil.UnSetStringValue(akActor, "_SLS_BlushOv2")
+	EndIf
+	If !abOn || StorageUtil.GetIntValue(Menu, "AhegaoBlush", Missing = 1) != 1
+		Return
+	EndIf
+	; free slot = empty / default / blank texture, as BWA's SetOverLay picks them
+	Int n = NiOverride.GetNumFaceOverlays()
+	Int i = 0
+	Ov1 = ""
+	Ov2 = ""
+	While i < n && Ov2 == ""
+		String Node = "Face [Ovl" + i + "]"
+		String Tx
+		If NetImmerse.HasNode(akActor, Node, false)
+			Tx = NiOverride.GetNodePropertyString(akActor, false, Node, 9, 0)
+		Else
+			Tx = NiOverride.GetNodeOverrideString(akActor, Fem, Node, 9, 0)
+		EndIf
+		If Tx == "" || Tx == DefTex || StringUtil.Find(Tx, "blank.dds") != -1
+			If Ov1 == ""
+				Ov1 = Node
+			Else
+				Ov2 = Node
+			EndIf
+		EndIf
+		i += 1
+	EndWhile
+	If Ov2 == ""
+		Debug.Trace("_SLS_: ahegao blush - no two free face overlay slots")
+		Return
+	EndIf
+	String Dir = "textures\\Actors\\character\\SL Survival\\Blush\\"
+	If StringUtil.Find(PO3_SKSEFunctions.GetFormEditorID(akActor.GetRace()), "UBE_") >= 0
+		Dir += "UBE\\"
+	EndIf
+	BlushLayer(akActor, Fem, Ov1, Dir + "BWA_t3_p1.dds", 0.6)
+	BlushLayer(akActor, Fem, Ov2, Dir + "BWA_t3_p2.dds", 0.336)
+	StorageUtil.SetStringValue(akActor, "_SLS_BlushOv1", Ov1)
+	StorageUtil.SetStringValue(akActor, "_SLS_BlushOv2", Ov2)
+EndFunction
+
+Function BlushLayer(Actor akActor, Bool Fem, String Node, String Tex, Float Alpha)
+	NiOverride.AddNodeOverrideInt(akActor, Fem, Node, 0, -1, 0, true) ; emissive colour
+	NiOverride.AddNodeOverrideFloat(akActor, Fem, Node, 1, -1, 1.0, true) ; emissive multiple
+	NiOverride.AddNodeOverrideInt(akActor, Fem, Node, 7, -1, 16759296, true) ; tint 0xFFB900
+	NiOverride.AddNodeOverrideFloat(akActor, Fem, Node, 8, -1, Alpha, true)
+	NiOverride.AddNodeOverrideString(akActor, Fem, Node, 9, 0, Tex, true)
+EndFunction
+
+; sslThreadModel.SetActorMouthForcedOpen exists in SexLab P+ 2.18.1 and 2.19 (legacy SexLab has no such switch)
+Function SetSceneMouthForcedOpen(Actor akActor, Bool abOpen)
+	If !_SLS_IntSlpp.GetIsInstalled()
+		Return
+	EndIf
+	Int tid = Sexlab.FindActorController(akActor)
+	sslThreadController Thread
+	If tid >= 0
+		Thread = Sexlab.GetController(tid)
+	EndIf
+	If !Thread
+		StorageUtil.UnsetStringValue(akActor, "_SLS_AhegaoSceneExpr") ; that scene is gone - never carry its expression into the next
+		Return
+	EndIf
+	; The scene's own expression is re-applied every refresh and painted over the ahegao face (it then
+	; reopened the mouth with P+'s generic phonemes). Park it while ahegao is on and give it back after.
+	; Mouth first when opening: SetActorExpression refreshes at once and closes a mouth that is not forced open.
+	If abOpen
+		Thread.SetActorMouthForcedOpen(akActor, true)
+		If !StorageUtil.HasStringValue(akActor, "_SLS_AhegaoSceneExpr")
+			StorageUtil.SetStringValue(akActor, "_SLS_AhegaoSceneExpr", Thread.GetActorExpression(akActor))
+		EndIf
+		Thread.SetActorExpression(akActor, "")
+	Else
+		Thread.SetActorMouthForcedOpen(akActor, false)
+		If StorageUtil.HasStringValue(akActor, "_SLS_AhegaoSceneExpr")
+			Thread.SetActorExpression(akActor, StorageUtil.GetStringValue(akActor, "_SLS_AhegaoSceneExpr"))
+			StorageUtil.UnsetStringValue(akActor, "_SLS_AhegaoSceneExpr")
+		EndIf
+	EndIf
 EndFunction
 
 Function DoAhegaoExpression(Actor akActor, Int[] AhegaoValues)
@@ -1016,7 +1131,8 @@ Function ActionsMenu(Bool IsShortcut = false)
 		GoToState("Waiting")
 		WaitMenu()
 	ElseIf MenuSelect == 5
-
+		GoToState("Shave")
+		Shave()
 	ElseIf MenuSelect == 6
 
 	ElseIf MenuSelect == 7
@@ -1049,8 +1165,25 @@ Int Function ShowActionsMenu()
 	wheelMenu.SetPropertyIndexBool(propertyName = "optionEnabled", index = 2, value = PlayerRef.IsInFaction(CompulsiveSex.SexlabAnimatingFaction))
 	wheelMenu.SetPropertyIndexBool(propertyName = "optionEnabled", index = 3, value = true)
 	wheelMenu.SetPropertyIndexBool(propertyName = "optionEnabled", index = 4, value = true)
-	
+	If Game.IsPluginInstalled("SPH - Skyrim Pubic Hair.esp") ; crajjjj 0.803 (port 2026-10-27)
+		wheelMenu.SetPropertyIndexString(propertyName = "optionText", index = 5, value = "Shave ")
+		wheelMenu.SetPropertyIndexString(propertyName = "optionLabelText", index = 5, value = "Shave ")
+		wheelMenu.SetPropertyIndexBool(propertyName = "optionEnabled", index = 5, value = true)
+	EndIf
+
 	Return wheelMenu.OpenMenu()
+EndFunction
+
+; SPH - Skyrim Pubic Hair's own shaving: its razor / cream checks and its pubis or armpits menu
+Function Shave()
+	If !Game.IsPluginInstalled("SPH - Skyrim Pubic Hair.esp")
+		Return
+	EndIf
+	If !Devious.AreHandsAvailable(PlayerRef)
+		Debug.Notification("I can't do that with my hands tied")
+		Return
+	EndIf
+	_SLS_IntSph.StartShaving()
 EndFunction
 
 Function WaitMenu()
@@ -1110,6 +1243,28 @@ Function CumMenu(Bool IsShortcut = false)
 	ElseIf MenuSelect == 2
 		ShowCumPotionList(PlayerRef)
 		GoToState("PourCum")
+	ElseIf MenuSelect == 3
+		WipeCum()
+		GoToState("WipeCum")
+	EndIf
+EndFunction
+
+; Liquid Layers NG: wipe off the creampie / liquid meshes it put on the player
+Function WipeCum()
+	If !Game.IsPluginInstalled("Liquid Layers NG.esp")
+		Return
+	EndIf
+	If !Devious.AreHandsAvailable(PlayerRef)
+		Debug.Notification("I can't do that with my hands tied")
+		Return
+	EndIf
+	Int Result = _SLS_IntLlng.Wipe(PlayerRef)
+	If Result == 1
+		Debug.Notification("I wipe the cum off myself")
+	ElseIf Result == -1
+		Debug.Notification("Not now")
+	Else
+		Debug.Notification("There's nothing on me to wipe off")
 	EndIf
 EndFunction
 
@@ -1129,7 +1284,13 @@ Int Function ShowCumMenu()
 
 	wheelMenu.SetPropertyIndexBool(propertyName = "optionEnabled", index = 1, value = true)
 	wheelMenu.SetPropertyIndexBool(propertyName = "optionEnabled", index = 2, value = true)
-	
+
+	If Game.IsPluginInstalled("Liquid Layers NG.esp") ; blank slice without it - index 3 stays reserved
+		wheelMenu.SetPropertyIndexString(propertyName = "optionText", index = 3, value = "Wipe Off")
+		wheelMenu.SetPropertyIndexString(propertyName = "optionLabelText", index = 3, value = "Wipe Off")
+		wheelMenu.SetPropertyIndexBool(propertyName = "optionEnabled", index = 3, value = true)
+	EndIf
+
 	Return wheelMenu.OpenMenu()
 EndFunction
 
@@ -2550,6 +2711,7 @@ Int Function ShowStatusMenu()
 	If OrgFat != ""
 		ListMenu.AddEntryItem("Orgasm Fatigue: " + OrgFat)
 	EndIf
+	ListMenu.AddEntryItem("Debuffs: " + _SLS_Debuff.GetStatusString())
 
 	; Devious Followers
 	If Game.GetModByName("DeviousFollowers.esp") != 255
@@ -4324,6 +4486,16 @@ State MilkMyself
 	EndFunction
 EndState
 
+State WipeCum
+	String Function GetLastActionString()
+		Return "Wipe Off"
+	EndFunction
+
+	Function LastAction()
+		WipeCum()
+	EndFunction
+EndState
+
 State DrainCum
 	String Function GetLastActionString()
 		Return "Drain Cum"
@@ -4712,6 +4884,20 @@ State Waiting
 
 	Function LastAction()
 		WaitMenu()
+	EndFunction
+EndState
+
+State Shave
+	String Function GetLastActionString()
+		Return "Shave "
+	EndFunction
+
+	Function LastAction()
+		Shave()
+	EndFunction
+
+	Bool Function LastActionAvailable()
+		Return Game.IsPluginInstalled("SPH - Skyrim Pubic Hair.esp")
 	EndFunction
 EndState
 

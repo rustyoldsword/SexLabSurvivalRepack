@@ -1,4 +1,5 @@
 #include "Papyrus.h"
+#include "SlsMenu.h"
 
 #include "Equip.h"
 #include "Followers.h"
@@ -17,6 +18,8 @@ namespace SLSFW::Papyrus
 	namespace
 	{
 		std::atomic_bool g_ready{ false };
+
+		bool MenuActive(RE::StaticFunctionTag*) { return SlsMenu::Active(); }
 
 		bool IsReady(RE::StaticFunctionTag*)
 		{
@@ -186,6 +189,7 @@ namespace SLSFW::Papyrus
 	bool Register(RE::BSScript::IVirtualMachine* a_vm)
 	{
 		a_vm->RegisterFunction("IsReady", kClass, IsReady, true);
+		a_vm->RegisterFunction("MenuActive", kClass, MenuActive, true);
 		a_vm->RegisterFunction("GetApiVersion", kClass, GetApiVersion, true);
 		a_vm->RegisterFunction("Report", kClass, Report);
 		a_vm->RegisterFunction("SetTownGatesLocked", kClass, SetTownGatesLocked);

@@ -8,12 +8,23 @@ Event OnInit()
 EndEvent
 
 Function Shutdown()
-	Int i = 0
-	While i < FatigueSpellList.Length
-		PlayerRef.RemoveSpell(FatigueSpellList[i])
-		i += 1
-	EndWhile
+	; Stop() keeps every registration and a stopped quest still gets its events, so without this the
+	; next orgasm, sleep or daily tick put the debuff straight back on with the feature switched off
+	UnRegisterForAllModEvents()
+	UnRegisterForSleep()
+	UnRegisterForUpdateGameTime()
+	RemoveFatigue()
+	_SLS_OrgasmFatigueLevel.SetValueInt(0) ; _SLS_OrgasmFatiguePerk's damage cut reads it
 	Self.Stop()
+EndFunction
+
+Function Refresh()
+	; Every load: the debuff's stamina/magicka magnitude is set on the spell form, which a load reverts
+	; to the plugin's value (0 for the two stronger levels), so put the sized debuff back on. Also on
+	; MCM close after the experience bonus changed.
+	If Self.IsRunning()
+		SetFatigue()
+	EndIf
 EndFunction
 
 Function Setup()
@@ -35,6 +46,10 @@ EndFunction
 Function RegisterForEvents()
 	UnRegisterForSleep()
 	UnRegisterForAllModEvents()
+	If !Self.IsRunning() ; old save-upgrade steps call this whatever the MCM toggle says
+		UnRegisterForUpdateGameTime()
+		Return
+	EndIf
 	; P+ folds SLSO in: it always sends SexlabOrgasmSeparate but skips HookOrgasmStart in its
 	; per-actor climax mode, so P+ must take the separate-event path even without SLSO.esp
 	If Game.GetModByName("SLSO.esp") != 255 || _SLS_IntSlpp.GetIsInstalled()
@@ -52,10 +67,10 @@ EndFunction
 Event OnUpdateGameTime()
 	If DailyOrgasmCount > OrgasmThreshold && OrgasmThreshold < 19.0
 		OrgasmThreshold += 1.0
-		Debug.Notification("I can handle more orgasms now")
-	ElseIf DailyOrgasmCount < OrgasmThreshold && OrgasmThreshold > 1.0
+		_SLS_Debuff.Notify("OrgasmLimit", "I can handle more orgasms now")
+	ElseIf DailyOrgasmCount < OrgasmThreshold && OrgasmThreshold > GetExperienceFloor() ; sensitivity returns only down to what experience gives
 		OrgasmThreshold -= 1.0
-		Debug.Notification("I'm more sensitive and can't have as many orgasms now")
+		_SLS_Debuff.Notify("OrgasmLimit", "I'm more sensitive and can't have as many orgasms now")
 	EndIf
 	SetFatigue()
 	DailyOrgasmCount = 0.0
@@ -99,18 +114,16 @@ Event On_SLS_BfLabor(Int ChildCount, Form Father0)
 		Babies = 1
 	EndIf
 	AdjustOrgasmCount(LaborFatigue * Babies)
+	; Same category and before SetFatigue: the shared cooldown then swallows SetFatigue's level notice,
+	; so the birth says it once
+	_SLS_Debuff.Notify("OrgasmFatigue", "Giving birth has left me exhausted.")
 	SetFatigue()
-	Debug.Notification("Giving birth has left me exhausted.")
 EndEvent
 
 Function OutOfSexOrgasmEvent()
-	AdjustOrgasmCount(1.0)
+	AddOrgasm()
 	;Debug.Messagebox("Player orgasm\nCount: " + OrgasmCount)
-	If OrgasmCount > OrgasmThreshold
-		SetFatigue()
-	Else
-		RemoveFatigue()
-	EndIf
+	SetFatigue() ; below the limit too: it clears the level global that RemoveFatigue alone leaves set
 	Ahegao.CaptureVibeEvent(OrgasmCount as Int)
 EndFunction
 
@@ -125,12 +138,12 @@ EndEvent
 
 Function OrgasmEvent(Actor ActorRef = None, Int tid, Bool HasPlayer)
 	If ActorRef == PlayerRef || (!ActorRef && HasPlayer) ; Player had orgasm
-		AdjustOrgasmCount(1.0)
+		AddOrgasm()
 		;Debug.Messagebox("Player orgasm\nCount: " + OrgasmCount)
-		If OrgasmCount > OrgasmThreshold
+		If OrgasmCount > OrgasmThreshold ; may still be the threshold from before the experience floor rose; SetFatigue settles it
 			RegisterForModEvent("HookAnimationEnd", "OnAnimationEnd")
 		Else
-			RemoveFatigue()
+			SetFatigue()
 		EndIf
 	EndIf
 EndFunction
@@ -142,7 +155,20 @@ Event OnAnimationEnd(int tid, bool HasPlayer)
 EndEvent
 
 Function SetFatigue()
-	Spell FatigueSpell = GetDebuff(SetFatigueLevel())
+	ApplyExperienceFloor() ; first: its SexLab calls let other threads in, keep them out of OldLevel..Level
+	Int OldLevel = _SLS_OrgasmFatigueLevel.GetValueInt()
+	Int Level = SetFatigueLevel()
+	Spell FatigueSpell = GetDebuff(Level)
+	; Every load runs this too, and there the level is unchanged, so it stays silent
+	If Level > OldLevel
+		_SLS_Debuff.Notify("OrgasmFatigue", "Orgasm fatigue: I'm " + FatigueLevelName(Level) + " now")
+	ElseIf Level < OldLevel
+		If Level == 0
+			_SLS_Debuff.Notify("OrgasmFatigue", "Orgasm fatigue: I've recovered")
+		Else
+			_SLS_Debuff.Notify("OrgasmFatigue", "Orgasm fatigue eased: I'm only " + FatigueLevelName(Level) + " now")
+		EndIf
+	EndIf
 	If FatigueSpell
 		Float StaminaPerOrgasm = PlayerRef.GetBaseActorValue("Stamina") / 10.0
 		Float MagickaPerOrgasm = PlayerRef.GetBaseActorValue("Magicka") / 10.0
@@ -167,12 +193,38 @@ Function RemoveFatigue()
 	EndWhile
 EndFunction
 
-Function AdjustOrgasmCount(Float Value)
-	Float NewVal = OrgasmCount + Value
-	OrgasmCount = PapyrusUtil.ClampFloat(NewVal, 0.0, 20.0)
-	If Value > 0.0 ; Is Orgasm
-		DailyOrgasmCount += 1.0
+Function AddOrgasm()
+	AdjustOrgasmCount(1.0)
+	DailyOrgasmCount += 1.0 ; only real orgasms train the daily threshold - not childbirth fatigue
+EndFunction
+
+; The lowest the orgasm threshold can sit, from the player's SexLab experience: the vaginal, anal and
+; oral skill titles (Unskilled 0 .. Grand Master 6) summed to 0..18, so mastering all three adds
+; ExperienceLimitBonus orgasms. Daily training still pushes the threshold above this and a quiet day
+; still lowers it, but only down to here.
+Float Function GetExperienceFloor()
+	If ExperienceLimitBonus <= 0.0 || !Sexlab
+		Return 1.0
 	EndIf
+	Int Mastery = GetSkillTitleLevel("Vaginal") + GetSkillTitleLevel("Anal") + GetSkillTitleLevel("Oral")
+	; At most 19, like daily training: the count stops at 20, so a higher threshold is never passed
+	Return PapyrusUtil.ClampFloat(1.0 + ((Mastery * ExperienceLimitBonus / 18.0) as Int), 1.0, 19.0)
+EndFunction
+
+Int Function GetSkillTitleLevel(String Skill) ; the level keeps climbing past Grand Master; its title, and this, stop there
+	Return PapyrusUtil.ClampInt(Sexlab.GetSkillLevel(PlayerRef, Skill), 0, 6)
+EndFunction
+
+Function ApplyExperienceFloor()
+	Float ExperienceFloor = GetExperienceFloor()
+	If OrgasmThreshold < ExperienceFloor
+		OrgasmThreshold = ExperienceFloor
+		_SLS_Debuff.Notify("OrgasmLimit", "My experience lets me handle more orgasms now")
+	EndIf
+EndFunction
+
+Function AdjustOrgasmCount(Float Value)
+	OrgasmCount = PapyrusUtil.ClampFloat(OrgasmCount + Value, 0.0, 20.0)
 EndFunction
 
 Int Function SetFatigueLevel()
@@ -183,7 +235,7 @@ Int Function SetFatigueLevel()
 	ElseIf OrgasmCount >= OrgasmThreshold + Div
 		_SLS_OrgasmFatigueLevel.SetValueInt(2)
 		Return 2
-	ElseIf OrgasmCount >= OrgasmThreshold
+	ElseIf OrgasmCount > OrgasmThreshold ; past the limit, where the debuff's size stops being 0
 		_SLS_OrgasmFatigueLevel.SetValueInt(1)
 		Return 1
 	EndIf
@@ -196,6 +248,15 @@ Spell Function GetDebuff(Int Level)
 		Return FatigueSpellList[(Level - 1)]
 	EndIf
 	Return None
+EndFunction
+
+String Function FatigueLevelName(Int Level)
+	If Level >= 3
+		Return "drained"
+	ElseIf Level == 2
+		Return "exhausted"
+	EndIf
+	Return "fatigued"
 EndFunction
 
 String Function GetOrgasmFatigueString()
@@ -225,6 +286,7 @@ Float Property DailyOrgasmCount = 0.0 Auto Hidden
 Float Property OrgasmThreshold = 1.0 Auto Hidden
 Float Property OrgasmRecoveryPerHour = 0.8 Auto Hidden
 Float Property LaborFatigue = 4.0 Auto Hidden ; Fatigue (orgasm-equivalents) added per baby at childbirth (Beeing Female)
+Float Property ExperienceLimitBonus = 9.0 Auto Hidden ; Orgasms full SexLab mastery adds to the lowest threshold (0 = off), see GetExperienceFloor
 
 Spell[] FatigueSpellList
 String[] FatigeStrs

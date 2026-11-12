@@ -150,7 +150,7 @@ def main():
             o = get(o['parent'])
         return None
     sls = [c for c in vfs if re.match(r'(_?sls|tif__0|pf__sls|qf__sls|sf__sls|_sls)', c) and not c.startswith('slsf') and not c.startswith('slso')]
-    sls = [c for c in sls if os.path.basename(os.path.dirname(os.path.dirname(vfs[c][0]))) in ('SL Survival - Patches','SexLab Survival 0.716','Sexlab Survival')]
+    sls = [c for c in sls if os.path.basename(os.path.dirname(os.path.dirname(vfs[c][0]))) in ('SexLab Survival Repack','SL Survival - Patches','SexLab Survival 0.716','Sexlab Survival')]
     stats = [0]; percls = collections.Counter(); findings = collections.defaultdict(set); nopex = collections.defaultdict(set)
     for c in sorted(sls):
         obj = get(c)

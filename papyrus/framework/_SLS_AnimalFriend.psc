@@ -519,8 +519,10 @@ Function UnFleeCreature(Actor akActor)
 EndFunction
 
 Function FriendizeActor(Actor akActor)
-	While StorageUtil.FormListFind(Self, "InProcFriends", akActor) > -1
+	Int Tries = 0
+	While StorageUtil.FormListFind(Self, "InProcFriends", akActor) > -1 && Tries < 10 ; 3.0.2: 30 s, then take over
 		Utility.Wait(3.0)
+		Tries += 1
 	EndWhile
 	StorageUtil.FormListAdd(Self, "InProcFriends", akActor, AllowDuplicate = false)
 	
@@ -600,8 +602,10 @@ Function RecheckAnimalFriendFactions(Actor akActor)
 EndFunction
 
 Function RestoreAiData(Actor akActor)
-	While StorageUtil.FormListFind(Self, "InProcFriends", akActor) > -1
+	Int Tries = 0
+	While StorageUtil.FormListFind(Self, "InProcFriends", akActor) > -1 && Tries < 10 ; 3.0.2: 30 s, then take over
 		Utility.Wait(3.0)
+		Tries += 1
 	EndWhile
 	StorageUtil.FormListAdd(Self, "InProcFriends", akActor, AllowDuplicate = false)
 	

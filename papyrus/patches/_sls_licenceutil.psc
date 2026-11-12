@@ -1,6 +1,7 @@
 Scriptname _SLS_LicenceUtil extends Quest Conditional 
 
 Event OnInit()
+	LicNameMaintenance() ; crajjjj 0.803 (port 2026-10-27): new-game half of PlayerLoadsGame, which SLS_Init no longer calls
 	If Self.IsRunning()
 		SetupSlotMasks()
 		SetupLicTypeStrArray()
@@ -329,10 +330,8 @@ ObjectReference Function IssueLicence(Actor Issuer, Int LicenceType = -1, Int Li
 		LicWhoreIssuerName = IssuerName
 		LicExpiryWhore = ExpiryString
 		
-		; Make Public Whore
-		Int Handle = ModEvent.create("PW_MakePublicWhore")
-		ModEvent.PushInt(Handle, -1) ; -1 use PWs last location
-		ModEvent.Send(Handle)
+		; The licence stays a pass only: it no longer makes the player Public Whore's city whore
+		; (owner's decision 2026-10-27; was ModEvent "PW_MakePublicWhore", -1)
 	
 	ElseIf BuyLicenceType == 7 ; Freedom
 		_SLS_LicenceCupcakeFreedom.SetName(DerogName)
@@ -587,6 +586,9 @@ Function GateLicenceCheck(Int ActivatorLocation) ; ActivatorLocation: 0 - Whiter
 
 	Bool OiYou = false
 	Bool GetFollowupInfrac = true
+	; 3.0.2: the collector's "one moment while I check your licences" loop waits on LicInfractionType == -1, so the
+	; result is gathered in Result and written once at the end; helper checks report through ContrabandCode only
+	Int Result = -1
 	LicInfractionType = -1
 	NeedsMandGag = false
 	IsMandatorilyGagged = false
@@ -616,40 +618,40 @@ Function GateLicenceCheck(Int ActivatorLocation) ; ActivatorLocation: 0 - Whiter
 
 	If GetFollowupInfrac && LicMagicEnable && !HasValidMagicLicence && (!PlayerRef.HasMagicEffect(_SLS_MagicLicenceCollarMgef) || (FollowerLicStyle == 1 && !AllFollowersAreMagicCursed()))
 		;Debug.Messagebox("Stop for magic")
-		LicInfractionType = 0
+		Result = 0
 		GetFollowupInfrac = false
 		OiYou = true
 	ElseIf GetFollowupInfrac && LicMagicEnable && !HasValidMagicLicence && BeginGetHasMagicItem(PlayerRef)
-		LicInfractionType = 5
+		Result = 5
 		GetFollowupInfrac = false
 		OiYou = true
 	ElseIf GetFollowupInfrac && !HasValidWeaponLicence && BeginGetHasWeapon(PlayerRef)
 		;Debug.Messagebox("Stop for weapons")
-		LicInfractionType = 1
+		Result = 1
 		GetFollowupInfrac = false
 		OiYou = true
 	ElseIf GetFollowupInfrac && BeginGetHasArmor(PlayerRef)
-		; Infraction type set in GateLicenceCheckArmor(PlayerRef)
+		Result = ContrabandCode ; 2 or 3, set by HasArmor()
 		GetFollowupInfrac = false
 		OiYou = true
 		
 	ElseIf GetFollowupInfrac && GateLicenceCheckClothes(PlayerRef, ActivatorLocation)
-		LicInfractionType = 4
+		Result = 4
 		GetFollowupInfrac = false
 		OiYou = true
 
 	ElseIf GetFollowupInfrac && FolContrabandCheck.GateLicenceCheckFollowers(MustBeLoaded = true, LocationInt = ActivatorLocation)
-		LicInfractionType = 6
+		Result = 6
 		GetFollowupInfrac = false
 		OiYou = true
 
 	ElseIf GetFollowupInfrac && LicPropertyEnable && OwnsProperty && !HasValidPropertyLicence && !Menu.Eviction.IsLicenceEvicted
-		LicInfractionType = 7
+		Result = 7
 		GetFollowupInfrac = false
 		OiYou = true
 		
 	ElseIf !IsHairyPussyTaxed(ActivatorLocation) && Fashion.GetPubicHairStage() > 0 && IsPubicZoneVisible(PlayerRef)
-		LicInfractionType = 9
+		Result = 9
 		GetFollowupInfrac = false
 		OiYou = true
 		
@@ -665,8 +667,10 @@ Function GateLicenceCheck(Int ActivatorLocation) ; ActivatorLocation: 0 - Whiter
 		;EndIf
 		;Utility.Wait(1.5)
 		
-		LicInfractionType = -2
-	Else
+		Result = -2
+	EndIf
+	LicInfractionType = Result
+	If OiYou
 		_SLS_LicenceForceGreetQuest.Start()
 	EndIf
 	;FollowerProc.ProcAllFollowersAllLics(true)
@@ -689,17 +693,17 @@ Bool Function HasArmor(ObjectReference akTarget)
 	If LicBikiniEnable
 		If (!HasValidArmorLicence && !HasValidBikiniLicence) && ActorHasArmor(akTarget)
 			;Debug.Messagebox("Stop for all armors")
-			LicInfractionType = 2
+			ContrabandCode = 2
 			Return true
 		ElseIf (!HasValidArmorLicence && HasValidBikiniLicence) && IsActorWearingNonBikiniArmor(akTarget)
 			;Debug.Messagebox("Stop for non bikini armors")
-			LicInfractionType = 3
+			ContrabandCode = 3
 			Return true
 		EndIf
 	Else
 		If !HasValidArmorLicence && ActorHasArmor(akTarget)
 			;Debug.Messagebox("Stop for all armors - bikinis disabled")
-			LicInfractionType = 2
+			ContrabandCode = 2
 			Return true
 		EndIf
 	EndIf
@@ -745,13 +749,13 @@ EndFunction
 Bool Function GateLicenceCheckClothes(ObjectReference akTarget, Int LocationInt)
 	If LicClothesEnable == 1 ; Always
 		If !HasValidClothesLicence && BeginGetHasClothes(akTarget)
-			LicInfractionType = 4
+			ContrabandCode = 4
 			;Debug.Messagebox("Stop for clothes - always")
 			Return true
 		EndIf
 	ElseIf LicClothesEnable == 2 ; Slaverun
 		If !HasValidClothesLicence && !IsSlaverunFreeTown(LocationInt) && BeginGetHasClothes(akTarget)
-			LicInfractionType = 4
+			ContrabandCode = 4
 			;Debug.Messagebox("Stop for clothes - slaverun")
 			Return true
 		EndIf
@@ -877,38 +881,38 @@ Bool Function IsObjectContraband(Form akBaseItem, Int LocationInt)
 		If !_SLS_LicExceptionsArmor.HasForm(akBaseItem) && akBaseItem.IsPlayable() && !akBaseItem.HasKeyword(SexLabNoStrip) && akBaseItem.GetName() != ""
 			If (akBaseItem as Armor).GetWeightClass() < 2 ; armor
 				If !HasValidArmorLicence && !HasValidBikiniLicence
-					LicInfractionType = 2
+					ContrabandCode = 2
 					Return true
 				EndIf		
 			
 				;/
 				If akBaseItem.HasKeyword(_SLS_BikiniArmor)
 					If !HasValidBikiniLicence && !HasValidArmorLicence
-						LicInfractionType = 2
+						ContrabandCode = 2
 						Return true
 					EndIf
 					
 				ElseIf !HasValidArmorLicence
-					LicInfractionType = 3
+					ContrabandCode = 3
 					Return true
 				EndIf
 				/;
 				
 			Else ; Clothes
 				If (akBaseItem as Armor).GetEnchantment() != None && !HasValidMagicLicence && !akBaseItem.HasKeyword(ArmorJewelry)
-					LicInfractionType = 5
+					ContrabandCode = 5
 					Return true
 				EndIf
 				
 				If LicClothesEnable == 1 ; Always
 					If !HasValidClothesLicence
-						LicInfractionType = 4
+						ContrabandCode = 4
 						Return true
 					EndIf
 				
 				ElseIf LicClothesEnable == 2 ; Slaverun
 					If !IsSlaverunFreeTown(LocationInt) && !HasValidClothesLicence
-						LicInfractionType = 4
+						ContrabandCode = 4
 						Return true
 					EndIf
 				EndIf
@@ -917,12 +921,12 @@ Bool Function IsObjectContraband(Form akBaseItem, Int LocationInt)
 
 	ElseIf akBaseItem as Weapon || akBaseItem as Ammo
 		If !HasValidWeaponLicence && !_SLS_LicExceptionsWeapon.HasForm(akBaseItem) && !akBaseItem.HasKeyword(VendorItemStaff)
-			LicInfractionType = 1
+			ContrabandCode = 1
 			Return true
 			
 		ElseIf akBaseItem.HasKeyword(VendorItemStaff)
 			If !HasValidMagicLicence
-				LicInfractionType = 5
+				ContrabandCode = 5
 				Return true
 			EndIf
 		EndIf
@@ -930,14 +934,14 @@ Bool Function IsObjectContraband(Form akBaseItem, Int LocationInt)
 	ElseIf akBaseItem as Book
 		If akBaseItem.HasKeyword(VendorItemSpellTome)
 			If !HasValidMagicLicence
-				LicInfractionType = 5
+				ContrabandCode = 5
 				Return true
 			EndIf
 		EndIf
 		
 	ElseIf akBaseItem as Scroll
 		If !HasValidMagicLicence
-			LicInfractionType = 5
+			ContrabandCode = 5
 			Return true
 		EndIf	
 	EndIf
@@ -958,12 +962,12 @@ Bool Function HasAnyContraband(ObjectReference akTarget, Int LocationInt)
 		
 	ElseIf !HasValidWeaponLicence && BeginGetHasWeapon(akTarget)
 		;Debug.Messagebox("Returning true on weapon check")
-		LicInfractionType = 1
+		ContrabandCode = 1
 		Return true
 		
 	ElseIf LicMagicEnable && !HasValidMagicLicence && BeginGetHasMagicItem(akTarget)
 		;Debug.Messagebox("Returning true on HasMagicItem")
-		LicInfractionType = 6
+		ContrabandCode = 5
 		Return true
 		
 	ElseIf GateLicenceCheckClothes(akTarget, LocationInt)
@@ -1159,7 +1163,10 @@ Function NullifyMagic(Actor akTarget)
 			CollarMiscreant(akTarget)
 			StorageUtil.SetIntValue(None, "_SLS_PlayerIsMagicCursed", 2)
 		Else
-			
+			; A party-wide licence re-runs this for the follower curses: say it only the first time
+			If akTarget == PlayerRef && !akTarget.HasSpell(_SLS_MagicLicenceCurse)
+				_SLS_Debuff.Notify("MagickaCurse", "Magicka curse: I can't use my magicka without a magic licence")
+			EndIf
 			akTarget.RemoveSpell(_SLS_MagicLicenceCurse)
 			Utility.Wait(0.1)
 			akTarget.AddSpell(_SLS_MagicLicenceCurse, abVerbose = false)
@@ -2522,6 +2529,9 @@ String Function GetLicTypeByInt(Int LicType)
 EndFunction
 
 Function SetMandatoryGag(Actor akSpeaker)
+	If !GuardPunishDevices ; 3.0.2: guard punishment switch (MCM Misogyny & Inequality > Guard punishments)
+		Return
+	EndIf
 	Faction akCrimeFaction = akSpeaker.GetCrimeFaction()
 	Float CurTime = Utility.GetCurrentGameTime()
 	If akCrimeFaction
@@ -2579,6 +2589,9 @@ Function SetMandatoryGag(Actor akSpeaker)
 EndFunction
 
 Bool Function GetIsMandatoryGagged(Int ActivatorLocation, Actor akSpeaker = None)
+	If !GuardPunishDevices ; a gag sentence handed out before the switch was turned off no longer counts
+		Return false
+	EndIf
 	; ActivatorLocation: 0 - Whiterun, 1 - Solitude, 2 - Markarth, 3 - Windhelm, 4 - Riften
 	If ActivatorLocation < 0
 		If akSpeaker
@@ -2635,6 +2648,9 @@ Int Function GetActivatorLocationFromCrimeFaction(Actor akActor)
 EndFunction
 
 Function EquipMandatoryGag()
+	If !GuardPunishDevices
+		Return
+	EndIf
 	If !Devious.IsPlayerGagged()
 		Devious.EquipRandomDeviceByCategory(PlayerRef, "Gags")
 	EndIf
@@ -3312,7 +3328,18 @@ Int Property BuyLicenceType Auto Hidden Conditional; 0 - Magic, 1 - Weapons, 2 -
 Int Property BuyLicenceTerm Auto Hidden ; 0 - Short term, 1 - Long term, 2 - Perpetual
 Int Property RecoveryRequest Auto Hidden Conditional ; 0 - armor, 1 - weapons, 2 - Bikini, 3 - Clothes
 Int Property LicCostRequested Auto Hidden Conditional ; Used in licence buying dialogue
-Int Property LicInfractionType Auto Hidden Conditional ; 0 - Collar, 1 - Weapons, 2 - Armor, 3 - Non Bikini armor, 4 - Clothes, 5 - Follower, 6 - Magic
+Int Property LicInfractionType Auto Hidden Conditional ; toll gate only: -2 clean, -1 check running, 0 - Collar, 1 - Weapons, 2 - Armor, 3 - Non Bikini armor, 4 - Clothes, 5 - Magic items, 6 - Follower contraband, 7 - Property, 9 - Hairy pussy
+Int Property TownInfractionType = -1 Auto Hidden Conditional ; town enforcer (3.0.2): same codes, -1 = no item infraction
+; 3.0.2 guard punishments: each switch gates the punishment lines of guard warnings (_SLS_GuardWarned01) and curfew
+; (_SLS_CurfewPunish00) through GetVMQuestVariable conditions; fines and bounties always stay available
+Bool Property GuardPunishDrugs = true Auto Hidden Conditional
+Bool Property GuardPunishDevices = true Auto Hidden Conditional ; also the mandatory gag for mouthing off
+Bool Property GuardPunishKennel = true Auto Hidden Conditional
+Bool Property GuardPunishClothes = true Auto Hidden Conditional
+Bool Property GuardPunishMilk = true Auto Hidden Conditional
+Bool Property GuardPunishConfine = true Auto Hidden Conditional
+Bool Property GuardPunishTattoo = true Auto Hidden Conditional
+Int Property ContrabandCode = -1 Auto Hidden ; last code found by HasArmor/IsObjectContraband/HasAnyContraband; callers copy it
 Int Property MandatoryRestraints = 0 Auto Hidden Conditional ; 0 - Nothing, 1- armbinder, 2 - yoke, 3 - AB/Yoke + ankle chains, 4 - AB/Yoke + Chains + Hobble?
 
 Int Property LicCostArmorShort = 3000 Auto Hidden ; Mcm settings

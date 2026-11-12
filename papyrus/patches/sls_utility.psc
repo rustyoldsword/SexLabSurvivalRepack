@@ -458,10 +458,13 @@ EndFunction
 
 Function ScreamForHelpBegin()
 	Int Scream
+	; SLS-MALE-1: every scream and gag clip SLS has is a woman's voice, and the out-of-combat answer is the guards'
+	; "crazy bitch" scene - a male player gets the help (combat aliases, scene spectators) without either
+	Bool IsMale = PlayerRef.GetLeveledActorBase().GetSex() == 0
 	If CanSpeak(PlayerRef)
 		; Bundled scream via the SLS1 slot (lipsynced Help wavs); 0 = AudioUtil absent -
 		; legacy Sound form.
-		If _SLS_IntAudioUtil.PlayVoiceFromSlot("SLS1", "Help", PlayerRef, 1.0, "sls_voice") == 0
+		If !IsMale && _SLS_IntAudioUtil.PlayVoiceFromSlot("SLS1", "Help", PlayerRef, 1.0, "sls_voice") == 0
 			Scream = _SLS_ScreamForHelpMarker.Play(PlayerRef)
 		EndIf
 		If PlayerRef.IsInCombat()
@@ -478,7 +481,7 @@ Function ScreamForHelpBegin()
 				_SLS_ScreamForHelpSpectateQuest.Start()
 			;EndIf
 
-		Else
+		ElseIf !IsMale
 
 			_SLS_ScreamForHelpCrazyBitchQuest.Stop()
 			_SLS_ScreamForHelpCrazyBitchQuest.Start()
@@ -495,7 +498,7 @@ Function ScreamForHelpBegin()
 		; Gagged: PlayVoice routes to the pack's gag_slot so a muffled clip plays, and lipsync
 		; is auto-suppressed (the gag owns the mouth). "GagMoan" is AudioUtil's gag catch-all.
 		; 0 = no pack, stock gag-talk sound.
-		If _SLS_IntAudioUtil.PlayVoice(PlayerRef, "GagMoan", 1.0, "sls_voice") == 0
+		If !IsMale && _SLS_IntAudioUtil.PlayVoice(PlayerRef, "GagMoan", 1.0, "sls_voice") == 0
 			Scream = _SLS_GagTalkMarker.Play(PlayerRef)
 		EndIf
 	EndIf
@@ -1226,22 +1229,32 @@ Function SendDoSpecificNpcSpankEventCustom(Float Timeout, Bool AllowNpcInFurnitu
 	EndIf
 EndFunction
 
+; integration patch 2026-11-10: the forced-drugs window used to be announced as a fake SexLab "PlayerTrack_Start/End"
+; (thread id -1) to pause Skooma Whore. Every SexLab listener took it for a sex scene - Bathing in Skyrim called
+; GetController(-1) and added post-scene dirt. SLS's own warning alias now listens to its own event; the SexLab look-alike
+; is sent only when Skooma Whore, the mod it was meant for, is installed.
 Function SuspendSwAddicted()
-	Int Suspend = ModEvent.Create("PlayerTrack_Start")
-    If (Suspend)
-        ModEvent.PushForm(Suspend, Self)
-        ModEvent.PushInt(Suspend, -1)
-        ModEvent.Send(Suspend)
-    EndIf
+	SendModEvent("_SLS_ForceDrugsBegin")
+	If Init.SkoomaWhoreInstalled
+		Int Suspend = ModEvent.Create("PlayerTrack_Start")
+		If (Suspend)
+			ModEvent.PushForm(Suspend, Self)
+			ModEvent.PushInt(Suspend, -1)
+			ModEvent.Send(Suspend)
+		EndIf
+	EndIf
 EndFunction
 
 Function ResumeSwAddicted()
-	Int Resume = ModEvent.Create("PlayerTrack_End")
-    If (Resume)
-        ModEvent.PushForm(Resume, Self)
-        ModEvent.PushInt(Resume, -1)
-        ModEvent.Send(Resume)
-    EndIf
+	SendModEvent("_SLS_ForceDrugsEnd")
+	If Init.SkoomaWhoreInstalled
+		Int Resume = ModEvent.Create("PlayerTrack_End")
+		If (Resume)
+			ModEvent.PushForm(Resume, Self)
+			ModEvent.PushInt(Resume, -1)
+			ModEvent.Send(Resume)
+		EndIf
+	EndIf
 EndFunction
 
 Function PlayerReadysWeapon(Bool WeapReadiedDelayed)
@@ -1493,8 +1506,9 @@ Function GuardWarnPlayer(Actor Guard)
 		If !Guard.IsInFaction(_SLS_GuardBehaviourWarningFact)
 			Guard.AddToFaction(_SLS_GuardBehaviourWarningFact)
 			Guard.ModFactionRank(_SLS_GuardBehaviourWarningFact, 1)
-		Else ; Might do more severe punishments or something later if number of warnings is greater than x...
-			Guard.ModFactionRank(_SLS_GuardBehaviourWarningFact, 1)
+		Else ; already warned: this is the punishment (0896FA). 3.0.2: forget the warning afterwards - it used to last
+			; forever, so any later slip in front of this guard skipped the warning and went straight to a punishment
+			Guard.RemoveFromFaction(_SLS_GuardBehaviourWarningFact)
 		EndIf
 	Else
 		Debug.Trace("_SLS_: GuardWarnPlayer: Received a none")
@@ -2058,6 +2072,13 @@ Function DoTraumaHitSound(Actor akActor, Bool PlayerSqueaks)
 	Float Volume = (1.0 - (0.1 * (PlayerRef.GetDistance(akActor) / 128.0))) ; Reduce volume by 10% for every 128 units away from the player
 	DoHitSound(akActor, Volume)
 	If PlayerSqueaks && akActor == PlayerRef ;akActor.GetLeveledActorBase().GetSex() == 1
+		; SLS-MALE-1: the masochist moan and the pain squeak are both a woman's voice - a male player gets SLS's own
+		; male grunt (_SLS_BarefootPainMaleSM), as the barefoot stumble does
+		If akActor.GetLeveledActorBase().GetSex() != 1
+			Int Grunt = (Game.GetFormFromFile(0x0F9DF4, "SL Survival.esp") as Sound).Play(akActor)
+			Sound.SetInstanceVolume(Grunt, Volume)
+			Return
+		EndIf
 		; A masochist PC (STA attitude Likes/Loves pain) moans instead of squeaking. Route
 		; through the voice pack via PlayVoice "NearOrgasmNoises" (the non-verbal moan) so it
 		; lipsyncs and gag-muffles; >0 = handled, skip the pain squeak. STA absent (-2) or no

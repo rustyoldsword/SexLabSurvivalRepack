@@ -117,6 +117,16 @@ namespace SLSFW::Bridge
 		return true;
 	}
 
+	bool SetInt(const Object& a_object, std::string_view a_name, std::int32_t a_value)
+	{
+		auto* var = Var(a_object, a_name);
+		if (!var || !var->IsInt()) {
+			return false;
+		}
+		var->SetSInt(a_value);
+		return true;
+	}
+
 	std::string State(const Object& a_object)
 	{
 		return a_object ? std::string(a_object->currentState.c_str()) : std::string{};

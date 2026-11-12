@@ -82,7 +82,8 @@ namespace SLSFW::Nudity
 			if (!script) {
 				return;  // quest stopped: SLS ignored these passes too
 			}
-			if (Bridge::Call(script, "SLSFW_AndNudityUpdate")) {
+			static Bridge::InFlight flight;  // one update at a time: the next tick resends if this one is still running
+			if (Bridge::CallTracked(flight, 1, script, "SLSFW_AndNudityUpdate")) {
 				g_lastSig = sig;  // only a delivered change counts; a failed dispatch is retried on the next tick
 				++g_dispatched;
 			}

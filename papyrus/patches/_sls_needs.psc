@@ -13,6 +13,11 @@ Float Property CampingFatigue = 0.0 Auto Hidden
 
 Float Property FatigueBeforeModding Auto Hidden
 
+; The drug comedown (_SLS_DrugFatigueInc): the rest a dose gave is owed back, with DrugEndFatigueInc
+; of its strength on top, when the effect wears off. Doses add to one debt, because a second dose
+; recasts the effect, which ends the running one, and that end must not charge the first dose early.
+Float Property DrugFatigueOwed = 0.0 Auto Hidden
+
 Keyword Property SexLabNoStrip Auto
 Keyword Property Vampire Auto
 
@@ -37,12 +42,14 @@ Quest CcsExhaustionQuest
 GlobalVariable CcsModeEnabled
 GlobalVariable CcsHungerValue
 GlobalVariable CcsExhaustionValue
-Float Property CcsFatigueScale = 2.0 Auto Hidden ; Survival Mode exhaustion runs to 960: SLS fatigue amounts x2, like SunHelm's 480 scale
+Float Property CcsFatigueScale = 2.0 Auto Hidden ; Retired in 0.806 for GetFatigueScale(), kept because saves hold it
 
 Bool DoSleepDeprivMessage = true
 String LastConditions ; Breakdown from the most recent GetSleepPenalty() call, minus the flavor statement
 Float ConditionsShownRT = -3600.0 ; Real-time stamp of the last on-screen breakdown (Sleep/Wait menu hook path)
 Bool SleptInFurniture ; Player was already in the bed when the applied penalty was computed (Go To Bed-style flow)
+Keyword BedrollKeyword ; Skyrim.esm FurnitureBedRoll, fetched on first use
+Form VampireCoffin
 
 Event OnInit()
 	PickNeedsState()
@@ -174,6 +181,9 @@ Float Function GetSleepPenalty(Bool ShowConditions = false, Bool IsSleeping)
 	EndIf
 	If !Bed
 		Bed = Game.GetCurrentCrosshairRef()
+		If Bed && !(Bed.GetBaseObject() as Furniture) ; a chest or a corpse in the crosshair is no bed
+			Bed = None
+		EndIf
 	EndIf
 	;Debug.Messagebox("Bed: " + Bed.GetBaseObject().GetName())
 	If Bed
@@ -182,8 +192,17 @@ Float Function GetSleepPenalty(Bool ShowConditions = false, Bool IsSleeping)
 		If ((;/OwningFaction == PlayerBedOwnership ||/; OwningFaction == None || PlayerRef.IsInFaction(OwningFaction)) && (Owner == None || Owner == PlayerRef.GetActorBase())); || (OwningFaction == None && Bed.GetActorOwner() == None) ; Not someone elses bed
 			HasBed = true
 			String BedName = Bed.GetBaseObject().GetName()
-			If StringUtil.Find(BedName, "Roll") != -1 || StringUtil.Find(BedName, "Hay Pile") != -1  || StringUtil.Find(BedName, "Bedding") != -1 ; Bedding = 'Rough Bedding'
-				If StringUtil.Find(BedName, "Roll") != -1
+			; The keyword is on every vanilla and DLC bedroll and hay pile, and on most modded ones, in any
+			; game language; the English names stay as a fallback for a modded bedroll that lacks it.
+			; A translated hay pile has no "Hay" to find, so it scores as a bedroll.
+			If !BedrollKeyword
+				BedrollKeyword = Game.GetFormFromFile(0x0E4AD6, "Skyrim.esm") as Keyword
+			EndIf
+			If !VampireCoffin
+				VampireCoffin = Game.GetFormFromFile(0x000801, "HearthFires.esm") ; BYOHVampireCoffinVert01 carries the keyword but is a vampire's bed
+			EndIf
+			If (Bed.HasKeyword(BedrollKeyword) && Bed.GetBaseObject() != VampireCoffin) || StringUtil.Find(BedName, "Roll") != -1 || StringUtil.Find(BedName, "Hay Pile") != -1  || StringUtil.Find(BedName, "Bedding") != -1 ; Bedding = 'Rough Bedding'
+				If StringUtil.Find(BedName, "Hay") == -1 && StringUtil.Find(BedName, "Bedding") == -1
 					ValTemp = JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "bed_bedroll") ; 0.10
 					Conditions += "Bed - Serviceable: " + ((ValTemp * 100.0) as Int) + "%"
 					SleepPenalty += ValTemp
@@ -201,7 +220,7 @@ Float Function GetSleepPenalty(Bool ShowConditions = false, Bool IsSleeping)
 
 			Else
 				ValTemp = JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "bed_bed") ; -0.10
-				Conditions += "Bed - Cosy: " + ((ValTemp * 100.0) as Int) + ""
+				Conditions += "Bed - Cosy: " + ((ValTemp * 100.0) as Int) + "%"
 				SleepPenalty += ValTemp
 				;If IsSleeping
 					CampingFatigueGain = 0.0
@@ -249,7 +268,7 @@ Float Function GetSleepPenalty(Bool ShowConditions = false, Bool IsSleeping)
 		EndIf
 		If FrostInterface.IsCurrentWeatherSevere()
 			ValTemp = JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "weather_severe") ; 0.20
-			Conditions += "Weather - Severe: " + ((ValTemp * 100.0) as Int) + "\n"
+			Conditions += "Weather - Severe: " + ((ValTemp * 100.0) as Int) + "%\n"
 			SleepPenalty += ValTemp
 		Else
 			ValTemp = JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "weather_calm") ; 0.0
@@ -360,10 +379,10 @@ Float Function GetSleepPenalty(Bool ShowConditions = false, Bool IsSleeping)
 			Conditions += "Night: " + ((ValTemp * 100.0) as Int) + "%\n"
 			SleepPenalty += ValTemp
 		ElseIf CurrentGameHour < JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "time_day_begin")
-			ValTemp = JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "time_pen_vamp_night") ; -0.1
+			ValTemp = JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "time_pen_vamp_morning") ; -0.1
 			Conditions += "Morning: " + ((ValTemp * 100.0) as Int) + "%\n"
 			SleepPenalty += ValTemp
-		ElseIf CurrentGameHour < JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "time_pen_vamp_morning")
+		ElseIf CurrentGameHour < JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "time_evening_begin")
 			ValTemp = JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "time_pen_vamp_day") ; -0.2
 			Conditions += "Day: " + ((ValTemp * 100.0) as Int) + "%\n"
 			SleepPenalty += ValTemp
@@ -411,12 +430,14 @@ Float Function GetSleepPenalty(Bool ShowConditions = false, Bool IsSleeping)
 	EndIf
 	Conditions += ((ThirstPen * 100.0) as Int) + "%\n"
 	SleepPenalty += ThirstPen
-
-	; Milk
-	Float MilkCap = (StorageUtil.GetFloatValue(PlayerRef, "MME.MilkMaid.MilkCount", Missing = -1.0) / StorageUtil.GetFloatValue(PlayerRef, "MME.MilkMaid.MilkMaximum", Missing = 1.0))
-	If MilkCap >= 0.0
-		Float MilkPen = (0.1 * 2.0 * (-0.5 + MilkCap)) * JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "mme_milkfullnessmult")
-		Conditions += "Milk fullness: " + (((MilkPen * 100.0) as Int)) + "%"
+	
+	; Milk: shown in the breakdown but never added to the penalty before 0.806
+	Float MilkCount = StorageUtil.GetFloatValue(PlayerRef, "MME.MilkMaid.MilkCount", Missing = -1.0)
+	Float MilkMax = StorageUtil.GetFloatValue(PlayerRef, "MME.MilkMaid.MilkMaximum", Missing = 0.0)
+	If MilkCount >= 0.0 && MilkMax > 0.0 ; now that it counts, a zero maximum must not divide into the penalty
+		Float MilkPen = (0.1 * 2.0 * (-0.5 + (MilkCount / MilkMax))) * JsonUtil.GetFloatValue("SL Survival/SleepDepriv.json", "mme_milkfullnessmult")
+		Conditions += "Milk fullness: " + (((MilkPen * 100.0) as Int)) + "%\n"
+		SleepPenalty += MilkPen
 	EndIf
 
 	; Cap it in case
@@ -517,6 +538,31 @@ EndFunction
 Function SyncBedrollSleepFlag() ; No-op unless the needs mod has a bedroll latch to correct (SunHelm)
 EndFunction
 
+; Straight after a dose's ModFatigue: owe back what the dose actually took, measured, so a meter that
+; was already full is not charged for rest it never gave. Capped at the dose's strength, because
+; iNeed's reading jumps a whole stage when a dose lifts its meter off empty.
+Function OweDrugFatigue(Float Strength, Float ExtraMult)
+	If IsNeedsModActive()
+		Float Taken = PapyrusUtil.ClampFloat(Math.Abs(GetFatigue() - FatigueBeforeModding), 0.0, Strength)
+		DrugFatigueOwed += Taken + (Strength * ExtraMult)
+	EndIf
+EndFunction
+
+; From _SLS_DrugFatigueInc's end. A re-dose ends the running effect as well; then the newer dose's
+; effect is up after the wait and pays the whole debt when it ends.
+Function DrugEffectEnded(MagicEffect DrugEffect)
+	Utility.Wait(0.5)
+	If DrugEffect && PlayerRef.HasMagicEffect(DrugEffect)
+		Return
+	EndIf
+	Float Owed = DrugFatigueOwed
+	DrugFatigueOwed = 0.0
+	If Owed > 0.0 && IsNeedsModActive()
+		ModFatigue(Math.Ceiling(Owed))
+		_SLS_Debuff.Notify("Comedown", "Comedown: the drug wears off and the tiredness comes flooding back")
+	EndIf
+EndFunction
+
 ; Empty state functions ============================================================
 Bool Function IsNeedsModActive()
 	Return false
@@ -542,6 +588,16 @@ Function CorrectFatigue(Float SleepPenalty, Float StartingFatigue, Float HoursSl
 EndFunction
 
 Function ModFatigue(Float Amount)
+EndFunction
+
+; How many of the needs mod's own fatigue units one SLS fatigue unit is. SLS amounts (drugs, milk,
+; bondage furniture) are counted in RND's units, and RND gains 4 fatigue an hour awake, so one SLS
+; unit is a quarter hour awake; a state converts at its mod's default rate per hour divided by 4.
+; Before 0.806 only Survival Mode converted (x2), so the same skooma kept a SunHelm player awake 4
+; hours and an Eating Sleeping Drinking player 40 minutes, against 10 on RND. GetFatigue, ModFatigue
+; and FatigueBeforeModding speak SLS units; each CorrectFatigue works in its mod's own.
+Float Function GetFatigueScale()
+	Return 1.0
 EndFunction
 
 Bool Function IsDesperate() ; Condition used to determine if player will auto swallow cum
@@ -616,7 +672,7 @@ State Rnd ; RND ================================================================
 	EndFunction
 
 	Function CorrectFatigue(Float SleepPenalty, Float StartingFatigue, Float HoursSlept) ; Not Tired - 0.0, Slightly Tired - 30.0, Tired - 60.0, Very Tired - 120.0, Exhausted - 240.0. Capped between 0.0 - 240.0
-		Rnd.CorrectFatigue(SleepPenalty, StartingFatigue, HoursSlept)
+		Rnd.CorrectFatigue(SleepPenalty, StartingFatigue * GetFatigueScale(), HoursSlept) ; every adapter works in its mod's own units
 	EndFunction
 
 	Function ModFatigue(Float Amount)
@@ -696,20 +752,24 @@ State iNeed ; iNeed ============================================================
 		Ineed.Drink(Amount)
 	EndFunction
 
-	Float Function GetFatigue()
-		Return Ineed.GetFatigue()
+	Float Function GetFatigueScale() ; iNeed: 5 fatigue an hour (counts rest down from 110)
+		Return 1.25
+	EndFunction
+
+	Float Function GetFatigue() ; rest, not fatigue: higher is fresher
+		Return Ineed.GetFatigue() / GetFatigueScale()
 	EndFunction
 
 	Function CorrectFatigue(Float SleepPenalty, Float StartingFatigue, Float HoursSlept)
 		If IsNeedsModActive()
-			Ineed.CorrectFatigue(SleepPenalty, StartingFatigue, HoursSlept)
+			Ineed.CorrectFatigue(SleepPenalty, StartingFatigue * GetFatigueScale(), HoursSlept)
 		EndIf
 	EndFunction
 
 	Function ModFatigue(Float Amount)
-		FatigueBeforeModding = Ineed.GetFatigue()
+		FatigueBeforeModding = GetFatigue()
 		;Debug.Messagebox("FatigueBeforeModding: " + FatigueBeforeModding)
-		Ineed.ModFatigue(Amount)
+		Ineed.ModFatigue(Amount * GetFatigueScale())
 	EndFunction
 
 	Bool Function IsDesperate() ; Condition used to determine if player will auto swallow cum
@@ -784,17 +844,21 @@ State Esd ; EatingSleepingDrinking =============================================
 		EatSleepDrink.Drink(Amount as Int)
 	EndFunction
 
-	Float Function GetFatigue()
-		Return EatSleepDrink.GetFatigue()
+	Float Function GetFatigueScale() ; Eating Sleeping Drinking counts sleepiness in game minutes: 60 an hour
+		Return 15.0
+	EndFunction
+
+	Float Function GetFatigue() ; rest, not fatigue: higher is fresher
+		Return EatSleepDrink.GetFatigue() / GetFatigueScale()
 	EndFunction
 
 	Function CorrectFatigue(Float SleepPenalty, Float StartingFatigue, Float HoursSlept)
-		EatSleepDrink.CorrectFatigue(SleepPenalty, StartingFatigue, HoursSlept)
+		EatSleepDrink.CorrectFatigue(SleepPenalty, StartingFatigue * GetFatigueScale(), HoursSlept)
 	EndFunction
 
 	Function ModFatigue(Float Amount)
-		FatigueBeforeModding = EatSleepDrink.GetFatigue()
-		EatSleepDrink.ModFatigue(Amount as Int)
+		FatigueBeforeModding = GetFatigue()
+		EatSleepDrink.ModFatigue((Amount * GetFatigueScale()) as Int)
 	EndFunction
 
 	Bool Function IsDesperate() ; Condition used to determine if player will auto swallow cum
@@ -869,12 +933,16 @@ State Shs ; SunHelmSurvival - unchanged from crajjjj's optional SunHelm patch ==
 		Shs.Drink(Amount as Int)
 	EndFunction
 
+	Float Function GetFatigueScale() ; SunHelm: 10 fatigue an hour (_SHFatigueRate)
+		Return 2.5
+	EndFunction
+
 	Float Function GetFatigue()
-		Return Shs.GetFatigue()
+		Return Shs.GetFatigue() / GetFatigueScale()
 	EndFunction
 
 	Function CorrectFatigue(Float SleepPenalty, Float StartingFatigue, Float HoursSlept)
-		Shs.CorrectFatigue(SleepPenalty, StartingFatigue, HoursSlept)
+		Shs.CorrectFatigue(SleepPenalty, StartingFatigue * GetFatigueScale(), HoursSlept) ; the adapter works in SunHelm's units
 	EndFunction
 
 	Function SyncBedrollSleepFlag()
@@ -882,8 +950,8 @@ State Shs ; SunHelmSurvival - unchanged from crajjjj's optional SunHelm patch ==
 	EndFunction
 
 	Function ModFatigue(Float Amount)
-		FatigueBeforeModding = Shs.GetFatigue()
-		Shs.ModFatigue(Amount as Int)
+		FatigueBeforeModding = GetFatigue()
+		Shs.ModFatigue((Amount * GetFatigueScale()) as Int)
 	EndFunction
 
 	Bool Function IsDesperate() ; Condition used to determine if player will auto swallow cum
@@ -966,11 +1034,15 @@ State Ccs ; Creation Club Survival Mode - integration patch ====================
 	Function ModThirst(Float Amount)
 	EndFunction
 
-	Float Function GetFatigue() ; SLS fatigue units: Survival Mode exhaustion / CcsFatigueScale
+	Float Function GetFatigueScale() ; Survival Mode: 9 exhaustion an hour (Survival_ExhaustionNeedRate)
+		Return 2.25
+	EndFunction
+
+	Float Function GetFatigue() ; SLS fatigue units: Survival Mode exhaustion / GetFatigueScale()
 		If !IsCcsEnabled()
 			Return 0.0
 		EndIf
-		Return CcsExhaustionValue.GetValue() / CcsFatigueScale
+		Return CcsExhaustionValue.GetValue() / GetFatigueScale()
 	EndFunction
 
 	Function ModFatigue(Float Amount) ; + more tired, - less tired
@@ -979,9 +1051,9 @@ State Ccs ; Creation Club Survival Mode - integration patch ====================
 		EndIf
 		FatigueBeforeModding = GetFatigue()
 		If Amount > 0.0
-			_SLS_IntCcs.IncreaseExhaustion(CcsExhaustionQuest, Amount * CcsFatigueScale)
+			_SLS_IntCcs.IncreaseExhaustion(CcsExhaustionQuest, Amount * GetFatigueScale())
 		ElseIf Amount < 0.0
-			_SLS_IntCcs.DecreaseExhaustion(CcsExhaustionQuest, -Amount * CcsFatigueScale)
+			_SLS_IntCcs.DecreaseExhaustion(CcsExhaustionQuest, -Amount * GetFatigueScale())
 		EndIf
 	EndFunction
 
@@ -1004,16 +1076,15 @@ State Ccs ; Creation Club Survival Mode - integration patch ====================
 		Else
 			TargetFatigue = (SleepPenalty / 1.0) * ((Levels[4] + Levels[5]) / 2.0) ; between 'Weary' and 'Debilitated'
 		EndIf
-		TargetFatigue = TargetFatigue / CcsFatigueScale
+		TargetFatigue = TargetFatigue / GetFatigueScale()
 
 		Float CurrentFatigue = GetFatigue()
 		If StartingFatigue > TargetFatigue ; more tired than the cap when sleep began - cap the rest gained
 			If CurrentFatigue < TargetFatigue
 				ModFatigue(TargetFatigue - CurrentFatigue)
 			EndIf
-		Else ; fresher than the floor - bad conditions slowly wear the player down toward it
-			Float Delta = (TargetFatigue + StartingFatigue) - CurrentFatigue
-			ModFatigue((Delta / 8.0) * HoursSlept) ; 8 hours of sleep to reach the target
+		ElseIf CurrentFatigue < TargetFatigue ; fresher than the floor - bad conditions wear the player down to it in 8 hours
+			ModFatigue((TargetFatigue - CurrentFatigue) * PapyrusUtil.ClampFloat(HoursSlept / 8.0, 0.0, 1.0))
 		EndIf
 	EndFunction
 

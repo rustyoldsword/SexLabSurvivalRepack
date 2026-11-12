@@ -1,15 +1,24 @@
 Scriptname _SLS_GuardWarnDrugsAlias extends ReferenceAlias  
 
 Event OnInit()
-	RegisterForModEvent("PlayerTrack_Start", "On_ForceDrugsBegin")
-    RegisterForModEvent("PlayerTrack_End", "OnForceDrugsEnd")
+	RegForDrugEvents()
 EndEvent
+
+; 2026-11-10: SLS's own forced-drugs events (sls_utility.SuspendSwAddicted/ResumeSwAddicted), no longer the fake SexLab
+; PlayerTrack events. Registered on every load so older saves drop the PlayerTrack registration.
+Function RegForDrugEvents()
+	UnregisterForModEvent("PlayerTrack_Start")
+	UnregisterForModEvent("PlayerTrack_End")
+	RegisterForModEvent("_SLS_ForceDrugsBegin", "On_ForceDrugsBegin")
+	RegisterForModEvent("_SLS_ForceDrugsEnd", "OnForceDrugsEnd")
+EndFunction
 
 Event OnUpdate()
 	IsInForceDrugsPeriod = false
 EndEvent
 
 Event PlayerLoadsGame()
+	RegForDrugEvents()
 	If Init.SkoomaWhoreInstalled && Init.MilkAddictInstalled
 		GoToState("SkoomaLactacid")
 	ElseIf Init.SkoomaWhoreInstalled
@@ -21,11 +30,11 @@ Event PlayerLoadsGame()
 	EndIf
 EndEvent
 
-Event On_ForceDrugsBegin(Form FormRef, int tid)
+Event On_ForceDrugsBegin(String EventName, String StrArg, Float NumArg, Form Sender)
     IsInForceDrugsPeriod = true
 EndEvent
 
-Event OnForceDrugsEnd(Form FormRef, int tid)
+Event OnForceDrugsEnd(String EventName, String StrArg, Float NumArg, Form Sender)
 	RegisterForSingleUpdate(1.0)
 EndEvent
 

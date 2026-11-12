@@ -4,6 +4,8 @@ old Papyrus path when the DLL is absent, so the framework mod can be switched of
 
 Bool Function IsReady() global native
 Int Function GetApiVersion() global native
+; 0.9.2: the SKSE menu loaded (SKSE Menu Framework present, Menu.json valid) - sls_mcm then stays out of SkyUI's MCM list
+Bool Function MenuActive() global native
 
 ; prints the state of every module to the console and the SKSE log (cgf "SLSFW.Report")
 String Function Report() global native

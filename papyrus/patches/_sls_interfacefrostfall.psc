@@ -79,6 +79,12 @@ Bool Function CcsOn()
 	Return CcsModeEnabled && CcsModeEnabled.GetValueInt() == 1 && CcsColdQuest && CcsHeatQuest
 EndFunction
 
+; crajjjj 0.801 (port 2026-10-27, Survival Mode part only): True when ModExposure reaches a cold system, i.e. warmth
+; from sex has somewhere to go. SLS_Main casts Warm Bodies on this instead of Frostfall being installed.
+Bool Function HasColdSystem()
+	Return false
+EndFunction
+
 Bool Function GetIsInterfaceActive()
 	If GetState() == "Installed"
 		Return true
@@ -89,6 +95,10 @@ EndFunction
 ; Installed =======================================
 
 State Installed
+	Bool Function HasColdSystem()
+		Return true
+	EndFunction
+
 	Bool Function IsPlayerWarming()
 		If _SLS_IntFrost.GetPlayerHeatSourceLevel() > 0
 			Return true
@@ -231,6 +241,10 @@ State Local
 				_SLS_IntCcs.DecreaseCold(CcsColdQuest, -Amount * ExposureToCold)
 			EndIf
 		EndIf
+	EndFunction
+
+	Bool Function HasColdSystem()
+		Return CcsOn()
 	EndFunction
 
 	; Owner 2026-10-24: a licence gets ruined by swimming, with a small chance, not by being soaked through.

@@ -8,6 +8,10 @@ as well - so they must not wait for another script's lock.}
 ; Holds back the gate recheck (_SLS_TollUtil.FrameworkRecheckGates) while the MCM writes a batch of settings, and
 ; lets it go afterwards. Calls nest; the DLL runs one recheck when the last hold is released, and lets go by itself
 ; if a pass dies without releasing it.
+Bool Function MenuActive() global ; false without the DLL: the MCM stays the only settings menu
+	Return SLSFW.IsReady() && SLSFW.MenuActive()
+EndFunction
+
 Function GatesHold(Bool abHold) global
 	If SLSFW.IsReady()
 		SLSFW.GatesHold(abHold)

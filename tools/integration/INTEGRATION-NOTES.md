@@ -207,3 +207,14 @@ pay or argues; then `_SLSRT_WL_Banned` hides the whore licence at the licence of
 `_SLSRT_WL_BanDays`. Placeholder texts, unvoiced (`tools\gen_whore_duties.py`, `tools\export_whore_duties.py`).
 Also fixed: the easy-bed suitor fragments bound `Main` to the _SLS_Main quest instead of its alias 0 (SLS_Main is a
 ReferenceAlias script), so the suitor scene never started.
+
+## 2026-10-27 — порт crajjjj 0.801–0.803 (RUS-151)
+
+Новые в `src\` (стоковые 0.716 собирались SAME с установленными, затем правка): `sls_init` (больше не зовёт
+`LicUtil.PlayerLoadsGame()` — встречная блокировка Init↔LicUtil на новой игре), `_sls_removealllicprotect` и
+`_sls_licencemagiccollarplayeralias` (пропускают к LicUtil только лицензии / ошейник; ранние нефильтрованные события
+инвентаря на старте игры), `_sls_cumswallow` (тепло от спермы идёт через интерфейс и при Survival Mode, влажность
+по-прежнему только Frostfall). Изменены: `_sls_licenceutil` (`LicNameMaintenance()` в OnInit), `_sls_interfacefrostfall`
+(`HasColdSystem()`: Frostfall / Survival Mode). Ответные части — во фреймворке (`SLS_Main`: `LicUtil.PlayerLoadsGame()`
+в LoadGameMaintenance, Warm Bodies по `HasColdSystem()`, приватность дома после Simply Knock; фрагменты диалога
+Simply Knock лежат там же, т.к. зовут новые функции `SLS_Main`). `stubs\SPH_Main.psc` — для `_SLS_IntSph` фреймворка.

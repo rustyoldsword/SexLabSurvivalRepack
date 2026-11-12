@@ -8,6 +8,10 @@ as well - so they must not wait for another script's lock.}
 
 ; Holds back the framework's gate recheck (_SLS_TollUtil.FrameworkRecheckGates) while the MCM writes a batch of
 ; settings, and lets it go afterwards. Calls nest; the DLL runs one recheck when the last hold is released.
+Bool Function MenuActive() global ; the framework's copy asks the DLL
+	Return false
+EndFunction
+
 Function GatesHold(Bool abHold) global
 EndFunction
 

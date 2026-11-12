@@ -11,8 +11,31 @@ EndEvent
 Function RegisterForEvents()
 	UnRegisterForAllModEvents()
 	RegisterForModEvent("_SLS_PlayerIsInSlavetown", "On_SLS_PlayerIsInSlavetown")
+	RegisterForModEvent("_SLS_CurfewLocChange", "On_SLS_CurfewLocChange")
+	LocEventRegistered = true
 	RegisterForModEvent("PCSubFree", "_On_SD_PCSubFree")
 	RegisterForModEvent("SDEnslavedStart", "_On_SD_SDEnslavedStart")
+EndFunction
+
+; 3.0.2: sent by _SLS_LocTrackCentral on every location change (it no longer calls this script directly)
+Event On_SLS_CurfewLocChange(string eventName, string strArg, float numArg, Form sender)
+	UpdateCurfewVariables()
+	IsViolatingCurfew()
+EndEvent
+
+; saves from before 3.0.2 never registered the event: the DLL calls IsViolatingCurfew every 2 s, so register there
+Function EnsureLocEvent()
+	If !LocEventRegistered
+		RegisterForModEvent("_SLS_CurfewLocChange", "On_SLS_CurfewLocChange")
+		LocEventRegistered = true
+	EndIf
+EndFunction
+
+; 3.0.2 (I5): the DLL owns the gate decision; drive the doors from here only without it
+Function RecheckGates()
+	If !_SLS_IntSlsfw.GatesChanged("curfew")
+		TollUtil.RecheckGateConditions()
+	EndIf
 EndFunction
 
 Event On_SLS_PlayerIsInSlavetown(string eventName, string strArg, float numArg, Form sender)
@@ -74,6 +97,7 @@ EndEvent
 
 State Active
 	Function IsViolatingCurfew()
+		EnsureLocEvent()
 		If !PlayerRef.IsInInterior() && StorageUtil.GetIntValue(PlayerRef, "_SD_iEnslaved") != 1 && (LicUtil.LicCurfewEnable && !LicUtil.HasValidCurfewLicence && !LicUtil.HasValidWhoreLicence)
 			;Debug.Messagebox("Pass")
 			_SLS_PlayerIsAIDriven.SetValueInt((PlayerRef.GetCurrentPackage() != None) as Int)
@@ -93,6 +117,7 @@ State Active
 EndState
 
 Function IsViolatingCurfew()
+	EnsureLocEvent()
 	_SLS_CurfewViolation.SetValueInt(0)
 	;Return false
 EndFunction
@@ -133,7 +158,7 @@ Function CheckCurfewState()
 			EndIf
 			_SLS_CurfewIsInEffect.SetValueInt(1)
 			GoToState("Active")
-			TollUtil.RecheckGateConditions()
+			RecheckGates()
 			If Menu.TollDodging
 				TollDodge.TollGateLoad(LocTrackCentral.PlayerCurrentLocString, Main.Init.IsPlayerInside)
 			EndIf
@@ -147,7 +172,7 @@ Function CheckCurfewState()
 			_SLS_CurfewViolation.SetValueInt(0)
 			GoToState("")
 			_SLS_CurfewGuardAliases.Stop()
-			TollUtil.RecheckGateConditions()
+			RecheckGates()
 			If Main.Init.TollEnable
 				If Menu.TollDodging
 					TollDodge.TollGateLoad(LocTrackCentral.PlayerCurrentLocString, Main.Init.IsPlayerInside)
@@ -168,7 +193,7 @@ Function CheckCurfewState()
 			EndIf
 			_SLS_CurfewIsInEffect.SetValueInt(1)
 			GoToState("Active")
-			TollUtil.RecheckGateConditions()
+			RecheckGates()
 			If Menu.TollDodging
 				TollDodge.TollGateLoad(LocTrackCentral.PlayerCurrentLocString, Main.Init.IsPlayerInside)
 			EndIf
@@ -182,7 +207,7 @@ Function CheckCurfewState()
 			_SLS_CurfewViolation.SetValueInt(0)
 			GoToState("")
 			_SLS_CurfewGuardAliases.Stop()
-			TollUtil.RecheckGateConditions()
+			RecheckGates()
 			If Main.Init.TollEnable
 				If Menu.TollDodging
 					TollDodge.TollGateLoad(LocTrackCentral.PlayerCurrentLocString, Main.Init.IsPlayerInside)
@@ -593,3 +618,5 @@ _SLS_TollUtil Property TollUtil Auto
 _SLS_TollDodge Property TollDodge Auto
 
 _SLS_InterfaceDevious Property Devious Auto
+
+Bool LocEventRegistered = false

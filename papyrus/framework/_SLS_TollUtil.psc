@@ -56,7 +56,8 @@ Int Function GetTollCostByLoc(Int Loc)
 EndFunction
 
 Int Function GetTollCostByDoor(ObjectReference TollDoor)
-	If LocTrackCentral.ResidentsDontPayTolls && !LocTrackCentral.HasHomeAtLoc()
+	; 3.0.2: only residents are exempt - this returned 0 for everyone while "residents don't pay" was off
+	If !(LocTrackCentral.ResidentsDontPayTolls && LocTrackCentral.HasHomeAtLoc())
 		If _SLS_TollDoorsWhiterun.HasForm(TollDoor)
 			Return GetTollCost(!Slaverun.IsFreeTownWhiterun(), Fashion.HairyPussyTaxWhiterun)
 		ElseIf _SLS_TollDoorsSolitude.HasForm(TollDoor)

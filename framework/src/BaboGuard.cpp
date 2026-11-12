@@ -40,6 +40,13 @@ namespace SLSFW::BaboGuard
 			auto* global = Global(a_id);
 			return global && global->value != 0.0f;
 		}
+
+		std::uint32_t SceneBusy()
+		{
+			auto* handler = RE::TESDataHandler::GetSingleton();
+			auto* flag = handler ? handler->LookupForm<RE::TESGlobal>(0x000800, "BaboDialogue - Patches.esp"sv) : nullptr;
+			return flag ? static_cast<std::uint32_t>(std::max(0.0f, flag->value)) : 0u;
+		}
 	}
 
 	void Configure(bool a_enabled)
@@ -72,6 +79,15 @@ namespace SLSFW::BaboGuard
 		}
 		if (NonZero(kSceneStandBy)) {
 			return "Babo: a scene is running";
+		}
+		// the shared _SG_SceneBusy: 1 a Diary of Mine capture, 2 the knocked-out menu, 8 SexLab Horrible Harassment.
+		// Bit 4 is SL Survival's own reservation and never pauses its guards.
+		if (const auto mask = SceneBusy(); mask & 1u) {
+			return "a Diary of Mine capture is running";
+		} else if (mask & 2u) {
+			return "the knocked-out menu is open";
+		} else if (mask & 8u) {
+			return "SLHH: a harassment is running";
 		}
 		return nullptr;
 	}

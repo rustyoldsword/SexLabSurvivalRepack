@@ -8,6 +8,8 @@ import os, sys, shutil, hashlib, json, subprocess, re, struct
 
 ROOT = r'C:\Modding\MO2'
 M = os.path.join(ROOT, 'mods')
+if not os.path.isdir(os.path.join(M, 'Sexlab Survival')):  # 2026-10-27, RUS-142: the layers were merged into one mod
+    sys.exit('legacy FOMOD builder (alpha): the SLS layers are merged now - use build_flat.py')
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPO = os.path.join(ROOT, r'work\SLS_integration\sls_repo')
 FW = os.path.join(ROOT, r'work\SLSFramework')

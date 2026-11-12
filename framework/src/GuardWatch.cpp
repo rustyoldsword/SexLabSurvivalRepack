@@ -153,7 +153,8 @@ namespace SLSFW::GuardWatch
 			if (!AliasHasMatch(g_curfewGuards, 0)) {
 				return;
 			}
-			if (Bridge::Call(Bridge::Find(g_curfewQuest, "_SLS_Curfew"), "IsViolatingCurfew")) {
+			static Bridge::InFlight flight;  // every 2 s: never a second check while the first is still running
+			if (Bridge::CallTracked(flight, 1, Bridge::Find(g_curfewQuest, "_SLS_Curfew"), "IsViolatingCurfew")) {
 				++g_curfewSends;
 				logger::info("curfew: a guard came into range after the location check, SLS re-checks the violation");
 			}

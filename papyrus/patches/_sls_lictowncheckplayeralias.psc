@@ -1,12 +1,10 @@
 Scriptname _SLS_LicTownCheckPlayerAlias extends ReferenceAlias  
 
 Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer)
-	If LicUtil.IsObjectContraband(akBaseItem, LocTrack.PlayerCurrentLocIndex)
-		; The short "where's your escort" greet reads HasEnoughFollowers as stored, so refresh it before
-		; arming the enforcer - a value left over from a time without followers sent the player to the barracks
-		RefreshEscortCount()
-		_SLS_LicTownViolation.SetValueInt(1)
-	EndIf
+	; 3.0.2: every item picked up in town used to call LicUtil and LocTrack at once (taking 50 items from a chest = 50
+	; stacks queued behind them). Now one recheck half a second after the last pickup: GetShouldApproach sets the
+	; enforcer's line and the violation flag for everything the player carries, contraband just picked up included.
+	RegisterForSingleUpdate(0.5)
 EndEvent
 
 Function RefreshEscortCount()
@@ -21,7 +19,7 @@ Event OnItemRemoved(Form akBaseItem, int aiItemCount, ObjectReference akItemRefe
 	; Dropping/selling contraband must be able to clear the violation flag again, or the
 	; enforcer force-greet stays armed with nothing to confiscate ("..." greet, possible CTD).
 	; Debounced via a single update: selling a stack fires one removal per item.
-	If _SLS_LicTownViolation.GetValueInt() == 1 && LicUtil.IsObjectContraband(akBaseItem, LocTrack.PlayerCurrentLocIndex)
+	If _SLS_LicTownViolation.GetValueInt() == 1 ; 3.0.2: no LicUtil call per removed item - the recheck decides
 		RegisterForSingleUpdate(1.0)
 	EndIf
 EndEvent
@@ -38,39 +36,39 @@ Event OnUpdate()
 EndEvent
 
 Function GetShouldApproach()
+	; 3.0.2: the town enforcer has its own TownInfractionType. This used to write LicUtil.LicInfractionType = -1 and
+	; leave it there, which is the toll collector's "check still running" value - his dialogue then looped forever.
+	; The code is set before the violation flag, so the enforcer never greets with a stale code.
 	GoToState("InProc")
-	LicUtil.LicInfractionType = -1
 	Int TownLoc = LocTrack.PlayerCurrentLocIndex
 	RefreshEscortCount()
+	Int Code = -2 ; -2: nothing to stop for
 	If !LicUtil.IsMagicCollarCompliant(PlayerRef)
-		_SLS_LicTownViolation.SetValueInt(1)
-		LicUtil.LicInfractionType = 0
-		GoToState("")
-		;Debug.Messagebox("Should approach for collar")
-		Return
+		Code = 0
 	ElseIf LicUtil.HasAnyContraband(PlayerRef, TownLoc)
-		_SLS_LicTownViolation.SetValueInt(1)
-		GoToState("")
-		;Debug.Messagebox("Should approach contraband")
-		Return
-	ElseIf Init.HasEnoughFollowers < 1
-		_SLS_LicTownViolation.SetValueInt(1)
-		GoToState("")
-		;Debug.Messagebox("Should approach No follower")
-		Return
+		Code = LicUtil.ContrabandCode
+	ElseIf Init.HasEnoughFollowers < 1 && !(TownLoc == NoEscortWaivedLoc && Utility.GetCurrentGameTime() < NoEscortWaivedUntil)
+		Code = -1 ; no escort: the "where's your escort" greet (not for 6 game hours after no escort could be given)
 	ElseIf ContraCheck.GateLicenceCheckFollowers(true, TownLoc)
-		_SLS_LicTownViolation.SetValueInt(1)
-		LicUtil.LicInfractionType = 6
-		GoToState("")
-		;Debug.Messagebox("Should approach for follower contraband")
-		Return
-		
+		Code = 6 ; follower contraband
 	ElseIf LicUtil.LicPropertyEnable && LicUtil.OwnsProperty && !LicUtil.HasValidPropertyLicence && !Eviction.IsLicenceEvicted
+		Code = 7
+	EndIf
+	If Code != -2
+		LicUtil.TownInfractionType = Code
 		_SLS_LicTownViolation.SetValueInt(1)
-		LicUtil.LicInfractionType = 7
+		If Code == 7
+			; 2026-11-08: the enforcer's code-7 line says "I'll send word ahead that your worthless carcass should be
+			; evicted", but no line of that chain evicts. With a house that never had a licence (Hjerim/Vlindrel from
+			; their quests, or licences switched on after the purchase) no licence expiry ever evicts either, so
+			; IsLicenceEvicted stayed false and every town check sent the enforcer again. Evict here, as the line says;
+			; the doors are barred by the eviction update (DoImmediately = false), after the conversation.
+			(Game.GetFormFromFile(0x0D1F95, "SL Survival.esp") as _SLS_LicenceProperty).EvictFromAll(DoEvict = true, DoImmediately = false)
+		EndIf
 		GoToState("")
 		Return
 	EndIf
+	LicUtil.TownInfractionType = -1
 	_SLS_LicTownViolation.SetValueInt(0)
 	GoToState("")
 	;Debug.Messagebox("Should NOT approach")
@@ -80,9 +78,7 @@ EndFunction
 State InProc
 	Function GetShouldApproach()
 	EndFunction
-	
-	Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer)
-	EndEvent
+	; (3.0.2: pickups during a check are no longer dropped - OnUpdate retries once the check is done)
 EndState
 
 Function TrapDialogueClose()
@@ -120,6 +116,9 @@ Function TeleportToEscortMarker()
 
 	Else
 		Debug.Messagebox("Assign escort failed: No followers found. Most likely you have no set up escorts.")
+		; 3.0.2: without this the recheck below armed "no escort" again and the guard came straight back - forever
+		NoEscortWaivedLoc = LocTrack.PlayerCurrentLocIndex
+		NoEscortWaivedUntil = Utility.GetCurrentGameTime() + 0.25
 	EndIf
 	; The player has an escort now: recount and re-check every violation, or the stale "no escort" value and the
 	; armed violation flag send the next guard straight back to "where's your escort"
@@ -228,3 +227,6 @@ _SLS_TollUtil Property TollUtil Auto
 _SLS_LocTrackCentral Property LocTrack Auto
 
 Quest Property DialogueFollower Auto ; Get DialogueFollowerScript at run time because EFF removes the script.... :S
+
+Int NoEscortWaivedLoc = -99
+Float NoEscortWaivedUntil = 0.0

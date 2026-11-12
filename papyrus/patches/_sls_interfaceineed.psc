@@ -99,12 +99,24 @@ State Installed
 
 	; No foreign function calls =========================
 	Function ModFatigueDesiredEffect(MagicEffect DesiredEffect)
-		ModFatigue(1000.0) ; remove all fatigue
-		Int Timeout = 10
-		While !PlayerRef.HasMagicEffect(DesiredEffect) && Timeout > 0
-			ModFatigue(-1000.0)
-			Timeout -= 1
-		EndWhile
+		; iNeed's fatigue stages climb only while its meter sits at empty: each drain there adds
+		; TimePassed (hours at its last update) to a counter that a non-empty meter zeroes, and the
+		; counter picks the stage (under 10 mild, under 26 moderate, then severe; past 62 its death
+		; option deals damage). So rest fully to zero the counter, then drain once with TimePassed set
+		; to land on the wanted stage, and put TimePassed back. One drain is one grunt and one
+		; notification from iNeed. ModFatigue adds fatigue for a positive amount; before 0.806 both
+		; signs here were flipped, so the player woke fully rested whatever the conditions.
+		Int Hours = 5
+		If DesiredEffect == _SNDmgFatigueFX_3
+			Hours = 30
+		ElseIf DesiredEffect == _SNDmgFatigueFX_2
+			Hours = 15
+		EndIf
+		Int SavedHours = _SLS_IntIneed.GetTimePassed(SnQuest)
+		ModFatigue(-1000.0)
+		_SLS_IntIneed.SetTimePassed(SnQuest, Hours)
+		ModFatigue(1000.0)
+		_SLS_IntIneed.SetTimePassed(SnQuest, SavedHours)
 	EndFunction
 
 	Bool Function IsDesperate()

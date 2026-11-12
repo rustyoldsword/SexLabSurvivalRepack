@@ -14,7 +14,7 @@ BAD = re.compile(os.environ.get('LEAK_PATTERNS', r'(?i)users[\\/]').encode())
 PACKS = {
     'guards': dict(name='SL Survival Guards - Viking and NPC Replacer', version='1.0.0', src='SL Survival Guards - Viking Patch',
                    mx='-mx=7', summary='Viking armor, Skyrim Weapons Expansion weapons and unique faces for the 89 SL Survival guards (SkyPatcher).'),
-    'voice': dict(name='SL Survival Voice Pack', version='1.0.0', src='SL Survival.esp-VoiceFiles',
+    'voice': dict(name='SL Survival Voice Pack', version='1.0.0', src='SexLab Survival Repack - Voices',
                   mx='-mx=0', summary='Voiced dialogue for SexLab Survival: 51,013 lines in 50 vanilla voice types (two BSA archives).'),
 }
 
